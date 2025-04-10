@@ -1,0 +1,83 @@
+/* 기존 스타일 유지 + 새 영역 추가 */
+
+/* Header 전체 스타일 (위치 및 기본 레이아웃) */
+.mobile-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background-color: rgba(255, 255, 255, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;  /* 좌측, 중앙, 우측 영역 분리 */
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 0 10px; /* 좌우 약간의 여백 */
+}
+
+/* 로고 영역 */
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+/* 로고 이미지 */
+.main-logo {
+    height: 100px;
+    margin-right: 10px;
+}
+
+/* 검색창 영역 */
+.header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.header-search-input {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 20px;
+
+    position: absolute;
+    width: 350px;
+    height: 48px;
+    left: 130px;
+    bottom: 25px;
+
+    background: #F4F4F4;
+    border: 2px solid #0F62FE;
+    border-radius: 50px;
+
+}
+
+/* 버튼 영역 */
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.header-right button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-left: 8px;
+    padding: 4px 8px;
+}
+
+.admin-btn {
+    /* 관리자 버튼에 대한 개별 스타일 적용 가능 */
+}
+
+.noti-alert {
+    width: 25px;
+    height: 25px;
+}
+
+/* 옵션: 버튼에 호버 효과 등 추가 */
+.header-right button:hover {
+    background-color: #eee;
+}

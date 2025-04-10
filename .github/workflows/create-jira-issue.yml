@@ -12,10 +12,10 @@ jobs:
     name: Create Jira issue
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main code
+      - name: Checkout Main code
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: Main
 
       - name: Login
         uses: atlassian/gajira-login@v3
