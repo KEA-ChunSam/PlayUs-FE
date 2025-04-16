@@ -9,7 +9,7 @@ body:
     id : parentKey
     attributes:
       label: '상위 작업 Ticket Number'
-      description: '상위 직업 (Story/Epic) 의 Ticket Number를 기입해주세요, 노션에서 확인 가능'
+      description: '상위 직업 (Story) 의 Ticket Number를 기입해주세요, 노션에서 확인 가능'
       value: CS-00
     validations:
       required: true
