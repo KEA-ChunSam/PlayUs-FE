@@ -15,7 +15,7 @@ jobs:
       - name: Checkout Main code
         uses: actions/checkout@v4
         with:
-          ref: Main
+          ref: main
 
       - name: Login
         uses: atlassian/gajira-login@v3
