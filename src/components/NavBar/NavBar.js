@@ -1,13 +1,14 @@
 // /src/components/NavBar/NavBar.js
 import React from "react";
+import "./NavBar.css"; // 기존 CSS 사용
 
 const NavBar = () => {
     return (
-        <nav className="absolute bottom-0 left-0 right-0 h-[60px] bg-white flex items-center justify-around border-t">
-            {/* Nav 아이콘 또는 버튼 */}
-            <button className="focus:outline-none">홈</button>
-            <button className="focus:outline-none">게시판</button>
-            <button className="focus:outline-none">마이페이지</button>
+        <nav className="nav-bar">
+            <button>홈</button>
+            <button>커뮤니티</button>
+            <button>일정</button>
+            <button>마이페이지</button>
         </nav>
     );
 };
