@@ -1,4 +1,4 @@
-name: Create Jira Fix Issue
+name: Create Jira Performance Issue
 on:
   issues:
     types:
@@ -49,7 +49,7 @@ jobs:
         with:
           project: CS # JIRA KEY
           issuetype: 하위 작업 # Task, Subtask 아님!
-          summary: "${{env.ISSUE_HEADER}} ${{ github.event.issue.title }}"
+          summary: "${{ github.event.issue.title }}"
           description: "${{ steps.md2jira.outputs.output-text }}"
           fields: |
             {
@@ -65,7 +65,8 @@ jobs:
           transition : "진행 중"
 
       - name: Log created issue
-        run: echo "Jira Issue ${{ steps.issue-parser.outputs.parentKey }}/${{ steps.create.outputs.issue }} was created"
+        run: echo "Jira Issue ${{ steps.issue-parser.outputs.issueparser_parentKey }}/${{ steps.create.outputs.issue }} was created"
+
 
       - name: Checkout develop code
         uses: actions/checkout@v4
@@ -73,11 +74,11 @@ jobs:
           ref: develop
 
       - name: Create branch with Ticket number
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
         run: |
-          ISSUE_TITLE="${{github.event.issue.title}}"
           SAFE_TITLE=$(echo "$ISSUE_TITLE" | sed 's/ /_/g')
-          BRANCH_NAME="${{steps.create.outputs.issue}}_${SAFE_TITLE}"
-          
+          BRANCH_NAME="${{ steps.create.outputs.issue }}_${SAFE_TITLE}"
           git checkout -b "$BRANCH_NAME"
           git push origin "$BRANCH_NAME"
 
