@@ -1,17 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
   theme: {
-    extend: {
-      keyframes: {
-        'fade-out': {
-          'from': { opacity: '1' },
-          'to': { opacity: '0' },
-        },
-      },
-      animation: {
-        'fade-out': 'fade-out 0.5s forwards',
-      },
-    },
+    extend: {},
   },
   plugins: [],
 };
