@@ -1,0 +1,40 @@
+.mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    box-shadow: 0 -1px 3px rgba(0,0,0,0.1);
+}
+/* /src/components/NavBar/NavBar.css */
+
+.nav-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    border-top: 1px solid #ccc;
+    z-index: 10;
+}
+
+.nav-bar button {
+    background: none;
+    border: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 8px 12px;
+}
+
+.nav-bar button:hover {
+    background-color: #f0f0f0;
+    border-radius: 6px;
+}
