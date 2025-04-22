@@ -1,0 +1,114 @@
+/* TeamChoice.css */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+.mobile-view {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    /*background-color: #f0f0f0;*/
+}
+
+.login-container-contents{
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    display: flex;
+    margin-top: 80px;
+    /*height: 100vh;*/
+}
+
+.login-container {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    /*box-sizing: border-box;*/
+}
+
+.team-choice-wrapper {
+    text-align: center;
+    padding: 2rem;
+}
+
+.team-choice-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 1.5rem;
+}
+
+.team-choice-subtitle {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    justify-items: center;
+    margin-bottom: 2rem;
+}
+
+.team-card {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 1rem;
+    width: 90px;
+    height: 90px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.team-card img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.team-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  transition: all 0.2s ease-in-out;
+}
+
+.team-card.selected{
+    background-color: #cceeff; /* 하늘색 */
+    border: 2px solid #3399ff;
+}
+
+.profile-button {
+    background-color: #ff5c5c;
+    color: #fff;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 20px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.profile-button:hover {
+    background-color: #ff5c5c;
+    color: #fff;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 20px;
+    font-size: 1rem;
+    cursor: pointer;
+}
