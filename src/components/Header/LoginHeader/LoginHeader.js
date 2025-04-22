@@ -1,0 +1,18 @@
+// 최초 서비스 진입 시 나타나는 로그인 + 회원가입 로고 부분 헤더.
+import React from "react";
+import './LoginHeader.css';
+
+const LoginHeader = () => {
+    return (
+        <div className="login-header">
+            <img
+                src={`${process.env.PUBLIC_URL}/Logo/NewLogo_small.png`}
+                alt="PlayUs 로고"
+                className="login-logo"
+                style={{ marginRight: '16px' }}
+            />
+        </div>
+    );
+};
+
+export default LoginHeader;

@@ -1,0 +1,7 @@
+
+.login-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column; /* 텍스트를 로고 아래로 */
+}

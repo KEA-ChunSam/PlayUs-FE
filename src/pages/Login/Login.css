@@ -4,15 +4,31 @@ html, body {
     height: 100%;
 }
 
-.login-header {
+.mobile-view {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    max-width: 100%;
+    max-height: 100%;
     display: flex;
+    flex-direction: column;
+    /*background-color: #f0f0f0;*/
+}
+
+.login-container-contents{
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex-direction: column; /* 텍스트를 로고 아래로 */
-    margin-bottom: 40px;
+    text-align: center;
+    display: flex;
+    margin-top: 80px;
+    /*height: 100vh;*/
 }
 
 .login-container {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    max-width: 100%;
+    max-height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -22,9 +38,9 @@ html, body {
 }
 
 .login-logo {
-    width: 180px;
+    width: 250px;
     height: auto;
-    margin-bottom: 20px;
+    /*margin-bottom: 20px;*/
 }
 
 .login-title {
@@ -53,6 +69,7 @@ html, body {
     align-items: center;
     justify-content: center;
     text-decoration: none;
+    gap: 8px;
 }
 
 /* 카카오 */
@@ -71,5 +88,5 @@ html, body {
 .button-icon {
     width: 24px;
     height: 24px;
-    margin-right: 8px;
+    /*margin-right: 8px;*/
 }
