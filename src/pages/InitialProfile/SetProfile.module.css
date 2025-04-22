@@ -1,0 +1,91 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.logo {
+  width: 140px;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.input {
+  width: 260px;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.input.invalid {
+  border-color: red;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.birthLabel {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 24px 0 6px;
+}
+
+.birthValue {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 20px;
+}
+
+.backButton,
+.submitButton {
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  background-color: #ff5e5e;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.birthInputGroup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.birthInput {
+  width: 60px;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  text-align: center;
+}

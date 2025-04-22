@@ -1,7 +1,7 @@
 // /src/components/MobileView/MobileView.js
 import React from "react";
 import { Outlet } from "react-router-dom";
-import Header from "../Header/Header";
+import Header from "../Header/MainHeader/Header";
 import NavBar from "../NavBar/NavBar";
 import "./MobileView.css";
 
