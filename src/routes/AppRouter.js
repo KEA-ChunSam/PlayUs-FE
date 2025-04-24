@@ -5,6 +5,9 @@ import MobileView from "../components/MobileView/MobileView";
 import MainPage from "../pages/Main/MainPage";
 import Splash from "../pages/Login/Splash";
 import Login from "../pages/Login/Login";
+import Community from '../components/Community';
+import Party from '../components/Party';
+import Profile from '../components/Profile';
 import TeamChoice from "../pages/InitialProfile/TeamChoice";
 import SetProfile from "../pages/InitialProfile/SetProfile";
 
@@ -18,6 +21,18 @@ function AppRouter() {
                 <Route path="/setprofile" element={<SetProfile/>}/>
                 <Route path="/home" element={<MobileView />}>
                     <Route index element={<MainPage />} />
+                </Route>
+                <Route path="/mainpage" element={<MobileView />}>
+                    <Route index element={<MainPage />} />
+                </Route>
+                <Route path="/community" element={<MobileView />}>
+                    <Route index element={<Community />} />
+                </Route>
+                <Route path="/party" element={<MobileView/>}>
+                    <Route index element={<Party />} />
+                </Route>
+                <Route path="/profile" element={<MobileView />}>
+                    <Route index element={<Profile />} />
                 </Route>
             </Routes>
         </BrowserRouter>
