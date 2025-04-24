@@ -5,13 +5,17 @@ import MobileView from "../components/MobileView/MobileView";
 import MainPage from "../pages/Main/MainPage";
 import Splash from "../pages/Login/Splash";
 import Login from "../pages/Login/Login";
+import TeamChoice from "../pages/InitialProfile/TeamChoice";
+import SetProfile from "../pages/InitialProfile/SetProfile";
 
 function AppRouter() {
     return (
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<Splash />} />
-                <Route path="/login" element={<Login />} />
+                <Route path="/login" element={<Login />}/>
+                <Route path="/choice-team" element={<TeamChoice/>}/>
+                <Route path="/setprofile" element={<SetProfile/>}/>
                 <Route path="/home" element={<MobileView />}>
                     <Route index element={<MainPage />} />
                 </Route>
