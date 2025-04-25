@@ -1,6 +1,6 @@
 
 
-.modal-overlay {
+.modal_overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -13,7 +13,7 @@
   z-index: 1000;
 }
 
-.modal-box {
+.modal_box {
   background: white;
   width: 348px;
   height: 248px;
@@ -27,20 +27,20 @@
   align-items: center;
 }
 
-.modal-title {
+.modal_title {
   font-size: 1.8rem;
   font-weight: bold;
   margin-bottom: 16px;
 }
 
-.modal-message {
+.modal_message {
   font-size: 1.2rem;
   margin-bottom: 24px;
   line-height: 1.4;
   padding: 0 12px;
 }
 
-.modal-confirm-button {
+.modal_confirm_button {
   background-color: #ff5e5e;
   color: white;
   border: none;

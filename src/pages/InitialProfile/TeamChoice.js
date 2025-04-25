@@ -1,8 +1,9 @@
 import Modal from "../../components/Modal/Modal";
 import LoginHeader from "../../components/Header/LoginHeader/LoginHeader";
 import React, {useEffect, useState} from "react";
-import './TeamChoice.css';
+import './TeamChoice.module.css';
 import {href, Link, useNavigate} from "react-router-dom";
+import styles from "./TeamChoice.module.css";
 
 const TeamChoice = () => {
     const navigate = useNavigate();
@@ -16,13 +17,13 @@ const TeamChoice = () => {
         navigate("/setprofile");
     }
     return (
-        <div className="login-container">
+        <div className={styles.login_container}>
             <LoginHeader style={{marginBottom:'-50px'}}/>
-            <div className="team-choice-wrapper">
-                <h2 className="team-choice-title">선호하는 팀을 선택해 주세요.</h2>
-                <p className="team-choice-subtitle">(이후 선호 팀 추가가 가능합니다.)</p>
+            <div className={styles.team_choice_wrapper}>
+                <h2 className={styles.team_choice_title}>선호하는 팀을 선택해 주세요.</h2>
+                <p className={styles.team_choice_subtitle}>(이후 선호 팀 추가가 가능합니다.)</p>
 
-                <div className="team-grid">
+                <div className={styles.team_grid}>
                     {[
                         { name: 'LG', logo: 'emblem_LG.png' },
                         { name: 'KIA', logo: 'emblem_HT.png' },
@@ -36,7 +37,7 @@ const TeamChoice = () => {
                         { name: 'KT', logo: 'emblem_KT.png' },
                     ].map((team) => (
                         <div
-                          className={`team-card ${selectedTeam === team.name ? 'selected' : ''}`}
+                          className={`${styles.team_card} ${selectedTeam === team.name ? styles.selected : ''}`}
                           key={team.name}
                           onClick={() => setSelectedTeam(team.name)}
                         >
@@ -46,7 +47,7 @@ const TeamChoice = () => {
                     ))}
                 </div>
 
-                <button className="profile-button" onClick={onButtonClick}>내 프로필 설정하기</button>
+                <button className={styles.profile_button} onClick={onButtonClick}>내 프로필 설정하기</button>
             </div>
             {showModal && (
                 <Modal

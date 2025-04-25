@@ -1,15 +1,13 @@
-
-
 import React from 'react';
-import './Modal.css';
+import styles from './Modal.module.css';
 
 const Modal = ({ title, message, onClose }) => {
   return (
-    <div className="modal-overlay">
-      <div className="modal-box">
-        <h3 className="modal-title">{title}</h3>
-        <p className="modal-message">{message}</p>
-        <button className="modal-confirm-button" onClick={onClose}>확인</button>
+    <div className={styles.modal_overlay}>
+      <div className={styles.modal_box}>
+        <h3 className={styles.modal_title}>{title}</h3>
+        <p className={styles.modal_message}>{message}</p>
+        <button className={styles.modal_confirm_button} onClick={onClose}>확인</button>
       </div>
     </div>
   );

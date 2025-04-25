@@ -3,7 +3,7 @@ html, body {
     padding: 0;
     height: 100%;
 }
-.mobile-view {
+.mobile_view {
     position: relative;
     aspect-ratio: 9 / 16;
     max-width: 100%;
@@ -14,7 +14,7 @@ html, body {
     /*background-color: #f0f0f0;*/
 }
 
-.mobile-content {
+.mobile_content {
     margin-top: 50px;
     flex: 1;
     overflow-y: auto;

@@ -1,6 +1,6 @@
-/* /src/pages/Main/MainPage.css */
+/* /src/pages/Main/MainPage.module.css */
 
-.main-page {
+.main_page {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -23,24 +23,24 @@ section h2 {
     font-weight: bold;
 }
 
-.today-game span {
+.today_game span {
     display: block;
     font-size: 0.95rem;
     margin-bottom: 0.25rem;
 }
 
-.popular-posts-section ul {
+.popular_posts_section ul {
     list-style-type: none;
     padding: 0;
     margin: 0;
 }
 
-.popular-posts-section li {
+.popular_posts_section li {
     padding: 0.5rem 0;
     border-bottom: 1px solid #eee;
 }
 
-.news-item {
+.news_item {
     font-size: 0.95rem;
     color: #333;
 }
