@@ -4,6 +4,17 @@ html, body {
     height: 100%;
 }
 
+.mobile_view {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+    /*background-color: #f0f0f0;*/
+}
+
 .splash {
     display: flex;
     justify-content: center;
@@ -11,7 +22,7 @@ html, body {
     height: 100vh;
     flex-direction: column;
 }
-.fade-out {
+.fade_out {
     animation: fadeOutAnimation 0.5s forwards;
 }
 

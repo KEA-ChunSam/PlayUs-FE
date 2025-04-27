@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Splash.css';
+import styles from './Splash.module.css';
 
 function Splash() {
     const navigate = useNavigate();
@@ -24,13 +24,13 @@ function Splash() {
     }, [navigate]);
 
     return (
-        <div className="mobile-view">
-            <div className="splash">
+        <div className={styles.mobile_view}>
+            <div className={styles.splash}>
                 <img
                     src={`${process.env.PUBLIC_URL}/Logo/newLogo_small.png`}
                     alt="PlayUs 로고"
                     style={{ width: 200, height: 'auto' }}
-                    className={fadeOut ? 'fade-out' : ''}
+                    className={fadeOut ? styles.fade_out : ''}
                 />
             </div>
         </div>

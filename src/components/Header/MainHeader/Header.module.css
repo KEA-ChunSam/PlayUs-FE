@@ -1,4 +1,4 @@
-.mobile-header {
+.mobile_header {
     position: absolute;
     top: 0;
     left: 0;
@@ -13,24 +13,24 @@
     padding: 0 1%;
 }
 
-.header-left {
+.header_left {
     display: flex;
     align-items: center;
 }
 
-.main-logo {
+.main_logo {
     height:10vh;
     margin-right: 1%;
 }
 
-.header-center {
+.header_center {
     flex: 1;
     display: flex;
     justify-content: center;
     position: relative;
 }
 
-.header-search-input {
+.header_search_input {
     width: 80%;
     height: 4vh;
 
@@ -43,12 +43,12 @@
     font-size: 1rem;
 }
 
-.header-right {
+.header_right {
     display: flex;
     align-items: center;
 }
 
-.header-right button {
+.header_right button {
     background: none;
     border: none;
     cursor: pointer;
@@ -57,10 +57,10 @@
     font-size: 0.9rem;
 }
 
-.header-right button:hover {
+.header_right button:hover {
     background-color: #eee;
 }
-.noti-alert {
+.noti_alert {
     width: 30px;
     height: 30px;
 }
