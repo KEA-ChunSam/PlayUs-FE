@@ -1,15 +1,13 @@
 import React from 'react';
 import styles from './Login.module.css';
-import LoginHeader from "../../components/Header/LoginHeader/LoginHeader"; // 스타일 분리 시, 사용 (선택사항)
+import LoginHeader from "../../components/Header/LoginHeader/LoginHeader";
 
 function Login() {
     const handleKakaoLogin = () => {
-        // 카카오 로그인 로직 (예: OAuth, API 연동)
         console.log('카카오로 시작하기 클릭됨');
     };
 
     const handleNaverLogin = () => {
-        // 네이버 로그인 로직 (예: OAuth, API 연동)
         console.log('네이버로 시작하기 클릭됨');
     };
 

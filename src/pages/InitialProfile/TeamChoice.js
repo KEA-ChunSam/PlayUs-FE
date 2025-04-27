@@ -1,8 +1,7 @@
 import Modal from "../../components/Modal/Modal";
 import LoginHeader from "../../components/Header/LoginHeader/LoginHeader";
-import React, {useEffect, useState} from "react";
-import './TeamChoice.module.css';
-import {href, Link, useNavigate} from "react-router-dom";
+import React, {useState} from "react";
+import {useNavigate} from "react-router-dom";
 import styles from "./TeamChoice.module.css";
 
 const TeamChoice = () => {

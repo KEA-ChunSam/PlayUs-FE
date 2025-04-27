@@ -8,7 +8,7 @@ const LoginHeader = () => {
             <img
                 src={`${process.env.PUBLIC_URL}/Logo/NewLogo_small.png`}
                 alt="PlayUs 로고"
-                className="login-logo"
+                className={styles.login_logo}
                 style={{ marginRight: '16px' }}
             />
         </div>

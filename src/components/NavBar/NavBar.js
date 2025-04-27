@@ -1,12 +1,9 @@
 import React, { useState } from "react";
 import styles from "./NavBar.module.css";
 import { Link } from "react-router-dom";
-// 사용할 아이콘 import
 import "../FontAwesome";
-// FontAwesomIcon 컴포넌트를 사용하기 위해 import
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 const NavBar = () => {
-  // 현재 선택된 아이콘을 관리하는 state
   const [activeNav, setActiveNav] = useState(1);
   return (
     <nav className={styles.wrapper}>
@@ -15,7 +12,7 @@ const NavBar = () => {
         <div>
           <FontAwesomeIcon
             icon="home"
-            className={activeNav === 1 ? styles.nav_item.active : styles.nav_item}
+            className={`${styles.nav_item} ${activeNav === 1 ? styles.active : ''}`}
           />
         </div>
       </Link>
@@ -23,7 +20,7 @@ const NavBar = () => {
         <div>
           <FontAwesomeIcon
             icon="users-line"
-            className={activeNav === 2 ? styles.nav_item.active : styles.nav_item}
+            className={`${styles.nav_item} ${activeNav === 2 ? styles.active : ''}`}
           />
         </div>
       </Link>
@@ -31,7 +28,7 @@ const NavBar = () => {
         <div>
           <FontAwesomeIcon
             icon="calendar-week"
-            className={activeNav === 3 ? styles.nav_item.active : styles.nav_item}
+            className={`${styles.nav_item} ${activeNav === 3 ? styles.active : ''}`}
           />
         </div>
       </Link>
@@ -39,7 +36,7 @@ const NavBar = () => {
         <div>
           <FontAwesomeIcon
             icon="book"
-            className={activeNav === 4 ? styles.nav_item.active : styles.nav_item}
+            className={`${styles.nav_item} ${activeNav === 4 ? styles.active : ''}`}
           />
         </div>
       </Link>

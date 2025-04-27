@@ -20,14 +20,14 @@ const Header = () => {
                 />
             </div>
             <div className={styles.header_right}>
-                <button className={styles.admin_btn}>
+                <button>
                     <img
                         src={`${process.env.PUBLIC_URL}/button/admin.png`}
                         alt="알림"
                         className={styles.noti_alert}
                     />
                 </button>
-                <button className={styles.noti_btn}>
+                <button>
                     <img
                         src={`${process.env.PUBLIC_URL}/button/alert.png`}
                         alt="알림"

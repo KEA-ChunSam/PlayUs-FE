@@ -3,7 +3,7 @@ import styles from './MainPage.module.css';
 export default function MainPage() {
     return (
         <div className={styles.main_page}>
-            <section className={styles.schedule_section}>
+            <section className={styles.section}>
                 <h2>NC 다이노스</h2>
                 <div className={styles.today_game}>
                     <span>03.13(화)</span>
@@ -20,7 +20,7 @@ export default function MainPage() {
                 </ul>
             </section>
 
-            <section className={styles.news_section}>
+            <section className={styles.section}>
                 <h2>우리팀 소식</h2>
                 <div className={styles.news_item}>관련 기사 또는 카드뷰</div>
             </section>

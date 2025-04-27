@@ -40,7 +40,10 @@ html, body {
 .login_logo {
     width: 250px;
     height: auto;
-    /*margin-bottom: 20px;*/
+}
+
+.login_text {
+    color: black;
 }
 
 .login_title {
