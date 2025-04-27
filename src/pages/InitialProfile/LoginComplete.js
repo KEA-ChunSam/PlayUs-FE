@@ -10,12 +10,12 @@ const LoginComplete = () => {
     }
     return(
         <div className={styles.container}>
-            <LoginHeader style={{marginBottom:'-50px'}}/>
+            <LoginHeader/>
             <div className={styles.text}>
                 <p className={styles.subtitle}>
                     가입이 완료되었어요!
                 <br/>
-                    xx와 함께 즐거운 여행 되세요!
+                    PlayUs와 함께 즐거운 여행 되세요!
                 </p>
                 <button className={styles.button} onClick={navigateHome}>
                     시작하기

@@ -53,13 +53,13 @@ function Login() {
                     <span>네이버로 시작하기</span>
                 </a>
             </div>
-            {showModal && (
-                <Modal
-                    title="제재 안내"
-                    message="xxx 회원님께서는 타 사용자에게 ‘불쾌감을 주는 언행’으로 2025년 10월 4일까지 해당 서비스를 이용하실 수 없습니다."
-                    onClose={() => setShowModal(false)}
-                />
-            )}
+            {/*{showModal && (*/}
+            {/*    <Modal*/}
+            {/*        title="제재 안내"*/}
+            {/*        message={`${userName} 회원님께서는 타 사용자에게 '불쾌감을 주는 언행'으로 ${endDate}까지 해당 서비스를 이용하실 수 없습니다.`}*/}
+            {/*        onClose={() => setShowModal(false)}*/}
+            {/*    />*/}
+            {/*)}*/}
 
         </div>
     );
