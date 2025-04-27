@@ -1,0 +1,35 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+.logo {
+    width: 140px;
+    margin-bottom: 20px;
+}
+
+.text{
+    text-Align: center;
+    margin-Top: 50px;
+}
+
+.subtitle{
+    font-Size: 20px;
+    font-Weight: bold;
+    margin-Bottom: 50px;
+}
+
+.button{
+    background-color: #FF5A5F;
+    color: white;
+    padding: 15px 40px;
+    border: none;
+    border-Radius: 20px;
+    font-Size: 16px;
+    cursor: pointer;
+    width: 207px;
+    height: 56px;
+}
