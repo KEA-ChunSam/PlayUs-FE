@@ -3,5 +3,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column; /* 텍스트를 로고 아래로 */
+    flex-direction: column;
+}
+
+.login_logo{
+    width: fit-content;
+    height: fit-content;
 }

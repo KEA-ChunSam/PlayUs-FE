@@ -10,6 +10,7 @@ import Party from '../components/Party';
 import Profile from '../components/Profile';
 import TeamChoice from "../pages/InitialProfile/TeamChoice";
 import SetProfile from "../pages/InitialProfile/SetProfile";
+import LoginComplete from "../pages/InitialProfile/LoginComplete";
 
 function AppRouter() {
     return (
@@ -19,6 +20,7 @@ function AppRouter() {
                 <Route path="/login" element={<Login />}/>
                 <Route path="/choice-team" element={<TeamChoice/>}/>
                 <Route path="/setprofile" element={<SetProfile/>}/>
+                <Route path="/login-complete" element={<LoginComplete/>}/>
                 <Route path="/home" element={<MobileView />}>
                     <Route index element={<MainPage />} />
                 </Route>

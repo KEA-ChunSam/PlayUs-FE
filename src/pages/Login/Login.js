@@ -1,8 +1,21 @@
-import React from 'react';
+import React, {useState} from 'react';
 import styles from './Login.module.css';
 import LoginHeader from "../../components/Header/LoginHeader/LoginHeader";
+import Modal from "../../components/Modal/Modal";
+import {useNavigate} from "react-router-dom";
 
 function Login() {
+    const [showModal, setShowModal] = useState(false);
+    const navigate = useNavigate();
+    // 차후 회원 DB 적용시 모달 구현 예정
+    // const onButtonClick = () => {
+    //     if (!selectedTeam) {
+    //         setShowModal(true);
+    //         return;
+    //     }
+    //     navigate("/choice-team");
+    // }
+
     const handleKakaoLogin = () => {
         console.log('카카오로 시작하기 클릭됨');
     };
@@ -22,6 +35,7 @@ function Login() {
 
                 {/* 링크 나중에 수정 */}
                 <a href="/choice-team" className={`${styles.login_button} ${styles.kakao_button}`}>
+                {/*<a href="/choice-team" className={`${styles.login_button} ${styles.kakao_button}`} onClick={onButtonClick}>*/}
                     <img
                         src={`${process.env.PUBLIC_URL}/Logo/KaKao_logo.png`}
                         alt="Kakao Icon"
@@ -39,6 +53,13 @@ function Login() {
                     <span>네이버로 시작하기</span>
                 </a>
             </div>
+            {/*{showModal && (*/}
+            {/*    <Modal*/}
+            {/*        title="제재 안내"*/}
+            {/*        message={`${userName} 회원님께서는 타 사용자에게 '불쾌감을 주는 언행'으로 ${endDate}까지 해당 서비스를 이용하실 수 없습니다.`}*/}
+            {/*        onClose={() => setShowModal(false)}*/}
+            {/*    />*/}
+            {/*)}*/}
 
         </div>
     );
