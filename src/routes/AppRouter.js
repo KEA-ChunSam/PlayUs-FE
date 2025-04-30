@@ -6,11 +6,12 @@ import MainPage from "../pages/Main/MainPage";
 import Splash from "../pages/Login/Splash";
 import Login from "../pages/Login/Login";
 import Community from '../components/Community';
-import Party from '../components/Party';
 import Profile from '../components/Profile';
 import TeamChoice from "../pages/InitialProfile/TeamChoice";
 import SetProfile from "../pages/InitialProfile/SetProfile";
 import LoginComplete from "../pages/InitialProfile/LoginComplete";
+import Party from '../pages/Party/Party'; 
+import TabNav from '../components/TabNav/TabNav';
 
 function AppRouter() {
     return (
@@ -32,6 +33,9 @@ function AppRouter() {
                 </Route>
                 <Route path="/party" element={<MobileView/>}>
                     <Route index element={<Party />} />
+                </Route>
+                <Route path="/party/tab" element={<MobileView/>}>
+                    <Route index element={<TabNav />} />
                 </Route>
                 <Route path="/profile" element={<MobileView />}>
                     <Route index element={<Profile />} />
