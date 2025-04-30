@@ -11,6 +11,8 @@ import Profile from '../components/Profile';
 import TeamChoice from "../pages/InitialProfile/TeamChoice";
 import SetProfile from "../pages/InitialProfile/SetProfile";
 import LoginComplete from "../pages/InitialProfile/LoginComplete";
+import Party from '../pages/Party/Party';
+import TabNav from '../components/TabNav/TabNav';
 
 function AppRouter() {
     return (
@@ -24,18 +26,23 @@ function AppRouter() {
                 <Route path="/home" element={<MobileView />}>
                     <Route index element={<MainPage />} />
                 </Route>
-                <Route path="/mainpage" element={<MobileView />}>
-                    <Route index element={<MainPage />} />
-                </Route>
-                <Route path="/community" element={<MobileView />}>
-                    <Route index element={<Community />} />
-                </Route>
-                <Route path="/schedule" element={<MobileView/>}>
-                    <Route index element={<LeagueSchedule />} />
-                </Route>
-                <Route path="/profile" element={<MobileView />}>
-                    <Route index element={<Profile />} />
-                </Route>
+                {/*<Route path="/mainpage" element={<MobileView />}>*/}
+                {/*    <Route index element={<MainPage />} />*/}
+                {/*</Route>*/}
+                {/*<Route path="/community" element={<MobileView />}>*/}
+                {/*    <Route index element={<Community />} />*/}
+                {/*</Route>*/}
+                {/*<Route path="/party" element={<MobileView/>}>*/}
+                {/*    <Route index element={<Party />} />*/}
+                {/*</Route>*/}
+                {/*<Route path="/party/tab" element={<MobileView/>}>*/}
+                {/*    <Route index element={<TabNav />} />*/}
+                {/*<Route path="/schedule" element={<MobileView/>}>*/}
+                {/*    <Route index element={<LeagueSchedule />} />*/}
+                {/*</Route>*/}
+                {/*<Route path="/profile" element={<MobileView />}>*/}
+                {/*    <Route index element={<Profile />} />*/}
+                {/*</Route>*/}
             </Routes>
         </BrowserRouter>
     );
