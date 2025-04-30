@@ -1,0 +1,44 @@
+
+.scheduleSlider {
+    padding-top: 3rem;
+    font-family: sans-serif;
+}
+
+.yearMonth {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    text-align: center;
+}
+
+.dateList {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dateItem {
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    text-align: center;
+    width: 3rem;
+    color: #333;
+}
+
+.today {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.selected {
+    background-color: #007bff;
+    color: white;
+}
+
+.pickerPopup {
+    margin-top: 1rem;
+    /*align-items: center;*/
+    text-align: center;
+}
