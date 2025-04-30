@@ -24,7 +24,7 @@ const NavBar = () => {
           />
         </div>
       </Link>
-      <Link to="/party" className={styles.nav_link} onClick={() => setActiveNav(3)}>
+      <Link to="/schedule" className={styles.nav_link} onClick={() => setActiveNav(3)}>
         <div>
           <FontAwesomeIcon
             icon="calendar-week"
