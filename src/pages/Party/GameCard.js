@@ -13,7 +13,7 @@ const GameCard = ({
 }) => {
   const navigate = useNavigate();
   const handlePartyClick = () => {
-    navigate('/schedule/tab');
+    navigate('/party/partyid');
   };
 
   return (
@@ -42,7 +42,7 @@ const GameCard = ({
         <button onClick={handlePartyClick} className={styles.button}>
           직관팟
         </button>
-        <button className={styles.button}>
+        <button onClick={handlePartyClick} className={styles.button}>
           정보
         </button>
       </div>

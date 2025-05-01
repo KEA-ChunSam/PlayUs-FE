@@ -11,8 +11,9 @@ import Profile from '../components/Profile';
 import TeamChoice from "../pages/InitialProfile/TeamChoice";
 import SetProfile from "../pages/InitialProfile/SetProfile";
 import LoginComplete from "../pages/InitialProfile/LoginComplete";
-import Party from '../pages/Party/Party';
+import Schedule from '../pages/Party/Schedule';
 import TabNav from '../components/TabNav/TabNav';
+import Party from "../pages/Party/Party";
 
 function AppRouter() {
     return (
@@ -33,11 +34,15 @@ function AppRouter() {
                     <Route index element={<Community />} />
                 </Route>
                 <Route path="/schedule" element={<MobileView/>}>
-                    <Route index element={<Party />} />
+                    <Route index element={<Schedule />} />
                 </Route>
                 {/*직관팟*/}
                 <Route path="/schedule/tab" element={<MobileView/>}>
                     <Route index element={<TabNav />} />
+                </Route>
+                <Route path="/party/partyid" element={<MobileView/>}>
+                    {/*나중에 path를 /party/{partyid}로 수정 예정*/}
+                    <Route index element={<Party />} />
                 </Route>
                 {/*<Route path="/schedule" element={<MobileView/>}>*/}
                 {/*    <Route index element={<LeagueSchedule />} />*/}
