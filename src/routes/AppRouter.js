@@ -26,23 +26,25 @@ function AppRouter() {
                 <Route path="/home" element={<MobileView />}>
                     <Route index element={<MainPage />} />
                 </Route>
-                {/*<Route path="/mainpage" element={<MobileView />}>*/}
-                {/*    <Route index element={<MainPage />} />*/}
-                {/*</Route>*/}
-                {/*<Route path="/community" element={<MobileView />}>*/}
-                {/*    <Route index element={<Community />} />*/}
-                {/*</Route>*/}
-                {/*<Route path="/party" element={<MobileView/>}>*/}
-                {/*    <Route index element={<Party />} />*/}
-                {/*</Route>*/}
-                {/*<Route path="/party/tab" element={<MobileView/>}>*/}
-                {/*    <Route index element={<TabNav />} />*/}
+                <Route path="/mainpage" element={<MobileView />}>
+                    <Route index element={<MainPage />} />
+                </Route>
+                <Route path="/community" element={<MobileView />}>
+                    <Route index element={<Community />} />
+                </Route>
+                <Route path="/schedule" element={<MobileView/>}>
+                    <Route index element={<Party />} />
+                </Route>
+                {/*직관팟*/}
+                <Route path="/schedule/tab" element={<MobileView/>}>
+                    <Route index element={<TabNav />} />
+                </Route>
                 {/*<Route path="/schedule" element={<MobileView/>}>*/}
                 {/*    <Route index element={<LeagueSchedule />} />*/}
                 {/*</Route>*/}
-                {/*<Route path="/profile" element={<MobileView />}>*/}
-                {/*    <Route index element={<Profile />} />*/}
-                {/*</Route>*/}
+                <Route path="/profile" element={<MobileView />}>
+                    <Route index element={<Profile />} />
+                </Route>
             </Routes>
         </BrowserRouter>
     );

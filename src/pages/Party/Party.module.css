@@ -1,0 +1,17 @@
+.wrapper {
+    width: 100%;
+    align-items: center;
+    align-content: center;
+}
+
+.headerSpacer {
+    height: 64px;
+}
+
+.content {
+    top: 236px;
+    bottom: 0;
+    overflow-y: auto;
+    width: 100%;
+    padding: 1rem 1rem 6rem;
+}
