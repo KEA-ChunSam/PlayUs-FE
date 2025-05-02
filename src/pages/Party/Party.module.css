@@ -1,20 +1,34 @@
 .wrapper {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    max-width: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-}
+    height: 100vh;
+    }
 
 .headerSpacer {
-    height: 64px;
+    height: 5rem;
 }
 
 .content {
-    position: absolute;
-    top: 136px;
+    position: relative;
+    /*top: 56px;*/
     bottom: 0;
     overflow-y: auto;
     width: 100%;
     padding: 0 1rem 6rem 1rem;
     box-sizing: border-box;
     background-color: #fff;
+}
+
+.approvalSection {
+    width: 100%;
+    height: 100%;
 }
 
 .matchHeader {
@@ -52,16 +66,16 @@
 }
 
 .teamBox {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .teamName {
-  font-weight: bold;
-  font-size: 1rem;
-  text-align: center;
+    font-weight: bold;
+    font-size: 1rem;
+    text-align: center;
 }
 
 .titleRow {
@@ -81,7 +95,59 @@
     gap: 0.5rem;
 }
 
-.filterBtn,
+.filterBtn {
+    background-color: #fff;
+    color: #001b5d;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    border: solid 1px #001b5d;
+}
+
+/* 필터 모달 */
+.modalOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    z-index: 1000;
+}
+
+.modalContent {
+    width: 100%;
+    background-color: white;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    padding: 1.5rem;
+    max-height: 85%;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.modalTitle {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.modalClose {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    color: #001b5d;
+    cursor: pointer;
+}
+
 .createBtn {
     background-color: #001b5d;
     color: #fff;
@@ -165,4 +231,83 @@
 .slot {
     font-size: 0.85rem;
     color: #333;
+}
+
+.modalReset {
+    background: none;
+    border: none;
+    font-size: 0.9rem;
+    color: #001b5d;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.filterGroup {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.filterLabel {
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: bold;
+    margin-bottom: 0.4rem;
+}
+
+.filterOption {
+    flex: 1;
+    min-width: 30%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    background-color: #fff;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-align: center;
+}
+
+.ageOption {
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid #000;
+    background-color: #fff;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.ageSelected {
+    border-color: #5560ff;
+    background-color: #eef0ff;
+    color: #5560ff;
+}
+
+.filterActions {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.cancelBtn {
+    flex: 1;
+    padding: 0.8rem;
+    background-color: #aaa;
+    color: white;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.applyBtn {
+    flex: 1;
+    padding: 0.8rem;
+    background-color: #ff4f4f;
+    color: white;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from "../Main/MainPage.module.css";
+import styles from "../League/LeagueSchedule.module.css";
 import ScheduleSlider from "../../components/ScheduleSlider/ScheduleSlider";
 
 const LeagueSchedule = () => {
