@@ -154,6 +154,7 @@
     cursor: pointer;
 }
 
+/* 직관팟 생성 버튼 */
 .createBtn {
     background-color: #001b5d;
     color: #fff;
@@ -323,4 +324,120 @@
     color: #5560ff;
     border: 1px solid #5560ff;
     font-weight: bold;
+}
+
+/* 직관팟 신청 현황 섹션 */
+.myStatusList {
+    padding: 1rem;
+}
+
+.myStatusCard {
+    background-color: #f9f9f9;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.myStatusTagRow {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+
+.myStatusTitleRow {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+}
+
+.myStatusTitle {
+    padding-bottom: 0.3rem;
+}
+
+.myStatusMeta {
+    color: #555;
+    font-size: 0.85rem;
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.myStatusButtons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.statusPending {
+    background-color: #ff6363;
+    color: #fff;
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+.statusCancel {
+    background-color: #888;
+    color: #fff;
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+.statusRejected {
+    background-color: #999;
+    color: #fff;
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+.DeleteParty{
+    background-color: #999;
+    color: #fff;
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+.statusApproved {
+    background-color: #ff4f4f;
+    color: #fff;
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+.chatButtonWrapper {
+    position: relative;
+}
+
+.newChatCount {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background-color: red;
+    color: white;
+    font-size: 0.7rem;
+    border-radius: 50%;
+    min-width: 18px;
+    text-align: center;
+}
+
+.thumbnailImg {
+    width: 5rem;
+    height: 5rem;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-left: 1rem;
+    flex-shrink: 0;
 }
