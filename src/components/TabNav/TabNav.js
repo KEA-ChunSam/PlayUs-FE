@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./TabNav.module.css";
 
-const TabNav = ({ tabs = [], onTabChange }) => {
+const TabNav = ({ tabs = [], onTabChange, onBack }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const navigate = useNavigate();
 
@@ -25,7 +25,7 @@ const TabNav = ({ tabs = [], onTabChange }) => {
         src={`${process.env.PUBLIC_URL}/Button/back.png`}
         alt="Back"
         className={styles.backIcon}
-        onClick={() => navigate("/schedule")} // 나중에 컴포넌트화하여 적용
+        onClick={() => onBack ? onBack() : navigate("/schedule")} // 나중에 컴포넌트화하여 적용
       />
 
       <div className={styles.tabWrapper}>

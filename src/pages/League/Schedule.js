@@ -1,5 +1,5 @@
 import React from 'react';
-import GameCard from "./GameCard";
+import GameCard from "../Party/GameCard";
 import ScheduleSlider from "../../components/ScheduleSlider/ScheduleSlider";
 import styles from './Schedule.module.css';
 

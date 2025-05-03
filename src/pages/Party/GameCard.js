@@ -13,7 +13,7 @@ const GameCard = ({
 }) => {
   const navigate = useNavigate();
   const handlePartyClick = () => {
-    navigate('/party/partyid');
+    navigate('/party/matchid');
   };
 
   return (
