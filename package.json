@@ -22,7 +22,7 @@
     "react-dom": "^18.3.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.5.0",
-    "react-scripts": "5.0.1",
+
     "sweetalert": "^2.1.2",
     "web-vitals": "^2.1.4"
   },
@@ -51,6 +51,7 @@
     ]
   },
   "devDependencies": {
+    "react-scripts": "5.0.1",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17"
