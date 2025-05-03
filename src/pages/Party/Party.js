@@ -7,6 +7,9 @@ import styles from './Party.module.css';
 const Party = () => {
     const [activeTab, setActiveTab] = useState(0);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const [selectedApplyType, setSelectedApplyType] = useState('');
+    const [selectedGender, setSelectedGender] = useState('');
+    const [selectedAges, setSelectedAges] = useState([]);
     const tabLabels = ["직관팟 구하기", "내 신청 현황", "승인 요청"];
     const navigate = useNavigate();
     function newPartyButtonClick() {
@@ -14,6 +17,7 @@ const Party = () => {
     }
 
     return (
+        <>
         <div className={styles.wrapper}>
             {/*<div className={styles.headerSpacer}/>*/}
             <div className={styles.content}>
@@ -130,44 +134,75 @@ const Party = () => {
                     </div>
                 )}
             </div>
-            {isFilterOpen && (
-                <div className={styles.modalOverlay}>
-                    <div className={styles.modalContent}>
-                        <div className={styles.modalHeader}>
-                            <span className={styles.modalTitle}>조건 설정</span>
-                            <button className={styles.modalReset}>초기화</button>
-                        </div>
+        </div>
+        )
+        {isFilterOpen && (
+            <div className={styles.modalOverlay}>
+                <div className={styles.modalContent}>
+                    <div className={styles.modalHeader}>
+                        <span className={styles.modalTitle}>조건 설정</span>
+                        <button
+                          className={styles.modalReset}
+                          onClick={() => {
+                            setSelectedApplyType('');
+                            setSelectedGender('');
+                            setSelectedAges([]);
+                          }}
+                        >
+                          초기화
+                        </button>
+                    </div>
 
-                        <div className={styles.filterGroup}>
-                            <button className={styles.filterOption}>선착순</button>
-                            <button className={styles.filterOption}>승인제</button>
-                        </div>
+                    <div className={styles.filterGroup}>
+                        {['선착순', '승인제'].map(type => (
+                            <button
+                                key={type}
+                                className={`${styles.filterOption} ${selectedApplyType === type ? styles.selected : ''}`}
+                                onClick={() => setSelectedApplyType(type)}
+                            >
+                                {type}
+                            </button>
+                        ))}
+                    </div>
 
-                        <div className={styles.filterLabel}>참가 가능 성별</div>
-                        <div className={styles.filterGroup}>
-                            <button className={styles.filterOption}>남자만</button>
-                            <button className={styles.filterOption}>여자만</button>
-                            <button className={styles.filterOption}>상관 없음</button>
-                        </div>
+                    <div className={styles.filterLabel}>참가 가능 성별</div>
+                    <div className={styles.filterGroup}>
+                        {['남자만', '여자만', '상관 없음'].map(gender => (
+                            <button
+                                key={gender}
+                                className={`${styles.filterOption} ${selectedGender === gender ? styles.selected : ''}`}
+                                onClick={() => setSelectedGender(gender)}
+                            >
+                                {gender}
+                            </button>
+                        ))}
+                    </div>
 
-                        <div className={styles.filterLabel}>나이</div>
-                        <div className={styles.filterGroup}>
-                            <button className={styles.ageOption}>10대</button>
-                            <button className={`${styles.ageOption} ${styles.ageSelected}`}>20대</button>
-                            <button className={styles.ageOption}>30대</button>
-                            <button className={styles.ageOption}>40대</button>
-                            <button className={styles.ageOption}>50대</button>
-                            <button className={styles.ageOption}>60대</button>
-                        </div>
+                    <div className={styles.filterLabel}>나이</div>
+                    <div className={styles.filterGroup}>
+                        {['10대', '20대', '30대', '40대', '50대', '60대'].map(age => (
+                            <button
+                                key={age}
+                                className={`${styles.ageOption} ${selectedAges.includes(age) ? styles.ageSelected : ''}`}
+                                onClick={() => {
+                                    setSelectedAges(prev =>
+                                        prev.includes(age) ? prev.filter(a => a !== age) : [...prev, age]
+                                    );
+                                }}
+                            >
+                                {age}
+                            </button>
+                        ))}
+                    </div>
 
-                        <div className={styles.filterActions}>
-                            <button className={styles.cancelBtn} onClick={() => setIsFilterOpen(false)}>취소하기</button>
-                            <button className={styles.applyBtn}>필터 적용하기</button>
-                        </div>
+                    <div className={styles.filterActions}>
+                        <button className={styles.cancelBtn} onClick={() => setIsFilterOpen(false)}>취소하기</button>
+                        <button className={styles.applyBtn}>필터 적용하기</button>
                     </div>
                 </div>
-            )}
-        </div>
+            </div>
+        )}
+        </>
     );
 };
 
