@@ -1,0 +1,78 @@
+.container {
+  padding: 87px 16px 80px 16px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  height: auto;
+}
+
+.inputForm {
+  padding: 1rem 1.5rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.section {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.button {
+  flex: 1;
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 6px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.buttonActive {
+  background-color: #EDF3FF;
+  border: 2px solid #1D248B;
+  font-weight: bold;
+  color: #1D248B;
+}
+
+.numberSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 1.5rem;
+}
+
+.numberLabel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.numberInput {
+  width: 64px;
+  border: 1px solid #ccc;
+  padding: 4px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.nextButton {
+  width: 100%;
+  background-color: #ef4444;
+  color: white;
+  font-weight: bold;
+  padding: 12px 0;
+  border-radius: 6px;
+  cursor: pointer;
+}

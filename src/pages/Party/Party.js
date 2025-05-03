@@ -1,5 +1,6 @@
-// 직관팟 메인(구하기) & 내 신청 현황 & 승인 요청을 한 코드에 적용함.
+// 직관팟 메인(구하기) & 내 신청 현황 & 승인 요청을 한 코드에 적용.
 import React, {useState} from 'react';
+import { useNavigate } from 'react-router-dom';
 import TabNav from "../../components/TabNav/TabNav";
 import styles from './Party.module.css';
 
@@ -7,11 +8,14 @@ const Party = () => {
     const [activeTab, setActiveTab] = useState(0);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const tabLabels = ["직관팟 구하기", "내 신청 현황", "승인 요청"];
-
+    const navigate = useNavigate();
+    function newPartyButtonClick() {
+        navigate('/party/newparty');
+    }
 
     return (
         <div className={styles.wrapper}>
-            <div className={styles.headerSpacer}/>
+            {/*<div className={styles.headerSpacer}/>*/}
             <div className={styles.content}>
                 <TabNav tabs={tabLabels} onTabChange={setActiveTab}/>
                 {/* 직관팟 입장시 접근하는 직관팟 구하기 서브메뉴*/}
@@ -36,12 +40,16 @@ const Party = () => {
                             <h3 className={styles.title}>직관 팟 구해요!</h3>
                             <div className={styles.buttons}>
                                 <button className={styles.filterBtn} onClick={() => setIsFilterOpen(true)}>필터</button>
-                                <button className={styles.createBtn}>새 직관 팟 만들기</button>
+                                <button className={styles.createBtn} onClick={newPartyButtonClick}>새 직관 팟 만들기</button>
                             </div>
                         </div>
                         <div className={styles.partyList}>
-                            {[1, 2].map((_, idx) => (
-                                <div key={idx} className={styles.partyCard}>
+                            {[1, 2, 3, 4].map((_, idx) => (
+                                <div
+                                    key={idx}
+                                    className={styles.partyCard}
+                                    onClick={() => navigate(`/party/matchid/partyid`)}
+                                >
                                     <img src="/Logo/jikgwanprofile.png" alt="player" className={styles.playerImg}/>
                                     <div className={styles.partyContent}>
                                         <div className={styles.tags}>
