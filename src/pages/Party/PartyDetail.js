@@ -1,13 +1,13 @@
 // 직관팟 상세 페이지
 import React, {useState} from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import styles from './PartyDetail.module.css';
 import TabNav from "../../components/TabNav/TabNav";
 
 const PartyDetail = () => {
-    const {partyId} = useParams();
+    // const {partyId} = useParams();
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState(0);
+    const [setActiveTab] = useState(0);
     const tabLabels = ["직관팟 구하기", "내 신청 현황", "승인 요청"];
     function applyParty() {
         navigate("/Party/applyParty/partyid");
