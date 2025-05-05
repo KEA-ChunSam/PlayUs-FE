@@ -39,8 +39,8 @@
 }
 
 .partyImage {
-  width: 100px;
-  height: 100px;
+  width: 7rem;
+  height: 7rem;
   border-radius: 8px;
   object-fit: cover;
 }
@@ -86,11 +86,17 @@
   align-items: center;
 }
 
+.avatars {
+  display: flex;
+  flex-direction: row;
+}
+
 .avatars img {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  margin-right: -6px;
+  /*margin-right: -6px;*/
+  margin-bottom: 0.5rem;
   border: 2px solid #fff;
 }
 

@@ -9,7 +9,7 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    /*height: 100vh;*/
+    padding-bottom: 3.5rem; /* NavBar만큼의 padding을 페이지에 주기. */
 }
 
 .headerSpacer {
@@ -232,6 +232,8 @@
 .avatars {
     display: flex;
     gap: -6px;
+    width: 1.7rem;
+
 
 }
 
@@ -400,7 +402,7 @@
 }
 
 .DeleteParty{
-    background-color: #999;
+    background-color: #888;
     color: #fff;
     padding: 0.4rem 0.8rem;
     border: none;
@@ -441,3 +443,86 @@
     margin-left: 1rem;
     flex-shrink: 0;
 }
+
+
+/* 승인 요청 서브메뉴 */
+.approvalList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    overflow-y: scroll;
+}
+
+.approvalCard {
+    display: flex;
+    align-items: center;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.userAvatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-right: 1rem;
+    object-fit: cover;
+}
+
+.userInfo {
+    flex: 1;
+}
+
+.nameRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+
+.userName {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.ageBadge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    background-color: #eee;
+    border-radius: 8px;
+    color: #333;
+}
+
+.userMessage {
+    font-size: 0.85rem;
+    color: #444;
+}
+
+.actionButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-left: 1rem;
+}
+
+.approveButton {
+    background-color: #ff4f4f;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.rejectButton {
+    background-color: #999;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+

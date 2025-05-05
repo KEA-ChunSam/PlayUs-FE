@@ -15,6 +15,7 @@ import TabNav from '../components/TabNav/TabNav';
 import Party from "../pages/Party/Party";
 import PartyDetail from "../pages/Party/PartyDetail";
 import PartyMake from "../pages/Party/PartyMake";
+import PartyApply from "../pages/Party/PartyApply";
 
 function AppRouter() {
     return (
@@ -55,6 +56,10 @@ function AppRouter() {
                 {/* 직관팟 만들기 */}
                 <Route path="/party/newparty" element={<MobileView/>}>
                     <Route index element={<PartyMake/>}/>
+                </Route>
+                {/* 직관팟 신청하기 */}
+                <Route path="/Party/applyParty/partyid" element={<MobileView/>}>
+                    <Route index element={<PartyApply/>}/>
                 </Route>
                 {/*<Route path="/schedule" element={<MobileView/>}>*/}
                 {/*    <Route index element={<LeagueSchedule />} />*/}

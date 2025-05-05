@@ -1,3 +1,4 @@
+// 직관팟 상세 페이지
 import React, {useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import styles from './PartyDetail.module.css';
@@ -9,7 +10,7 @@ const PartyDetail = () => {
     const [activeTab, setActiveTab] = useState(0);
     const tabLabels = ["직관팟 구하기", "내 신청 현황", "승인 요청"];
     function applyParty() {
-        navigate("/Party/applyParty");
+        navigate("/Party/applyParty/partyid");
     }
 
     return (
@@ -33,6 +34,7 @@ const PartyDetail = () => {
                         </div>
                         <div className={styles.status}>
                             <div className={styles.avatars}>
+                                <img src="/Logo/profile.png" alt="profile"/>
                                 <img src="/Logo/profile.png" alt="profile"/>
                                 {/* ...추가 프로필 */}
                             </div>
