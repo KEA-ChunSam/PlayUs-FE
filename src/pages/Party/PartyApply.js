@@ -9,7 +9,7 @@ export default function PartyApply() {
     const [message, setMessage] = useState('');
     const [agreed, setAgreed] = useState(false);
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState(0);
+    const [setActiveTab] = useState(0);
     const tabLabels = ["직관팟 구하기", "내 신청 현황", "승인 요청"];
     const [showApplyModal, setShowApplyModal] = useState(false);
     const handleSubmit = () => {
