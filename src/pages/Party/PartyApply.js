@@ -3,6 +3,7 @@ import React, {useState} from 'react';
 import TabNav from '../../components/TabNav/TabNav';
 import styles from './PartyApply.module.css';
 import {useNavigate} from "react-router-dom";
+import Modal from "../../components/Modal/Modal";
 
 export default function PartyApply() {
     const [message, setMessage] = useState('');
@@ -10,17 +11,15 @@ export default function PartyApply() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState(0);
     const tabLabels = ["직관팟 구하기", "내 신청 현황", "승인 요청"];
+    const [showApplyModal, setShowApplyModal] = useState(false);
     const handleSubmit = () => {
-        if (!agreed || message.trim() === '') return;
-        // TODO: 신청 처리
+        setShowApplyModal(true);
     };
 
     return (
         <div className={styles.wrapper}>
             <div className={styles.container}>
-                {/* TabNav만 따로 위에 삽입 */}
                 <TabNav tabs={tabLabels} onTabChange={setActiveTab} onBack={() => navigate(-1)}/>
-
                 <h2 className={styles.title}>직관팟 참여 신청하기</h2>
                 <p className={styles.subtitle}>
                     3/22(토) 한화 vs KT 개막전 직관🦁💙
@@ -55,6 +54,16 @@ export default function PartyApply() {
                     신청하기
                 </button>
             </div>
+            {showApplyModal && (
+                <Modal
+                    title="신청 완료!"
+                    message="직관팟 신청이 완료되었어요!"
+                    onClose={() => {
+                        setShowApplyModal(false);
+                        navigate('/party/matchid/partyid');
+                    }}
+                />
+            )}
         </div>
     );
 }

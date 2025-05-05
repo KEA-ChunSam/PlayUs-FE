@@ -1,0 +1,201 @@
+.chatWrapper {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    max-width: 100%;
+    max-height: 100%;
+    /*display: flex;*/
+    top: 87px; /* 헤더 때문에 고정해야 함 */
+    height: calc(100% - 3.5rem - 87px);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding-bottom: 3.5rem;
+    overflow-y: scroll;
+}
+
+.chatHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 50px;
+    padding: 0 12px;
+    border-bottom: 1px solid #ddd;
+    font-weight: bold;
+}
+
+.chatTitle {
+    font-size: 1rem;
+}
+
+.backBtn,
+.menuBtn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+}
+
+.chatBody {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    padding-bottom: 5rem;
+}
+
+.dateLabel {
+    text-align: center;
+    font-size: 0.75rem;
+    color: gray;
+    margin: 8px 0;
+}
+
+.messageRow {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.messageRowReverse {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.sender {
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.messageBubble {
+    background-color: #f2f2f2;
+    padding: 8px 12px;
+    border-radius: 12px;
+    max-width: 240px;
+    word-break: break-word;
+}
+
+.messageBubbleMine {
+    background-color: #218aff;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 12px;
+    max-width: 240px;
+    word-break: break-word;
+}
+
+.timestamp {
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 4px;
+}
+
+.chatInputWrapper {
+    position: fixed;
+    bottom: 3.5rem;
+    left: 0;
+    right: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    max-width: 490px;
+    margin: 0 auto;
+    padding: 8px 12px;
+    border-top: 1px solid #ddd;
+    background-color: white;
+    z-index: 10;
+}
+
+.plusBtn,
+.sendBtn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    margin: 0 8px;
+}
+
+.chatInput {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 20px;
+    background-color: #f0f0f0;
+    outline: none;
+    font-size: 0.9rem;
+    /*background-image: url('/icons/baseball-left.png'), url('/icons/baseball-right.png');*/
+    background-repeat: no-repeat, no-repeat;
+    background-position: left center, right center;
+    background-size: 16px 16px, 16px 16px;
+}
+
+.sidebar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 260px;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s ease-in-out;
+    transform: translateX(0); /* default open */
+}
+
+.sidebarOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /*height: calc(100% - 9rem);*/
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 99;
+}
+
+.sidebarClosed {
+    transform: translateX(100%);
+}
+
+.sidebarHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.memberList {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.memberCount {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.memberItem {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.leaveBtn {
+    align-self: flex-end;
+    background: none;
+    border: none;
+    color: #d00;
+    font-weight: bold;
+    cursor: pointer;
+}

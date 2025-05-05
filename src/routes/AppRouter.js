@@ -11,11 +11,12 @@ import TeamChoice from "../pages/InitialProfile/TeamChoice";
 import SetProfile from "../pages/InitialProfile/SetProfile";
 import LoginComplete from "../pages/InitialProfile/LoginComplete";
 import Schedule from '../pages/League/Schedule';
-import TabNav from '../components/TabNav/TabNav';
 import Party from "../pages/Party/Party";
 import PartyDetail from "../pages/Party/PartyDetail";
 import PartyMake from "../pages/Party/PartyMake";
 import PartyApply from "../pages/Party/PartyApply";
+import Chatting from "../pages/Party/Chatting/Chatting";
+import ReviewParty from "../pages/Party/ReviewParty/ReviewParty";
 
 function AppRouter() {
     return (
@@ -58,8 +59,16 @@ function AppRouter() {
                     <Route index element={<PartyMake/>}/>
                 </Route>
                 {/* 직관팟 신청하기 */}
-                <Route path="/Party/applyParty/partyid" element={<MobileView/>}>
+                <Route path="/party/applyparty/partyid" element={<MobileView/>}>
                     <Route index element={<PartyApply/>}/>
+                </Route>
+                {/* 직관팟 입장 시 채팅방 */}
+                <Route path="/chat/party/partyid" element={<MobileView/>}>
+                    <Route index element={<Chatting/>}/>
+                </Route>
+                {/* 직관팟 후기 페이지 */}
+                <Route path="/review/party/partyid" element={<MobileView/>}>
+                    <Route index element={<ReviewParty/>}/>
                 </Route>
                 {/*<Route path="/schedule" element={<MobileView/>}>*/}
                 {/*    <Route index element={<LeagueSchedule />} />*/}
