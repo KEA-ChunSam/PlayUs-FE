@@ -20,6 +20,15 @@ const ReviewParty = () => {
     };
     const [selectedMemberIdx, setSelectedMemberIdx] = useState(null);
 
+    const presetMessages = [
+        '답장이 빨라요.',
+        '시간 약속을 잘 지켜요.',
+        '경기 직관이 열정적이에요.',
+        '상대방에 대한 배려심이 깊어요.',
+        '어색한 분위기를 잘 풀어요.',
+        '야구 경기에 박식해요.'
+    ];
+
     const handleLike = (index) => {
         setSelectedMemberIdx(index);
         setModalOpen(true);

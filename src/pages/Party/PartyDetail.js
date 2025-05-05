@@ -5,9 +5,9 @@ import styles from './PartyDetail.module.css';
 import TabNav from "../../components/TabNav/TabNav";
 
 const PartyDetail = () => {
-    // const {partyId} = useParams();
+    const {partyId} = useParams();
     const navigate = useNavigate();
-    const [setActiveTab] = useState(0);
+    const [activeTab, setActiveTab] = useState(0);
     const tabLabels = ["직관팟 구하기", "내 신청 현황", "승인 요청"];
     function applyParty() {
         navigate("/Party/applyParty/partyid");
