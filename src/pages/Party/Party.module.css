@@ -231,10 +231,17 @@
 
 .avatars {
     display: flex;
-    gap: -6px;
+    /*gap: -6px;*/
+    margin-right: 0.5rem;
     width: 1.7rem;
+}
 
+.avatars img {
+    margin-left: -6px; /* 첫 번째 이미지 외에 오버랩 적용 */
+}
 
+.avatars img:first-child {
+    margin-left: 0; /* 첫 번째 이미지는 마진 없음 */
 }
 
 .slot {
@@ -401,7 +408,7 @@
     font-size: 0.85rem;
 }
 
-.DeleteParty{
+.DeleteParty {
     background-color: #888;
     color: #fff;
     padding: 0.4rem 0.8rem;
