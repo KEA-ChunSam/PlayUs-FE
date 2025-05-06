@@ -78,7 +78,7 @@ const PartyFormStep2 = ({form, setForm, onSubmit}) => {
                 <h2 className={styles.title}>썸네일을 등록해 주세요. (최대 10개까지 선택 가능)</h2>
                 <div className={styles.thumbnailContainer}>
                     <img
-                        src="/Button/uploadImage.png"
+                        src={`${process.env.PUBLIC_URL}/Button/uploadImage.png`}
                         alt="이미지 선택"
                         width={50}
                         height={50}

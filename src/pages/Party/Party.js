@@ -36,7 +36,7 @@ const Party = () => {
             writer: "ZSJ",
             gender: "남성",
             date: "3.22(토) 오후 2:00",
-            avatarUrl: `${process.env.PUBLIC_URL}/Logo/Profile.png`,
+            avatarUrl: `${process.env.PUBLIC_URL}/Logo/profile.png`,
             currentSlot: 10,
             maxSlot: 14
         },
@@ -49,7 +49,7 @@ const Party = () => {
             writer: "김도영화이팅",
             gender: "남성",
             date: "3.22(토) 오후 2:00",
-            avatarUrl: `${process.env.PUBLIC_URL}/Logo/Profile.png`,
+            avatarUrl: `${process.env.PUBLIC_URL}/Logo/profile.png`,
             currentSlot: 10,
             maxSlot: 14
         },
