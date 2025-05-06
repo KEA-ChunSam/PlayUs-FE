@@ -4,8 +4,9 @@ html, body {
     height: 100%;
 }
 .mobile_view {
-    position: fixed;
-    width: 490px;
+    position: relative;
+    width: 100%;
+    max-width: 490px;
     height: 100%;
     aspect-ratio: 9 / 16;
     /*max-width: 100%;*/
