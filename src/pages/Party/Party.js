@@ -26,6 +26,35 @@ const Party = () => {
         navigate('/chat/party/partyId'); // 차후 직관팟별로 route 분리
     }
 
+    const DUMMY_PARTIES = [
+        {
+            id: 1,
+            thumbnail: "/Logo/jikgwanprofile.png",
+            tags: ["승인제", "20대", "여자만"],
+            highlightedTagIndex: 2,
+            title: "3/22(토) 한화 vs KT 개막전 직관🦁💙",
+            writer: "ZSJ",
+            gender: "남성",
+            date: "3.22(토) 오후 2:00",
+            avatarUrl: "/Logo/profile.png",
+            currentSlot: 10,
+            maxSlot: 14
+        },
+        {
+            id: 2,
+            thumbnail: "/Logo/jikgwanprofile.png",
+            tags: ["승인제", "20대", "여자만"],
+            highlightedTagIndex: 2,
+            title: "3/22(토) 한화 vs KT 개막전 직관🦁💙",
+            writer: "김도영화이팅",
+            gender: "남성",
+            date: "3.22(토) 오후 2:00",
+            avatarUrl: "/Logo/profile.png",
+            currentSlot: 10,
+            maxSlot: 14
+        },
+    ];
+
     return (
         <>
             <div className={styles.wrapper}>
@@ -60,30 +89,35 @@ const Party = () => {
                                 </div>
                             </div>
                             <div className={styles.partyList}>
-                                {[1, 2, 3, 4].map((_, idx) => (
+                                {DUMMY_PARTIES.map((party) => (
                                     <div
-                                        key={idx}
+                                        key={party.id}
                                         className={styles.partyCard}
-                                        onClick={() => navigate(`/party/matchid/partyid`)}
+                                        onClick={() => navigate(`/party/matchid/${party.id}`)}
                                     >
-                                        <img src="/Logo/jikgwanprofile.png" alt="player" className={styles.playerImg}/>
+                                        <img src={party.thumbnail} alt="직관팟 썸네일" className={styles.playerImg}/>
                                         <div className={styles.partyContent}>
                                             <div className={styles.tags}>
-                                                <span className={styles.tag}>승인제</span>
-                                                <span className={styles.tag}>20대</span>
-                                                <span className={styles.tagHighlight}>여자만</span>
+                                                {party.tags.map((tag, index) => (
+                                                    <span
+                                                        key={index}
+                                                        className={`${styles.tag} ${index === party.highlightedTagIndex ? styles.tagHighlight : ''}`}
+                                                    >
+                                                    {tag}
+                                                    </span>
+                                                ))}
                                             </div>
-                                            <div className={styles.partyTitle}>3/22(토) 한화 vs KT 개막전 직관🦁💙</div>
+                                            <div className={styles.partyTitle}>{party.title}</div>
                                             <div className={styles.partyMeta}>
-                                                <span>ZSJ</span>
-                                                <span>남성</span>
-                                                <span>· 3.22(토) 오후 2:00</span>
+                                                <span>{party.writer}</span>
+                                                <span>{party.gender}</span>
+                                                <span>· {party.date}</span>
                                             </div>
                                             <div className={styles.partyStatus}>
                                                 <div className={styles.avatars}>
-                                                    <img src="/Logo/profile.png" alt="profile"/>
+                                                    <img src={party.avatarUrl} alt="프로필"/>
                                                 </div>
-                                                <div className={styles.slot}>10/14</div>
+                                                <div className={styles.slot}>{party.currentSlot}/{party.maxSlot}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -263,7 +297,7 @@ const Party = () => {
                     )}
                 </div>
             </div>
-            )
+
             {isFilterOpen && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modalContent}>
@@ -325,18 +359,41 @@ const Party = () => {
 
                         <div className={styles.filterActions}>
                             <button className={styles.cancelBtn} onClick={() => setIsFilterOpen(false)}>취소하기</button>
-                            <button className={styles.applyBtn}>필터 적용하기</button>
+                            <button
+                                className={styles.applyBtn}
+                                onClick={() => {
+                                    // TODO: 필터 적용 로직 구현
+                                    setIsFilterOpen(false);
+                                }}
+                            >
+                                필터 적용하기
+                            </button>
                         </div>
                     </div>
                 </div>
             )}
             {[
-              { show: showCancelModal, title: '신청 취소', message: '정말 취소하시겠습니까?', onClose: () => setShowCancelModal(false) },
-              { show: showDeleteModal, title: '삭제하기', message: '삭제되었습니다.', onClose: () => setShowDeleteModal(false) },
-              { show: showApproveModal, title: '승인하기', message: '참가 요청을 승인하시겠습니까?', onClose: () => setShowApproveModal(false) },
-              { show: showDenyModal, title: '삭제하기', message: '참가 요청을 거부하시겠습니까?', onClose: () => setShowDenyModal(false) }
+                {
+                    show: showCancelModal,
+                    title: '신청 취소',
+                    message: '정말 취소하시겠습니까?',
+                    onClose: () => setShowCancelModal(false)
+                },
+                {show: showDeleteModal, title: '삭제하기', message: '삭제되었습니다.', onClose: () => setShowDeleteModal(false)},
+                {
+                    show: showApproveModal,
+                    title: '승인하기',
+                    message: '참가 요청을 승인하시겠습니까?',
+                    onClose: () => setShowApproveModal(false)
+                },
+                {
+                    show: showDenyModal,
+                    title: '삭제하기',
+                    message: '참가 요청을 거부하시겠습니까?',
+                    onClose: () => setShowDenyModal(false)
+                }
             ].map((modal, idx) => modal.show && (
-              <Modal key={idx} title={modal.title} message={modal.message} onClose={modal.onClose} />
+                <Modal key={idx} title={modal.title} message={modal.message} onClose={modal.onClose}/>
             ))}
         </>
     );
