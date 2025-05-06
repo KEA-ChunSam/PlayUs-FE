@@ -9,7 +9,7 @@ export default function PartyApply() {
     const [message, setMessage] = useState('');
     const [agreed, setAgreed] = useState(false);
     const navigate = useNavigate();
-    const [setActiveTab] = useState(0);
+    const [activeTab, setActiveTab] = useState(0);
     const tabLabels = ["직관팟 구하기", "내 신청 현황", "승인 요청"];
     const [showApplyModal, setShowApplyModal] = useState(false);
     const handleSubmit = () => {
@@ -40,10 +40,11 @@ export default function PartyApply() {
                     <input
                         type="checkbox"
                         checked={agreed}
+                        id="rulesAgreement"
                         onChange={() => setAgreed(!agreed)}
                         className={styles.checkbox}
                     />
-                    <label className={styles.label}>직관팟의 정보와 규칙을 완벽히 이해했어요!</label>
+                    <label htmlFor="rulesAgreement" className={styles.label}>직관팟의 정보와 규칙을 완벽히 이해했어요!</label>
                 </div>
 
                 <button
