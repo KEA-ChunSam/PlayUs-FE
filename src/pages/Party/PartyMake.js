@@ -11,7 +11,7 @@ const PartyMake = () => {
     age: '',
     min: '',
     max: '',
-    thumbnail: null,
+    imageUrls: [],
     description: '',
   });
 
