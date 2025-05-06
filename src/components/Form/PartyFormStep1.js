@@ -10,7 +10,7 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
     };
     const [activeTab, setActiveTab] = useState(0);
     const navigate = useNavigate();
-    const tabLabels = ["직관팟 구하기", "내 신청 현황", "승인 요청"];
+    const tabLabels = ["직관팟 구하기"];
     const [modalOpen, setModalOpen] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
 
@@ -92,8 +92,15 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
                         <input
                             type="number"
                             min={1}
+                            max={20}
+                            step={1}
                             value={form.min || ''}
-                            onChange={e => handleChange('min', Number(e.target.value))}
+                            onChange={e => {
+                                const value = Math.floor(Number(e.target.value));
+                                if (value > 0) {
+                                    handleChange('min', value);
+                                }
+                            }}
                             className={styles.numberInput}
                         />
                         명
@@ -103,8 +110,15 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
                         <input
                             type="number"
                             min={form.min || 1}
+                            max={20}
+                            step={1}
                             value={form.max || ''}
-                            onChange={e => handleChange('max', Number(e.target.value))}
+                            onChange={e => {
+                                const value = Math.floor(Number(e.target.value));
+                                if (value > 0 && value >= (form.min || 1)) {
+                                    handleChange('max', value);
+                                }
+                            }}
                             className={styles.numberInput}
                         />
                         명
@@ -114,16 +128,24 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
 
             <button
                 onClick={() => {
-                  const requiredFilled = form.partyName && form.applyType && form.gender && form.age && form.min && form.max;
-                  if (!requiredFilled) {
-                    setModalMessage('모든 항목을 입력해 주세요.');
-                    setModalOpen(true);
-                  } else if (form.min > form.max) {
-                    setModalMessage('최소 인원은 최대 인원보다 클 수 없습니다.');
-                    setModalOpen(true);
-                  } else {
-                    onNext();
-                  }
+                    if (!isFormValid()) {
+                        if (!form.partyName) {
+                            setModalMessage('파티 이름을 입력해 주세요.');
+                        } else if (!form.applyType) {
+                            setModalMessage('신청 방식을 선택해 주세요.');
+                        } else if (!form.gender) {
+                            setModalMessage('참여 성별을 선택해 주세요.');
+                        } else if (!form.age) {
+                            setModalMessage('참여자의 나이를 설정해 주세요.');
+                        } else if (!form.min || !form.max) {
+                            setModalMessage('최소 및 최대 인원을 입력해 주세요.');
+                        } else if (form.min >= form.max) {
+                            setModalMessage('최소 인원은 최대 인원보다 클 수 없습니다.');
+                        }
+                        setModalOpen(true);
+                    } else {
+                        onNext();
+                    }
                 }}
                 className={styles.nextButton}
             >
