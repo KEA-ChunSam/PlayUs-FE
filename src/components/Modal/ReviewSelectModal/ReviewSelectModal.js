@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import styles from './ReviewSelectModal.module.css';
+import PropTypes from "prop-types";
 
 const ReviewSelectModal = ({ title, selectedMessage, onSelect, onClose }) => {
     const [open, setOpen] = useState(false);
 
-    const presetMessages = [
+    const PRESET_MESSAGES = [
         '답장이 빨라요.',
         '시간 약속을 잘 지켜요.',
         '경기 직관이 열정적이에요.',
@@ -24,7 +25,7 @@ const ReviewSelectModal = ({ title, selectedMessage, onSelect, onClose }) => {
                     </div>
                     {open && (
                         <div className={styles.dropdown_list}>
-                            {presetMessages.map((msg, i) => (
+                            {PRESET_MESSAGES.map((msg, i) => (
                                 <div
                                     key={i}
                                     className={styles.dropdown_item}
@@ -46,3 +47,15 @@ const ReviewSelectModal = ({ title, selectedMessage, onSelect, onClose }) => {
 };
 
 export default ReviewSelectModal;
+
+ReviewSelectModal.propTypes = {
+    title: PropTypes.string.isRequired,
+    selectedMessage: PropTypes.string,
+    onSelect: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired
+};
+
+ReviewSelectModal.defaultProps = {
+    selectedMessage: '',
+    title: '후기 선택'
+};
