@@ -9,9 +9,9 @@ const Chatting = () => {
     const [showLeaveRoomModal, setShowLeaveRoomModal] = useState(false);
 
     const users = [
-        {name: 'ZSJ', avatar: '/Logo/profile.png'},
-        {name: '네모', avatar: '/Logo/profile2.png'},
-        {name: '세모', avatar: '/Logo/profile.png'},
+        {name: 'ZSJ', avatar: `${process.env.PUBLIC_URL}/Logo/profile.png`},
+        {name: '네모', avatar: `${process.env.PUBLIC_URL}/Logo/profile2.png`},
+        {name: '세모', avatar: `${process.env.PUBLIC_URL}/Logo/profile.png`},
     ];
 
     const [chatInput, setChatInput] = useState('');
@@ -80,7 +80,7 @@ const Chatting = () => {
                         key={idx}
                         className={msg.mine ? styles.messageRowReverse : styles.messageRow}
                     >
-                        {!msg.mine && <img src="/Logo/profile.png" className={styles.avatar} alt="user"/>}
+                        {!msg.mine && <img src={`${process.env.PUBLIC_URL}/Logo/profile.png`} className={styles.avatar} alt="user"/>}
                         <div>
                             {!msg.mine && <div className={styles.sender}>{msg.sender}</div>}
                             <div className={msg.mine ? styles.messageBubbleMine : styles.messageBubble}>

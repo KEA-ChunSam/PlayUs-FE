@@ -30,14 +30,14 @@ const Header = () => {
             <div className={styles.header_right}>
                 <button>
                     <img
-                        src={`${process.env.PUBLIC_URL}/button/admin.png`}
+                        src={`${process.env.PUBLIC_URL}/Button/admin.png`}
                         alt="알림"
                         className={styles.noti_alert}
                     />
                 </button>
                 <button>
                     <img
-                        src={`${process.env.PUBLIC_URL}/button/alert.png`}
+                        src={`${process.env.PUBLIC_URL}/Button/alert.png`}
                         alt="알림"
                         className={styles.noti_alert}
                     />

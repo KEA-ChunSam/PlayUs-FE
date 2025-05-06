@@ -14,40 +14,40 @@ const Schedule = () => {
           awayTeam="KT"
           stadium="고척"
           mainTime="18:30"
-          homeLogo="/Logo/TeamLogo/emblem_WO.png"
-          awayLogo="/Logo/TeamLogo/emblem_KT.png"
+          homeLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
+          awayLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`}
         />
         <GameCard
           homeTeam="키움"
           awayTeam="KT"
           stadium="고척"
           mainTime="18:30"
-          homeLogo="/Logo/TeamLogo/emblem_WO.png"
-          awayLogo="/Logo/TeamLogo/emblem_KT.png"
+          homeLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
+          awayLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`}
         />
         <GameCard
           homeTeam="키움"
           awayTeam="KT"
           stadium="고척"
           mainTime="18:30"
-          homeLogo="/Logo/TeamLogo/emblem_WO.png"
-          awayLogo="/Logo/TeamLogo/emblem_KT.png"
+          homeLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
+          awayLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`}
         />
         <GameCard
           homeTeam="키움"
           awayTeam="KT"
           stadium="고척"
           mainTime="18:30"
-          homeLogo="/Logo/TeamLogo/emblem_WO.png"
-          awayLogo="/Logo/TeamLogo/emblem_KT.png"
+          homeLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
+          awayLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`}
         />
         <GameCard
           homeTeam="키움"
           awayTeam="KT"
           stadium="고척"
           mainTime="18:30"
-          homeLogo="/Logo/TeamLogo/emblem_WO.png"
-          awayLogo="/Logo/TeamLogo/emblem_KT.png"
+          homeLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
+          awayLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`}
         />
       </div>
     </div>

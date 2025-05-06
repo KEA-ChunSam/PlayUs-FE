@@ -27,7 +27,7 @@ function Splash() {
         <div className={styles.mobile_view}>
             <div className={styles.splash}>
                 <img
-                    src={`${process.env.PUBLIC_URL}/Logo/newLogo_small.png`}
+                    src={`${process.env.PUBLIC_URL}/Logo/NewLogo_small.png`}
                     alt="PlayUs 로고"
                     style={{ width: 200, height: 'auto' }}
                     className={fadeOut ? styles.fade_out : ''}
