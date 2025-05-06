@@ -37,7 +37,7 @@ const TabNav = ({tabs = [], onTabChange, onBack}) => {
                         role="tab"
                         id={`tab-${index}`}
                         aria-selected={activeIndex === index}
-                        aria-controls={`tabpanel-${index}`}
+                        aria-controls={`tabpanel-${index}`}ㅡ
                         tabIndex={activeIndex === index ? 0 : -1}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
