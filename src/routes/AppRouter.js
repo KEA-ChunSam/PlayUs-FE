@@ -1,6 +1,6 @@
 // 페이지 라우터 컴포넌트
 import React from 'react';
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {HashRouter as Router, Route, Routes} from "react-router-dom";
 import MobileView from "../components/MobileView/MobileView";
 import MainPage from "../pages/Main/MainPage";
 import Splash from "../pages/Login/Splash";
@@ -20,7 +20,7 @@ import ReviewParty from "../pages/Party/ReviewParty/ReviewParty";
 
 function AppRouter() {
     return (
-        <BrowserRouter>
+        <Router>
             <Routes>
                 {/* 로그인 & 회원가입 */}
                 <Route path="/" element={<Splash/>}/>
@@ -79,7 +79,7 @@ function AppRouter() {
                     <Route index element={<Profile/>}/>
                 </Route>
             </Routes>
-        </BrowserRouter>
+        </Router>
     );
 }
 
