@@ -8,7 +8,7 @@ const NavBar = () => {
   return (
     <nav className={styles.wrapper}>
       {/* 하단 네비게이션 최상위 태그 */}
-      <Link to="/mainpage" className={styles.nav_link} onClick={() => setActiveNav(1)}>
+      <Link to="/home" className={styles.nav_link} onClick={() => setActiveNav(1)}>
         <div>
           <FontAwesomeIcon
             icon="home"
@@ -24,7 +24,7 @@ const NavBar = () => {
           />
         </div>
       </Link>
-      <Link to="/party" className={styles.nav_link} onClick={() => setActiveNav(3)}>
+      <Link to="/schedule" className={styles.nav_link} onClick={() => setActiveNav(3)}>
         <div>
           <FontAwesomeIcon
             icon="calendar-week"

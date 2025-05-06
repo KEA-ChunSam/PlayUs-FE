@@ -1,9 +1,10 @@
 .tabNavContainer {
+  /*height: 6rem;*/
   display: flex;
   align-items: center;
   justify-content: space-between;
   background-color: #fff;
-  padding: 16px 8px 0 8px;
+  padding: 8px 8px 0 8px;
   position: relative;
 }
 

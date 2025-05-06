@@ -12,9 +12,9 @@ const MobileView = () => {
             <Header />
 
             {/* 가운데 내용 영역 - 여기서 Outlet을 통해 페이지들이 동적으로 교체됩니다 */}
-            <div className={styles.mobile_content}>
+            {/*<div className={styles.mobile_content}>*/}
                 <Outlet />
-            </div>
+            {/*</div>*/}
 
             {/* 하단 고정 NavBar */}
             <NavBar />

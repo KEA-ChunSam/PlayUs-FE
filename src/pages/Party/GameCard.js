@@ -1,5 +1,6 @@
 import React from "react";
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
+import styles from './GameCard.module.css';
 
 const GameCard = ({
   time,
@@ -10,38 +11,35 @@ const GameCard = ({
   homeLogo,
   awayLogo,
 }) => {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const handlePartyClick = () => {
-    navigate('/party/tab');           
+    navigate('/party/matchid');
   };
 
   return (
-    <div className="w-full flex justify-between items-start px-4 py-3 border-b">
-      {/* 좌측: 시간 + 팀 */}
-      <div className="flex flex-col">
-        <span className="text-sm text-gray-500">{time}</span>
-        <div className="flex items-center gap-1 mt-1">
-          <img src={awayLogo} alt={awayTeam} className="w-5 h-5" />
-          <span className="text-sm font-medium">{awayTeam}</span>
+    <div className={styles.card}>
+      <div className={styles.timeBlock}>
+        <span className={styles.time}>{time}</span>
+        <div className={styles.teamRow}>
+          <img src={awayLogo} alt={awayTeam} className={styles.logo} />
+          <span className={styles.teamName}>{awayTeam}</span>
         </div>
-        <div className="flex items-center gap-1 mt-1">
-          <img src={homeLogo} alt={homeTeam} className="w-5 h-5" />
-          <span className="text-sm font-medium">{homeTeam}</span>
+        <div className={styles.teamRow}>
+          <img src={homeLogo} alt={homeTeam} className={styles.logo} />
+          <span className={styles.teamName}>{homeTeam}</span>
         </div>
       </div>
 
-      {/* 중간: 본 경기 시간 + 경기장 */}
-      <div className="flex flex-col items-center justify-center">
-        <span className="text-sm text-gray-500">{mainTime}</span>
-        <span className="text-sm text-gray-600">{stadium}</span>
+      <div className={styles.infoBlock}>
+        <span className={styles.mainTime}>{mainTime}</span>
+        <span className={styles.stadium}>{stadium}</span>
       </div>
 
-      {/* 우측: 버튼 */}
-      <div className="flex flex-col gap-1 items-end">
-        <button onClick={handlePartyClick} className="border text-sm px-2 py-1 rounded-md text-gray-600 hover:bg-gray-100">
+      <div className={styles.buttonBlock}>
+        <button onClick={handlePartyClick} className={styles.button}>
           직관팟
         </button>
-        <button className="border text-sm px-2 py-1 rounded-md text-gray-600 hover:bg-gray-100">
+        <button onClick={handlePartyClick} className={styles.button}>
           정보
         </button>
       </div>

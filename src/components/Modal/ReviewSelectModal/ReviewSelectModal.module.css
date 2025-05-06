@@ -26,9 +26,9 @@
 }
 
 .modal_title {
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     font-weight: bold;
-    margin-bottom: 16px;
+    /*margin-bottom: 16px;*/
     color: #0D1A80;
 }
 
@@ -50,18 +50,50 @@
     border-radius: 10px;
     cursor: pointer;
     font-size: 1rem;
-    transition: background-color 0.2s;
 }
 
-.modal_confirm_button:hover {
-    background-color: #e54545;
+.dropdown_wrapper {
+  position: relative;
+  width: 100%;
 }
 
-.modal_confirm_button:focus {
-    outline: 2px solid #0D1A80;
-    outline-offset: 2px;
+.dropdown_selected {
+  background-color: #f9f9f9;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.modal_confirm_button:active {
-    background-color: #cc3a3a;
+.dropdown_arrow {
+  font-size: 0.8rem;
+}
+
+.dropdown_list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: white;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  margin-top: 4px;
+  z-index: 10;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.dropdown_item {
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dropdown_item:hover {
+  background-color: #f0f0f0;
 }

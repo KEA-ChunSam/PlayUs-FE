@@ -33,9 +33,10 @@ function Login() {
                     <p className={styles.login_subtitle}>춘삼이와 함께 새로운 여정을 시작해 볼까요?</p>
                 </div>
 
-                {/* 링크 나중에 수정 */}
-                <a href="/choice-team" className={`${styles.login_button} ${styles.kakao_button}`}>
-                {/*<a href="/choice-team" className={`${styles.login_button} ${styles.kakao_button}`} onClick={onButtonClick}>*/}
+                <a
+                    href={`https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.REACT_APP_KAKAO_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_KAKAO_REDIRECT_URI}`}
+                    className={`${styles.login_button} ${styles.kakao_button}`}
+                >
                     <img
                         src={`${process.env.PUBLIC_URL}/Logo/KaKao_logo.png`}
                         alt="Kakao Icon"

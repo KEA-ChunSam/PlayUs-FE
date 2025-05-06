@@ -1,8 +1,15 @@
 // 공통 헤더 컴포넌트
 import React from "react";
 import styles from "./Header.module.css";
+import {useNavigate} from "react-router-dom";
 
 const Header = () => {
+    const navigate = useNavigate();
+
+    function alwaysHome() {
+        navigate("/home")
+    }
+
     return (
         <header className={styles.mobile_header}>
             <div className={styles.header_left}>
@@ -10,6 +17,7 @@ const Header = () => {
                     className={styles.main_logo}
                     src={`${process.env.PUBLIC_URL}/Logo/NewLogo_small.png`}
                     alt="Logo"
+                    onClick={alwaysHome}
                 />
             </div>
             <div className={styles.header_center}>
