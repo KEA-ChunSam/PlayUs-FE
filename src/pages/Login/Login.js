@@ -34,7 +34,7 @@ function Login() {
                 </div>
 
                 <a
-                    href="https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=e293c26c0c0476eb1377b380a3b0230d&redirect_uri=http://localhost:3000/auth/kakao/callback"
+                    href={`https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.REACT_APP_KAKAO_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_KAKAO_REDIRECT_URI}`}
                     className={`${styles.login_button} ${styles.kakao_button}`}
                 >
                     <img
