@@ -17,6 +17,7 @@ import PartyMake from "../pages/Party/PartyMake";
 import PartyApply from "../pages/Party/PartyApply";
 import Chatting from "../pages/Party/Chatting/Chatting";
 import ReviewParty from "../pages/Party/ReviewParty/ReviewParty";
+import MatchInfo from "../pages/League/MatchInfo";
 
 function AppRouter() {
     return (
@@ -45,6 +46,10 @@ function AppRouter() {
                 {/*<Route path="/schedule/tab" element={<MobileView/>}>*/}
                 {/*    <Route index element={<TabNav/>}/>*/}
                 {/*</Route>*/}
+                {/* 경기 정보 */}
+                <Route path="/schedule/matchid" element={<MobileView/>}>
+                    <Route index element={<MatchInfo/>}/>
+                </Route>
                 {/* 직관팟 목록 */}
                 <Route path="/party/matchid" element={<MobileView/>}>
                     {/*나중에 path를 /party/{partyid}로 수정 예정*/}

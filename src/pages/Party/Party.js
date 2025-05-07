@@ -53,6 +53,32 @@ const Party = () => {
             currentSlot: 10,
             maxSlot: 14
         },
+        {
+            id: 3,
+            thumbnail: `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`,
+            tags: ["승인제", "20대", "남자만"],
+            highlightedTagIndex: 2,
+            title: "3/22(토) 한화 vs KT 개막전 직관🦁💙",
+            writer: "김도영화이팅",
+            gender: "남성",
+            date: "3.22(토) 오후 2:00",
+            avatarUrl: `${process.env.PUBLIC_URL}/Logo/profile.png`,
+            currentSlot: 10,
+            maxSlot: 14
+        },
+        {
+            id: 4,
+            thumbnail: `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`,
+            tags: ["승인제", "20대", "남자만"],
+            highlightedTagIndex: 2,
+            title: "3/22(토) 한화 vs KT 개막전 직관🦁💙",
+            writer: "김도영화이팅",
+            gender: "남성",
+            date: "3.22(토) 오후 2:00",
+            avatarUrl: `${process.env.PUBLIC_URL}/Logo/profile.png`,
+            currentSlot: 10,
+            maxSlot: 14
+        },
     ];
 
     return (

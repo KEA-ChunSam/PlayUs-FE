@@ -15,6 +15,9 @@ const GameCard = ({
   const handlePartyClick = () => {
     navigate('/party/matchid');
   };
+  const handleInfoClick = () => {
+    navigate('/schedule/matchid');
+  };
 
   return (
     <div className={styles.card}>
@@ -39,7 +42,7 @@ const GameCard = ({
         <button onClick={handlePartyClick} className={styles.button}>
           직관팟
         </button>
-        <button onClick={handlePartyClick} className={styles.button}>
+        <button onClick={handleInfoClick} className={styles.button}>
           정보
         </button>
       </div>
