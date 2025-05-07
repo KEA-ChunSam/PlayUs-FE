@@ -43,7 +43,7 @@ const Party = () => {
         {
             id: 2,
             thumbnail: `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`,
-            tags: ["승인제", "20대", "여자만"],
+            tags: ["승인제", "20대", "남자만"],
             highlightedTagIndex: 2,
             title: "3/22(토) 한화 vs KT 개막전 직관🦁💙",
             writer: "김도영화이팅",

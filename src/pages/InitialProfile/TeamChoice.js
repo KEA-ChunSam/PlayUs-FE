@@ -1,6 +1,6 @@
 import Modal from "../../components/Modal/Modal";
 import LoginHeader from "../../components/Header/LoginHeader/LoginHeader";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import styles from "./TeamChoice.module.css";
 
@@ -8,6 +8,19 @@ const TeamChoice = () => {
     const navigate = useNavigate();
     const [selectedTeam, setSelectedTeam] = useState(null);
     const [showModal, setShowModal] = useState(false);
+
+    // 로그인 직후 전달된 JWT 토큰을 URL query에서 추출해 저장
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        if (token) {
+            localStorage.setItem('Authorization', token);
+            console.log('✅ JWT 저장 완료:', token);
+        } else {
+            console.warn('❌ URL에 token 파라미터가 없습니다.');
+        }
+    }, []);
+
     const onButtonClick = () => {
         if (!selectedTeam) {
             setShowModal(true);

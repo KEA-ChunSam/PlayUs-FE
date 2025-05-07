@@ -63,7 +63,7 @@ export default function ScheduleSlider({initialDate = new Date(), onDateSelect})
             </div>
 
             <div className={styles.dateList}>
-                <button onClick={() => shiftDate(-7)}>{'◀'}</button>
+                <button onClick={() => shiftDate(-7)}>{'<'}</button>
                 {getWeekDates(baseDate).map((date) => {
                     const isToday = isSameDay(date, new Date());
                     const isSelected = isSameDay(date, selectedDate);
@@ -78,7 +78,7 @@ export default function ScheduleSlider({initialDate = new Date(), onDateSelect})
                         </div>
                     );
                 })}
-                <button onClick={() => shiftDate(7)}>{'▶'}</button>
+                <button onClick={() => shiftDate(7)}>{'>'}</button>
             </div>
 
             {showPicker && (
