@@ -1,6 +1,6 @@
 import React from 'react';
 import GameCard from "../Party/GameCard";
-import ScheduleSlider from "../../components/ScheduleSlider/ScheduleSlider";
+import ScheduleSlider from "../../components/League/ScheduleSlider/ScheduleSlider";
 import styles from './Schedule.module.css';
 
 const Schedule = () => {

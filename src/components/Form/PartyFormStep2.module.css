@@ -1,5 +1,5 @@
 .container {
-  padding: 87px 16px 80px 16px; /* top = header height, bottom = nav height */
+  padding: 0 16px;
   box-sizing: border-box;
   overflow-y: auto;
   height: auto;
