@@ -1,0 +1,54 @@
+.tabBarRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  background-color: white;
+  padding: 18px 0px 0px 4px;
+  margin-top: 8px;
+  padding-left: 12px;
+  gap: 8px;
+}
+
+
+.tabWrapper {
+  display: flex;
+  gap: 0;
+  position: relative;
+  max-width: 90%;         /* 기존보다 오른쪽까지 확장 */
+  justify-content: space-between;
+  flex-grow: 1;           /* 공간을 꽉 채우도록 */
+  overflow-x: auto;             /* ✅ 가로 스크롤 허용 */
+  white-space: nowrap;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #ccc;
+}
+
+.tab {
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
+  cursor: pointer;
+  flex: none;                 /* ✅ 고정 너비 */
+  padding: 8px 8px;         /* ✅ 좌우 여백 부여 */
+  text-align: center;  
+}
+
+.tab.active {
+  color: #0D1A80;
+}
+
+.indicator {
+  position: absolute;
+  bottom: 0;
+  height: 3px;
+  background-color: #0D1A80;
+  transition: left 0.3s ease;
+  border-radius: 2px;
+}
+
+.plusIcon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
