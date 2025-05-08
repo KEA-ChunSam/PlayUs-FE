@@ -1,6 +1,6 @@
 import React from 'react';
 import GameCard from "../Party/GameCard";
-import ScheduleSlider from "../../components/ScheduleSlider/ScheduleSlider";
+import ScheduleSlider from "../../components/League/ScheduleSlider/ScheduleSlider";
 import styles from './Schedule.module.css';
 
 const Schedule = () => {
@@ -14,40 +14,40 @@ const Schedule = () => {
           awayTeam="KT"
           stadium="고척"
           mainTime="18:30"
-          homeLogo="/Logo/TeamLogo/emblem_WO.png"
-          awayLogo="/Logo/TeamLogo/emblem_KT.png"
+          homeLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
+          awayLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`}
         />
         <GameCard
           homeTeam="키움"
           awayTeam="KT"
           stadium="고척"
           mainTime="18:30"
-          homeLogo="/Logo/TeamLogo/emblem_WO.png"
-          awayLogo="/Logo/TeamLogo/emblem_KT.png"
+          homeLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
+          awayLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`}
         />
         <GameCard
           homeTeam="키움"
           awayTeam="KT"
           stadium="고척"
           mainTime="18:30"
-          homeLogo="/Logo/TeamLogo/emblem_WO.png"
-          awayLogo="/Logo/TeamLogo/emblem_KT.png"
+          homeLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
+          awayLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`}
         />
         <GameCard
           homeTeam="키움"
           awayTeam="KT"
           stadium="고척"
           mainTime="18:30"
-          homeLogo="/Logo/TeamLogo/emblem_WO.png"
-          awayLogo="/Logo/TeamLogo/emblem_KT.png"
+          homeLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
+          awayLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`}
         />
         <GameCard
           homeTeam="키움"
           awayTeam="KT"
           stadium="고척"
           mainTime="18:30"
-          homeLogo="/Logo/TeamLogo/emblem_WO.png"
-          awayLogo="/Logo/TeamLogo/emblem_KT.png"
+          homeLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
+          awayLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`}
         />
       </div>
     </div>

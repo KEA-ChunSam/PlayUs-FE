@@ -29,27 +29,53 @@ const Party = () => {
     const DUMMY_PARTIES = [
         {
             id: 1,
-            thumbnail: "/Logo/jikgwanprofile.png",
+            thumbnail: `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`,
             tags: ["승인제", "20대", "여자만"],
             highlightedTagIndex: 2,
             title: "3/22(토) 한화 vs KT 개막전 직관🦁💙",
             writer: "ZSJ",
             gender: "남성",
             date: "3.22(토) 오후 2:00",
-            avatarUrl: "/Logo/profile.png",
+            avatarUrl: `${process.env.PUBLIC_URL}/Logo/profile.png`,
             currentSlot: 10,
             maxSlot: 14
         },
         {
             id: 2,
-            thumbnail: "/Logo/jikgwanprofile.png",
-            tags: ["승인제", "20대", "여자만"],
+            thumbnail: `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`,
+            tags: ["승인제", "20대", "남자만"],
             highlightedTagIndex: 2,
             title: "3/22(토) 한화 vs KT 개막전 직관🦁💙",
             writer: "김도영화이팅",
             gender: "남성",
             date: "3.22(토) 오후 2:00",
-            avatarUrl: "/Logo/profile.png",
+            avatarUrl: `${process.env.PUBLIC_URL}/Logo/profile.png`,
+            currentSlot: 10,
+            maxSlot: 14
+        },
+        {
+            id: 3,
+            thumbnail: `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`,
+            tags: ["승인제", "20대", "남자만"],
+            highlightedTagIndex: 2,
+            title: "3/22(토) 한화 vs KT 개막전 직관🦁💙",
+            writer: "김도영화이팅",
+            gender: "남성",
+            date: "3.22(토) 오후 2:00",
+            avatarUrl: `${process.env.PUBLIC_URL}/Logo/profile.png`,
+            currentSlot: 10,
+            maxSlot: 14
+        },
+        {
+            id: 4,
+            thumbnail: `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`,
+            tags: ["승인제", "20대", "남자만"],
+            highlightedTagIndex: 2,
+            title: "3/22(토) 한화 vs KT 개막전 직관🦁💙",
+            writer: "김도영화이팅",
+            gender: "남성",
+            date: "3.22(토) 오후 2:00",
+            avatarUrl: `${process.env.PUBLIC_URL}/Logo/profile.png`,
             currentSlot: 10,
             maxSlot: 14
         },
@@ -66,7 +92,7 @@ const Party = () => {
                         <div className={styles.approvalSection}>
                             <div className={styles.matchHeader}>
                                 <div className={styles.teamBox}>
-                                    <img src="/Logo/TeamLogo_Big/HH.png" alt="한화" className={styles.teamLogo}/>
+                                    <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/HH.png`} alt="한화" className={styles.teamLogo}/>
                                     <span className={styles.teamName}>한화 이글스</span>
                                 </div>
                                 <div className={styles.vsBlock}>
@@ -75,7 +101,7 @@ const Party = () => {
                                     <div className={styles.time}>18:30</div>
                                 </div>
                                 <div className={styles.teamBox}>
-                                    <img src="/Logo/TeamLogo_Big/KT.png" alt="KT" className={styles.teamLogo}/>
+                                    <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/KT.png`} alt="KT" className={styles.teamLogo}/>
                                     <span className={styles.teamName}>KT 위즈</span>
                                 </div>
                             </div>
@@ -201,7 +227,7 @@ const Party = () => {
                                             </div>
                                         </div>
                                         <img
-                                            src="/Logo/jikgwanprofile.png"
+                                            src={`${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
                                             alt="썸네일"
                                             className={styles.thumbnailImg}
                                         />
@@ -218,7 +244,7 @@ const Party = () => {
                                     className={styles.partyCard}
                                     onClick={() => navigate(`/party/matchid/partyid`)}
                                 >
-                                    <img src="/Logo/jikgwanprofile.png" alt="player" className={styles.playerImg}/>
+                                    <img src={`${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`} alt="player" className={styles.playerImg}/>
                                     <div className={styles.partyContent}>
                                         <div className={styles.tags}>
                                             <span className={styles.tag}>승인제</span>
@@ -233,7 +259,7 @@ const Party = () => {
                                         </div>
                                         <div className={styles.partyStatus}>
                                             <div className={styles.avatars}>
-                                                <img src="/Logo/profile.png" alt="profile"/>
+                                                <img src={`${process.env.PUBLIC_URL}/Logo/profile.png`} alt="profile"/>
                                             </div>
                                             <div className={styles.slot}>10/14</div>
                                         </div>
@@ -246,31 +272,31 @@ const Party = () => {
                                         name: 'ZSJ',
                                         age: '20대',
                                         message: '저도 한화 엄청 좋아해요! 같이 직관하고 싶어요!',
-                                        avatar: '/Logo/profile.png'
+                                        avatar: `${process.env.PUBLIC_URL}/Logo/profile.png`
                                     },
                                     {
                                         name: '한화짱팬',
                                         age: '30대',
                                         message: '맨날 혼자 집에서 야구 봤는데, 이번에 처음 직관 가...',
-                                        avatar: '/Logo/profile2.png'
+                                        avatar: `${process.env.PUBLIC_URL}/Logo/profile.png`
                                     },
                                     {
                                         name: 'master',
                                         age: '40대',
                                         message: '야구 좋아하는 분들과 함께 재밌게 직관하고 싶어요!',
-                                        avatar: '/Logo/profile.png'
+                                        avatar: `${process.env.PUBLIC_URL}/Logo/profile.png`
                                     },
                                     {
                                         name: '한화짱팬',
                                         age: '30대',
                                         message: '맨날 혼자 집에서 야구 봤는데, 이번에 처음 직관 가...',
-                                        avatar: '/Logo/profile2.png'
+                                        avatar: `${process.env.PUBLIC_URL}/Logo/profile.png`
                                     },
                                     {
                                         name: '한화짱팬',
                                         age: '30대',
                                         message: '맨날 혼자 집에서 야구 봤는데, 이번에 처음 직관 가...',
-                                        avatar: '/Logo/profile2.png'
+                                        avatar: `${process.env.PUBLIC_URL}/Logo/profile.png`
                                     },
                                 ].map((user, idx) => (
                                     <div key={idx} className={styles.approvalCard}>

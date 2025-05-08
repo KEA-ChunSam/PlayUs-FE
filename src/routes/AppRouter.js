@@ -1,6 +1,6 @@
 // 페이지 라우터 컴포넌트
 import React from 'react';
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {HashRouter as Router, Route, Routes} from "react-router-dom";
 import MobileView from "../components/MobileView/MobileView";
 import MainPage from "../pages/Main/MainPage";
 import Splash from "../pages/Login/Splash";
@@ -17,10 +17,11 @@ import PartyMake from "../pages/Party/PartyMake";
 import PartyApply from "../pages/Party/PartyApply";
 import Chatting from "../pages/Party/Chatting/Chatting";
 import ReviewParty from "../pages/Party/ReviewParty/ReviewParty";
+import MatchInfo from "../pages/League/MatchInfo";
 
 function AppRouter() {
     return (
-        <BrowserRouter>
+        <Router>
             <Routes>
                 {/* 로그인 & 회원가입 */}
                 <Route path="/" element={<Splash/>}/>
@@ -45,13 +46,17 @@ function AppRouter() {
                 {/*<Route path="/schedule/tab" element={<MobileView/>}>*/}
                 {/*    <Route index element={<TabNav/>}/>*/}
                 {/*</Route>*/}
+                {/* 경기 정보 */}
+                <Route path="/schedule/matchid" element={<MobileView/>}>
+                    <Route index element={<MatchInfo/>}/>
+                </Route>
                 {/* 직관팟 목록 */}
                 <Route path="/party/matchid" element={<MobileView/>}>
                     {/*나중에 path를 /party/{partyid}로 수정 예정*/}
                     <Route index element={<Party/>}/>
                 </Route>
                 {/* 직관팟 상세 */}
-                <Route path="/party/matchid/partyid" element={<MobileView/>}>
+                <Route path="/party/matchid/:partyid" element={<MobileView/>}>
                     <Route index element={<PartyDetail/>}/>
                 </Route>
                 {/* 직관팟 만들기 */}
@@ -79,7 +84,7 @@ function AppRouter() {
                     <Route index element={<Profile/>}/>
                 </Route>
             </Routes>
-        </BrowserRouter>
+        </Router>
     );
 }
 

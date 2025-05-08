@@ -19,7 +19,7 @@ const PartyDetail = () => {
             <div className={styles.content}>
                 <TabNav tabs={tabLabels} onTabChange={setActiveTab} onBack={() => navigate(-1)}/>
                 <div className={styles.partyCard}>
-                    <img src="/Logo/jikgwanprofile.png" alt="player" className={styles.partyImage}/>
+                    <img src={`${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`} alt="player" className={styles.partyImage}/>
                     <div className={styles.partySummary}>
                         <div className={styles.tags}>
                             <span className={styles.tag}>승인제</span>
@@ -34,8 +34,8 @@ const PartyDetail = () => {
                         </div>
                         <div className={styles.status}>
                             <div className={styles.avatars}>
-                                <img src="/Logo/profile.png" alt="profile"/>
-                                <img src="/Logo/profile.png" alt="profile"/>
+                                <img src={`${process.env.PUBLIC_URL}/Logo/profile.png`} alt="profile"/>
+                                <img src={`${process.env.PUBLIC_URL}/Logo/profile.png`} alt="profile"/>
                                 {/* ...추가 프로필 */}
                             </div>
                             <span className={styles.slot}>10/14</span>
