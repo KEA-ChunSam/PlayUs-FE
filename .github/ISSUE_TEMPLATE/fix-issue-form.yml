@@ -15,8 +15,8 @@ body:
   - type : input
     id : parentKey
     attributes:
-      label: '상위 작업 (Story, 초록색 책갈피) Ticket Number'
-      description: '상위 직업 (Story, 초록색 아이콘) 의 Ticket Number를 기입해주세요, 노션에서도 확인 가능'
+      label: '상위 작업 (Epic, 보라색 번개) Ticket Number'
+      description: '상위 직업 (Epic, 보라색 아이콘) 의 Ticket Number를 기입해주세요, 노션에서도 확인 가능'
       value: CS-00
     validations:
       required: true
