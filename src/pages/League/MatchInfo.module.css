@@ -49,6 +49,7 @@
 }
 
 .matchBox{
+    display: grid;
     justify-items: center;
 }
 
