@@ -15,32 +15,32 @@ function MatchInfo() {
     // const navigate = useNavigate();
 
     const [homeBatters, setHomeBatters] = useState([
-      {id: '1', name: '김태연', position: '좌익수', hand: '우타'},
-      {id: '2', name: '문현빈', position: '지명타자', hand: '좌타'},
-      {id: '3', name: '플로리엘', position: '중견수', hand: '좌타'},
-      {id: '4', name: '노시환', position: '3루수', hand: '우타'},
-      {id: '5', name: '채은성', position: '1루수', hand: '우타'},
-      {id: '6', name: '황영묵', position: '2루수', hand: '좌타'},
-      {id: '7', name: '이진영', position: '우익수', hand: '우타'},
-      {id: '8', name: '최재훈', position: '포수', hand: '우타'},
-      {id: '9', name: '심우준', position: '유격수', hand: '우타'},
-      {id: '10', name: '안치홍', position: '2루수', hand: '우타'},
-      {id: '11', name: '김상복', position: '유격수', hand: '우타'},
-      {id: '12', name: '피경준', position: '3루수', hand: '좌타'}
+        {id: '1', name: '김태연', position: '좌익수', hand: '우타'},
+        {id: '2', name: '문현빈', position: '지명타자', hand: '좌타'},
+        {id: '3', name: '플로리엘', position: '중견수', hand: '좌타'},
+        {id: '4', name: '노시환', position: '3루수', hand: '우타'},
+        {id: '5', name: '채은성', position: '1루수', hand: '우타'},
+        {id: '6', name: '황영묵', position: '2루수', hand: '좌타'},
+        {id: '7', name: '이진영', position: '우익수', hand: '우타'},
+        {id: '8', name: '최재훈', position: '포수', hand: '우타'},
+        {id: '9', name: '심우준', position: '유격수', hand: '우타'},
+        {id: '10', name: '안치홍', position: '2루수', hand: '우타'},
+        {id: '11', name: '김상복', position: '유격수', hand: '우타'},
+        {id: '12', name: '피경준', position: '3루수', hand: '좌타'}
     ]);
     const [awayBatters, setAwayBatters] = useState([
-      {id: '1', name: '강백호', position: '지명타자', hand: '좌타'},
-      {id: '2', name: '로하스', position: '우익수', hand: '양타'},
-      {id: '3', name: '허경민', position: '3루수', hand: '우타'},
-      {id: '4', name: '김민혁', position: '좌익수', hand: '좌타'},
-      {id: '5', name: '장성우', position: '포수', hand: '우타'},
-      {id: '6', name: '문상철', position: '1루수', hand: '우타'},
-      {id: '7', name: '천성호', position: '2루수', hand: '우타'},
-      {id: '8', name: '안현민', position: '우익수', hand: '우타'},
-      {id: '9', name: '심우준', position: '유격수', hand: '우타'},
-      {id: '10', name: '권동진', position: '유격수', hand: '좌타'},
-      {id: '11', name: '배정대', position: '중견수', hand: '우타'},
-      {id: '12', name: '김병준', position: '좌익수', hand: '좌타'}
+        {id: '1', name: '강백호', position: '지명타자', hand: '좌타'},
+        {id: '2', name: '로하스', position: '우익수', hand: '양타'},
+        {id: '3', name: '허경민', position: '3루수', hand: '우타'},
+        {id: '4', name: '김민혁', position: '좌익수', hand: '좌타'},
+        {id: '5', name: '장성우', position: '포수', hand: '우타'},
+        {id: '6', name: '문상철', position: '1루수', hand: '우타'},
+        {id: '7', name: '천성호', position: '2루수', hand: '우타'},
+        {id: '8', name: '안현민', position: '우익수', hand: '우타'},
+        {id: '9', name: '심우준', position: '유격수', hand: '우타'},
+        {id: '10', name: '권동진', position: '유격수', hand: '좌타'},
+        {id: '11', name: '배정대', position: '중견수', hand: '우타'},
+        {id: '12', name: '김병준', position: '좌익수', hand: '좌타'}
     ]);
 
     function startSimulate() {
@@ -75,19 +75,6 @@ function MatchInfo() {
                             <div className={styles.pitcherCount}>선발투수-쿠에바스</div>
                         </div>
                     </section>
-
-                    {/*<section className={styles.vsRecordSection}>*/}
-                    {/*    <h2 className={styles.sectionTitle}>상대전적</h2>*/}
-                    {/*    <div className={styles.vsRecordBar}>*/}
-                    {/*        <span className={styles.vsRecordLeft}>1승 1무 4패</span>*/}
-                    {/*        <div className={styles.progressBar}>*/}
-                    {/*            <div className={styles.progressLeft} style={{width: '20%'}}></div>*/}
-                    {/*            <div className={styles.progressDraw} style={{width: '15%'}}></div>*/}
-                    {/*            <div className={styles.progressRight} style={{width: '65%'}}></div>*/}
-                    {/*        </div>*/}
-                    {/*        <span className={styles.vsRecordRight}>4승 1무 1패</span>*/}
-                    {/*    </div>*/}
-                    {/*</section>*/}
                     <section className={styles.vsRecordSection}>
                         <h2 className={styles.sectionTitle}>상대전적</h2>
                         <div className={styles.metricValues}>
@@ -203,28 +190,34 @@ function MatchInfo() {
                                 </tr>
                                 </thead>
                                 <tbody className={styles.gamelog}>
-                                {GameLogData.map((inningData, i) =>
-                                    inningData.logs.map((log, j) => (
-                                        <tr key={`${i}-${j}`}>
-                                            <td>{j === 0 ? <strong>{inningData.inning}</strong> : ""}</td>
-                                            <td>{log.pitcher}</td>
-                                            <td>{log.batter}</td>
-                                            <td>{log.p}</td>
-                                            <td>{log.result}</td>
-                                        </tr>
-                                    ))
-                                )}
+                                {GameLogData.flatMap((inningData, i) =>
+                                    inningData.logs.map((log, j) => ({
+                                        ...log,
+                                        id: `${i}-${j}`,
+                                        isFirstInInning: j === 0,
+                                        inning: inningData.inning
+                                    }))
+                                ).map((log) => (
+                                    <tr key={log.id}>
+                                        <td>{log.isFirstInInning ? <strong>{log.inning}</strong> : ""}</td>
+                                        <td>{log.pitcher}</td>
+                                        <td>{log.batter}</td>
+                                        <td>{log.p}</td>
+                                        <td>{log.result}</td>
+                                    </tr>
+                                ))}
                                 </tbody>
                             </table>
                         </div>
                     )}
                     {/* 기록 서브메뉴 */}
                     {activeSubTab === 2 && (
-                        <RecordsSection homeBatters={homeBatters} awayBatters={awayBatters} />
+                        <RecordsSection homeBatters={homeBatters} awayBatters={awayBatters}/>
                     )}
                 </div>
             )}
         </div>
     );
 }
+
 export default MatchInfo;
