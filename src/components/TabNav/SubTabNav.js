@@ -1,10 +1,10 @@
 import React, {useState} from "react";
-import {useNavigate} from "react-router-dom";
+// import {useNavigate} from "react-router-dom";
 import styles from "./SubTabNav.module.css";
 
-const SubTabNav = ({tabs = [], onTabChange, onBack}) => {
+const SubTabNav = ({tabs = [], onTabChange}) => {
     const [activeIndex, setActiveIndex] = useState(0);
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     const handleTabClick = (index) => {
         setActiveIndex(index);
