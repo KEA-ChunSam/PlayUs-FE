@@ -1,17 +1,20 @@
 import TabNav from '../../components/TabNav/TabNav';
 import styles from './MatchInfo.module.css';
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import SubTabNav from "../../components/TabNav/SubTabNav";
+import LineupDraggableList from '../../components/DragNDrop/LineupDraggableList';
 
 function MatchInfo() {
     const [activeTab, setActiveTab] = useState(0);
     const tabLabels = ["경기 정보", "AI 시뮬레이터"];
     const subTabLabels = ["라인업 설정", "경기 로그", "기록"];
     const navigate = useNavigate();
-    function startSimulate () {
+
+    function startSimulate() {
 
     }
+
     return (
         <div className={styles.container}>
             <TabNav tabs={tabLabels} onTabChange={setActiveTab}/>
@@ -138,31 +141,44 @@ function MatchInfo() {
 
                     <div className={styles.simLineups}>
                         <div className={styles.lineupColumn}>
-                            {/* TODO: 차후 KBO API 연동시 실제 데이터 받아옴*/}
                             <div className={styles.pitcher}>와이스 <span>우투</span></div>
-                            <div className={styles.lineup}>
-                                <div>1 김태연 <span>좌익수, 우타</span></div>
-                                <div>2 문현빈 <span>지명타자, 좌타</span></div>
-                                <div>3 플로리엘 <span>중견수, 좌타</span></div>
-                                <div>4 노시환 <span>3루수, 우타</span></div>
-                                <div>5 채은성 <span>1루수, 우타</span></div>
-                                <div>6 황영묵 <span>2루수, 좌타</span></div>
-                                <div>7 황영묵 <span>2루수, 좌타</span></div>
-                                <div>8 황영묵 <span>2루수, 좌타</span></div>
-                                <div>9 황영묵 <span>2루수, 좌타</span></div>
-                                <div>후보 황영묵 <span>2루수, 좌타</span></div>
-                            </div>
+                            <LineupDraggableList
+                                // title="홈 라인업"
+                                batters={[
+                                    {id: '1', name: '김태연', position: '좌익수', hand: '우타'},
+                                    {id: '2', name: '문현빈', position: '지명타자', hand: '좌타'},
+                                    {id: '3', name: '플로리엘', position: '중견수', hand: '좌타'},
+                                    {id: '4', name: '노시환', position: '3루수', hand: '우타'},
+                                    {id: '5', name: '채은성', position: '1루수', hand: '우타'},
+                                    {id: '6', name: '황영묵', position: '2루수', hand: '좌타'},
+                                    {id: '7', name: '이진영', position: '우익수', hand: '우타'},
+                                    {id: '8', name: '최재훈', position: '포수', hand: '우타'},
+                                    {id: '9', name: '심우준', position: '유격수', hand: '우타'},
+                                    {id: '10', name: '안치홍', position: '2루수', hand: '우타'},
+                                    {id: '11', name: '김상복', position: '유격수', hand: '우타'},
+                                    {id: '12', name: '피경준', position: '3루수', hand: '좌타'}
+                                ]}
+                            />
                         </div>
                         <div className={styles.lineupColumn}>
                             <div className={styles.pitcher}>쿠에바스 <span>우투</span></div>
-                            <div className={styles.lineup}>
-                                <div>1 강백호 <span>지명타자, 좌타</span></div>
-                                <div>2 로하스 <span>우익수, 양타</span></div>
-                                <div>3 허경민 <span>3루수, 우타</span></div>
-                                <div>4 김민혁 <span>좌익수, 좌타</span></div>
-                                <div>5 장성우 <span>포수, 우타</span></div>
-                                <div>6 문상철 <span>1루수, 우타</span></div>
-                            </div>
+                            <LineupDraggableList
+                                // title="원정 라인업"
+                                batters={[
+                                    {id: '1', name: '강백호', position: '지명타자', hand: '좌타'},
+                                    {id: '2', name: '로하스', position: '우익수', hand: '양타'},
+                                    {id: '3', name: '허경민', position: '3루수', hand: '우타'},
+                                    {id: '4', name: '김민혁', position: '좌익수', hand: '좌타'},
+                                    {id: '5', name: '장성우', position: '포수', hand: '우타'},
+                                    {id: '6', name: '문상철', position: '1루수', hand: '우타'},
+                                    {id: '7', name: '천성호', position: '2루수', hand: '우타'},
+                                    {id: '8', name: '안현민', position: '우익수', hand: '우타'},
+                                    {id: '9', name: '심우준', position: '유격수', hand: '우타'},
+                                    {id: '10', name: '권동진', position: '유격수', hand: '좌타'},
+                                    {id: '11', name: '배정대', position: '중견수', hand: '우타'},
+                                    {id: '12', name: '김병준', position: '좌익수', hand: '좌타'}
+                                ]}
+                            />
                         </div>
                     </div>
                 </div>
@@ -170,5 +186,4 @@ function MatchInfo() {
         </div>
     );
 }
-
 export default MatchInfo;

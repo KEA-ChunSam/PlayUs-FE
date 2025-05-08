@@ -1,15 +1,15 @@
 .container {
-    /*position: relative;*/
-    /*aspect-ratio: 9 / 16;*/
-    /*max-width: 100%;*/
-    /*max-height: 100%;*/
-    /*!*display: flex;*!*/
-    /*top: 10vh;*/
-    /*flex-direction: column;*/
-    /*align-items: center;*/
-    /*justify-content: center;*/
-    /*width: 100%;*/
-    /*padding-bottom: 3.5rem;*/
+    position: relative;
+    aspect-ratio: 9 / 16;
+    max-width: 100%;
+    max-height: 100%;
+    /*display: flex;*/
+    top: 10vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding-bottom: 3.5rem;
 }
 
 /* 경기 정보 섹션 */
@@ -17,7 +17,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: 20px 2rem;
+    margin: 20px 2rem 0 2rem;
     /*overflow-y: scroll;*/
 }
 
@@ -186,8 +186,8 @@
 .aiSimSection {
     padding: 1.5rem 1rem;
     text-align: center;
-    /*height: calc(100vh - 10vh);*/
-    overflow: hidden;
+    height: calc(100vh - 10vh);
+    /*overflow: hidden;*/
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -270,19 +270,59 @@
 }
 
 .simLineups {
-    padding: 1.5rem 0 0 0;
-    display: flex;
-    justify-content: space-around;
-    gap: 1rem;
-    flex-wrap: wrap;
-    /*max-height: calc(100vh - 56px - 160px); !* 56px은 NavBar 높이, 160px은 위쪽 요소 여유 *!*/
-    overflow-y: scroll;
+  position: relative;
+  flex: 1;
+  max-height: calc(100vh - 550px);
+  overflow-y: auto;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0 2.5rem;
 }
+
+.simLineups::after {
+    content: "";
+    display: block;
+    height: 56px;
+    flex-shrink: 0;
+}
+
+.lineup {
+    min-height: 300px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    margin-bottom: 8px;
+}
+
+.lineupItem {
+    background: white;
+    padding: 12px;
+    margin-bottom: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: grab;
+    transition: all 0.2s ease;
+}
+
+.lineupItem:hover {
+    background-color: #ff4f4f;
+    border-color: #aaa;
+}
+
+.lineupItem:active {
+    cursor: grabbing;
+}
+
 
 .lineupColumn {
     flex: 1;
     min-width: 150px;
     text-align: center;
+    padding: 0 18px 0 18px;
+    /*overflow-y: hidden;*/
 }
 
 .pitcher {
