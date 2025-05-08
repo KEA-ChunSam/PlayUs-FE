@@ -1,7 +1,7 @@
 import TabNav from '../../components/TabNav/TabNav';
 import styles from './MatchInfo.module.css';
 import React, {useState} from "react";
-import {useNavigate} from "react-router-dom";
+// import {useNavigate} from "react-router-dom";
 import SubTabNav from "../../components/TabNav/SubTabNav";
 import LineupDraggableList from '../../components/DragNDrop/LineupDraggableList';
 import GameLogData from "../../components/GameLogData/GameLogData";
@@ -12,7 +12,7 @@ function MatchInfo() {
     const [activeSubTab, setActiveSubTab] = useState(0);
     const tabLabels = ["경기 정보", "AI 시뮬레이터"];
     const subTabLabels = ["라인업 설정", "경기 로그", "기록"];
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     const [homeBatters, setHomeBatters] = useState([
       {id: '1', name: '김태연', position: '좌익수', hand: '우타'},
