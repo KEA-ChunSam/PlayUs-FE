@@ -1,12 +1,17 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {DragDropContext, Draggable, Droppable} from '@hello-pangea/dnd';
 import styles from './LineupManager.module.css';
 
-const LineupDraggableList = ({batters, title}) => {
+const LineupDraggableList = ({batters, setBatters, title}) => {
+    const startingCount = 9;
     const [players, setPlayers] = useState({
-        starting: batters.slice(0, 9),
-        substitutes: batters.slice(9)
+        starting: batters.slice(0, startingCount),
+        substitutes: batters.slice(startingCount)
     });
+
+    useEffect(() => {
+        setBatters([...players.starting, ...players.substitutes]);
+    }, [players, setBatters]);
 
     const swap = (listA, indexA, listB, indexB) => {
         const newListA = [...listA];

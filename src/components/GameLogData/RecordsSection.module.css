@@ -1,0 +1,90 @@
+.accordionBlock {
+    border: 2px solid #2f2f87;
+    border-radius: 18px;
+    box-shadow: 0 3px 6px rgba(47, 47, 135, 0.2);
+    overflow: hidden;
+    transition: all 0.4s ease;
+    background-color: white;
+    margin: 0 18px 14px 18px;
+}
+
+.accordionContent {
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+}
+
+.contents {
+    margin-top: 8px;
+    padding-bottom: 2rem;
+}
+
+.recordToggle {
+    width: 100%;
+    text-align: left;
+    padding: 1rem;
+    background-color: white;
+    font-weight: 800;
+    font-size: 18px;
+    color: #1d1b43;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease-in-out;
+}
+
+.recordToggle::after {
+    content: '›';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    background: white;
+    border: 2px solid #2f2f87;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(47, 47, 135, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #2f2f87;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.recordToggleOpen {
+    background-color: white;
+    border: 2px solid #2f2f87;
+    border-radius: 18px;
+    font-weight: 800;
+    font-size: 18px;
+    color: #1d1b43;
+    box-shadow: 0 3px 6px rgba(47, 47, 135, 0.2);
+}
+
+.recordToggleOpen::after {
+    content: '⌄';
+    background: #4339f2;
+    color: white;
+    border: none;
+    transform: translateY(-50%);
+}
+
+.recordTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 6px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.recordTable th, .recordTable td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.recordTable th {
+    background-color: #f0f0f0;
+    font-weight: 600;
+}
