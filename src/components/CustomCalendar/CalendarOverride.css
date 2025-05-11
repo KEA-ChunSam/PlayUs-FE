@@ -1,0 +1,37 @@
+/* 프로필 화면에서 직관일지 달력 부분에 커스텀 CSS를 적용하기 위한 CSS 파일 */
+.react-calendar__month-view__days__day--weekend {
+  color: inherit !important;
+}
+
+.react-calendar__tile--active {
+  background: none !important;
+  color: inherit !important;
+  border-radius: 0 !important;
+}
+
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+  background: #e6e6e6 !important;
+}
+
+.react-calendar {
+  border: none !important;
+}
+
+.react-calendar__tile {
+  padding: 0.1rem 0 !important;
+  height: 45px !important;
+  box-sizing: border-box;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.react-calendar__month-view__weekdays {
+  border-top: 1px solid #ddd;
+}
+
+.react-calendar__viewContainer {
+  min-height: 310px;
+}

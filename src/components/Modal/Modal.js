@@ -8,7 +8,10 @@ const Modal = ({ title, message, onClose }) => {
       <div className={styles.modal_box}>
         <h3 className={styles.modal_title}>{title}</h3>
         <p className={styles.modal_message}>{message}</p>
-        <button className={styles.modal_confirm_button} onClick={onClose}>확인</button>
+        <div className={styles.modal_button_group}>
+          <button className={styles.modal_confirm_button} onClick={onClose}>확인</button>
+          <button className={styles.modal_confirm_button} onClick={onClose}>취소</button>
+        </div>
       </div>
     </div>
   );

@@ -21,7 +21,7 @@
     padding: 30px 20px 40px 20px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
 }
 
@@ -64,4 +64,9 @@
 
 .modal_confirm_button:active {
     background-color: #cc3a3a;
+}
+.modal_button_group {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
 }

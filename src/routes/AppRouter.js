@@ -6,7 +6,7 @@ import MainPage from "../pages/Main/MainPage";
 import Splash from "../pages/Login/Splash";
 import Login from "../pages/Login/Login";
 import Community from '../components/Community';
-import Profile from '../components/Profile';
+import Profile from '../pages/Profile/Profile';
 import TeamChoice from "../pages/InitialProfile/TeamChoice";
 import SetProfile from "../pages/InitialProfile/SetProfile";
 import LoginComplete from "../pages/InitialProfile/LoginComplete";

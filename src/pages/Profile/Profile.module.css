@@ -1,0 +1,163 @@
+.container {
+  position: relative;
+  top: 10vh;
+  width: 100%;
+  padding: 0 1rem 3.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.profileImg {
+  /*width: 80px;*/
+  /*height: 80px;*/
+  width: 7rem;
+  height: 7rem;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 0.5rem;
+}
+
+.userInfo {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.username {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  font-size: 1.8rem;
+}
+
+.editIcon {
+  width: 16px;
+  height: 16px;
+  margin-left: 0.5rem;
+}
+
+.email {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.logout {
+  font-size: 0.8rem;
+  color: #999;
+  text-decoration: underline;
+  cursor: pointer;
+  display: flex;
+}
+
+.logoutImg {
+  width: 1rem;
+}
+
+.teamImg {
+  width: 5rem;
+  height: 5rem;
+  object-fit: contain;
+  margin-left: auto;
+}
+
+.calendarSection {
+  width: 100%;
+  margin-bottom: 8px;
+  display: grid;
+  /*justify-content: center;*/
+}
+
+.calendarSection h2 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-bottom: #F2F2F2 1px solid;
+}
+
+.calendarSectionDiv {
+  width: 100%;
+  margin:  8px 0 0 0;
+  display: grid;
+  justify-content: center;
+}
+
+.logoWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 1px;
+}
+
+.teamLogo {
+  /*width: 24px;*/
+  /*height: 24px;*/
+  /*width: 1rem;*/
+  height: 1rem;
+}
+
+.journalSection {
+  width: 100%;
+}
+
+.journalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.journalHeader h2 {
+  font-size: 19px;
+  font-weight: bold;
+}
+
+.writeBtn {
+  padding: 0.5rem 1rem;
+  margin-left: 20px;
+  font-size: 0.9rem;
+  border: none;
+  background-color: #333;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.journalList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.journalItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.entryImg {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-right: 1rem;
+}
+
+.entryTitle {
+  flex-grow: 1;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.entryDate {
+  font-size: 0.85rem;
+  color: #666;
+  margin-left: 1rem;
+}
