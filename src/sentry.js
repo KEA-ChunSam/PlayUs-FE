@@ -20,13 +20,14 @@ if (['prod', 'dev'].includes(process.env.REACT_APP_ENVIRONMENT)) {
 function sendToSlack(error) {
     const ENVIRONMENT = process.env.REACT_APP_ENVIRONMENT
     const SENTRY_REPOSITORY_URI = process.env.REACT_APP_SENTRY_REPOSITORY_URI
+    const SLACK_WEBHOOK_URL = process.env.REACT_APP_SLACK_WEBHOOK_URL
 
     const now = new Date();
     const formattedTime = now.toISOString().replace('T', ' ').substring(0, 23);
 
-    const logMessage = `*🚨[${ENVIRONMENT}]* ${formattedTime} 0000 ERROR ${error.name} - ${error.message} <${SENTRY_REPOSITORY_URI}|Go-To-Sentry>`;
+    const logMessage = `*🚨[${ENVIRONMENT}]* ${formattedTime} ERROR ${error.name} - ${error.message}\n${error.stack ? `\`\`\`${error.stack}\`\`\`` : ''}\n<${SENTRY_REPOSITORY_URI}|Go-To-Sentry>`;
 
-    fetch(process.env.REACT_APP_SLACK_WEBHOOK_URL, {
+    fetch(SLACK_WEBHOOK_URL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
