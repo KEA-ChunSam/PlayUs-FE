@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import '../../components/CustomCalendar/CalendarOverride.css';
 import styles from './Profile.module.css';
 import Modal from '../../components/Modal/Modal';
+import ProfileEditModal from '../../components/Modal/ProfileEditModal/ProfileEditModal';
+import WithdrawalModal from '../../components/Modal/WithdrawalModal/WithdrawalModal';
 
 const teamLogs = {
   '2025-03-03': 'nc.png',
@@ -26,9 +29,15 @@ const Profile = () => {
   const today = new Date();
   const [value, setValue] = useState(today);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showProfileEditModal, setShowProfileEditModal] = useState(false);
+  const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
+  const [showFinalModal, setShowFinalModal] = useState(false);
+  const [nickname, setNickname] = useState('ZSJ');
+  const navigate = useNavigate();
   const handleLogout = () => {
     console.log('로그아웃 확인됨');
     setShowLogoutModal(false);
+    navigate('/login');
   };
 
   const tileContent = ({ date, view }) => {
@@ -51,14 +60,19 @@ const Profile = () => {
         <img src={`${process.env.PUBLIC_URL}/Logo/profile2.png`} alt="profile" className={styles.profileImg} />
         <div className={styles.userInfo}>
           <div className={styles.username}>
-            <span>ZSJ</span>
-            <img src={`${process.env.PUBLIC_URL}/Button/create.png`} alt="edit" className={styles.editIcon} />
+            <span>{nickname}</span>
+            <img
+              src={`${process.env.PUBLIC_URL}/Button/create.png`}
+              alt="edit"
+              className={styles.editIcon}
+              onClick={() => setShowProfileEditModal(true)}
+            />
           </div>
           <div className={styles.email}>cho010105@gachon.ac.kr</div>
           <div className={styles.logout} onClick={() => setShowLogoutModal(true)}>
             <img src={`${process.env.PUBLIC_URL}/Button/logout.png`} alt="logout" className={styles.logoutImg}/>로그아웃
           </div>
-          <div className={styles.logout}>탈퇴하기</div>
+          <div className={styles.logout} onClick={() => setShowWithdrawalModal(true)}>탈퇴하기</div>
         </div>
         <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/NC.png`} alt="team" className={styles.teamImg} />
       </header>
@@ -97,8 +111,39 @@ const Profile = () => {
           <Modal
               title="로그아웃"
               message="로그아웃하시겠어요?"
-              onClose={() => setShowLogoutModal(false)}
+              onClose={handleLogout}
           />
+      )}
+      {showWithdrawalModal && (
+        <WithdrawalModal
+          nickname={nickname}
+          onCancel={() => setShowWithdrawalModal(false)}
+          onWithdraw={() => {
+            setShowWithdrawalModal(false);
+            setShowFinalModal(true);
+          }}
+        />
+      )}
+      {showFinalModal && (
+        <Modal
+          title="탈퇴 완료"
+          message={"탈퇴가 완료되었습니다.\n언제든 다시 돌아오세요!"}
+          buttons={[
+            {
+              label: '확인',
+              onClick: () => {
+                setShowFinalModal(false);
+                navigate('/login');
+              }
+            }
+          ]}
+        />
+      )}
+      {showProfileEditModal && (
+        <ProfileEditModal
+          onClose={() => setShowProfileEditModal(false)}
+          onSubmit={(newNickname) => setNickname(newNickname)}
+        />
       )}
     </div>
   );
