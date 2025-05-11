@@ -10,6 +10,9 @@ const WithdrawalModal = ({ nickname, onCancel, onWithdraw }) => {
     '비매너 사용자를 만났어요',
     '기타'
   ];
+  const handleWithdraw = async () => {
+    onWithdraw(reason);
+  }
 
   return (
     <div className={styles.overlay}>
@@ -46,7 +49,7 @@ const WithdrawalModal = ({ nickname, onCancel, onWithdraw }) => {
           <button className={styles.cancelButton} onClick={onCancel}>계정 유지하기</button>
           <button
             className={styles.withdrawButton}
-            onClick={onWithdraw}
+            onClick={handleWithdraw}
             disabled={!reason || !agreed}
           >
             탈퇴하기
