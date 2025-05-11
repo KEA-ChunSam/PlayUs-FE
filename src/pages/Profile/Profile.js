@@ -72,7 +72,7 @@ const Profile = () => {
           <div className={styles.logout} onClick={() => setShowLogoutModal(true)}>
             <img src={`${process.env.PUBLIC_URL}/Button/logout.png`} alt="logout" className={styles.logoutImg}/>로그아웃
           </div>
-          <div className={styles.logout} onClick={() => setShowWithdrawalModal(true)}>탈퇴하기</div>
+          <div className={styles.withdrawal} onClick={() => setShowWithdrawalModal(true)}>탈퇴하기</div>
         </div>
         <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/NC.png`} alt="team" className={styles.teamImg} />
       </header>

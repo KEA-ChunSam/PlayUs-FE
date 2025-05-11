@@ -64,6 +64,14 @@
   width: 1rem;
 }
 
+.withdrawal {
+  font-size: 0.8rem;
+  color: #999;
+  text-decoration: underline;
+  cursor: pointer;
+  display: flex;
+}
+
 .teamImg {
   width: 5rem;
   height: 5rem;
