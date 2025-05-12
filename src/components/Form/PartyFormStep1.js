@@ -10,7 +10,7 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
     };
     const [activeTab, setActiveTab] = useState(0);
     const navigate = useNavigate();
-    const tabLabels = ["직관팟 구하기"];
+    const tabLabels = ["직관팟 만들기"];
     const [modalOpen, setModalOpen] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
 

@@ -4,12 +4,12 @@
     max-width: 100%;
     max-height: 100%;
     /*display: flex;*/
-    top: 10vh;
+    top: 5rem;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 100%;
-    padding-bottom: 3.5rem;
+    padding-bottom: 5.5rem;
 }
 
 /* 경기 정보 섹션 */
@@ -128,9 +128,9 @@
     background-color: black;
 }
 
-.recentSection {
-    margin-top: 24px;
-}
+/*.recentSection {*/
+/*    margin-top: 54px;*/
+/*}*/
 
 .metricsRow {
     display: flex;
