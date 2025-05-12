@@ -58,6 +58,10 @@ const Profile = () => {
     navigate('/diary/list')
   };
 
+  const handleNewDiary = () => {
+    navigate('/diary/newdiary');
+  }
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -98,7 +102,7 @@ const Profile = () => {
       <section className={styles.journalSection}>
         <div className={styles.journalHeader}>
           <h2>이번 달 나의 직관일지</h2>
-          <button className={styles.writeBtn}>직관일지 작성하기</button>
+          <button className={styles.writeBtn} onClick={handleNewDiary}>직관일지 작성하기</button>
           <div className={styles.logout} onClick={handleDiaryList}>더보기</div>
         </div>
         <ul className={styles.journalList}>

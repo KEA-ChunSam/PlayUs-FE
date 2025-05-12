@@ -4,7 +4,7 @@ const dummyDiaries = [
   {
     id: 1,
     title: '한화와 함께한 봄날 직관',
-    teamName: '한화 이글스',
+    team: '한화 이글스',
     date: '2025.03.01',
     image: `${process.env.PUBLIC_URL}/exImage2.png`,
     teamLogo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HH.png`,
@@ -13,7 +13,7 @@ const dummyDiaries = [
   {
     id: 2,
     title: 'NC 역전승! 완전 짜릿했다!!!!',
-    teamName: 'NC 다이노스',
+    team: 'NC 다이노스',
     date: '2025.03.05',
     image: `${process.env.PUBLIC_URL}/exImage3.jpg`,
     teamLogo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_NC.png`,

@@ -7,7 +7,9 @@ import Modal from "../../components/Modal/Modal";
 
 const DiaryDetail = () => {
     const {id} = useParams();
-    const diary = dummyDiaries.find((entry) => entry.id === Number(id));
+    const stored = JSON.parse(localStorage.getItem('customDiaries')) || [];
+    const allDiaries = [...stored, ...dummyDiaries];
+    const diary = allDiaries.find((entry) => entry.id === Number(id));
     const [showMenu, setShowMenu] = useState(false);
     const [showModal, setShowModal] = useState(false);
 
@@ -25,7 +27,7 @@ const DiaryDetail = () => {
             {/*<div className={styles.innerWrapper}>*/}
                 <div className={styles.header}>
                     {diary.teamLogo && <img src={diary.teamLogo} alt="logo" width={60}/>}
-                    <span>{diary.teamName}</span>
+                    <span>{diary.team}</span>
                 </div>
 
                 <div className={styles.titleRow}>
@@ -39,7 +41,14 @@ const DiaryDetail = () => {
                         </button>
                         {showMenu && (
                             <div className={styles.menuPopup}>
-                                <div className={styles.menuItem}>수정하기</div>
+                                <div
+                                  className={styles.menuItem}
+                                  onClick={() => {
+                                    navigate(`/diary/newDiary`, { state: diary });
+                                  }}
+                                >
+                                  수정하기
+                                </div>
                                 <div
                                     className={styles.menuItem}
                                     onClick={() => {
@@ -73,8 +82,11 @@ const DiaryDetail = () => {
                   {
                     label: '확인',
                     onClick: () => {
-                      // 삭제 로직 실행
+                      const stored = JSON.parse(localStorage.getItem('customDiaries')) || [];
+                      const updated = stored.filter((entry) => entry.id !== diary.id);
+                      localStorage.setItem('customDiaries', JSON.stringify(updated));
                       setShowModal(false);
+                      navigate('/diary/list');
                     }
                   }
                 ]}

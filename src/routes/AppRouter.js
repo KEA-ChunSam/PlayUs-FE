@@ -20,6 +20,7 @@ import ReviewParty from "../pages/Party/ReviewParty/ReviewParty";
 import MatchInfo from "../pages/League/MatchInfo";
 import DiaryList from "../pages/LiveMatchDiary/DiaryList";
 import DiaryDetail from "../pages/LiveMatchDiary/DiaryDetail";
+import NewDiary from "../pages/LiveMatchDiary/NewDiary";
 
 function AppRouter() {
     return (
@@ -92,7 +93,7 @@ function AppRouter() {
                 </Route>
                 {/* 직관일지 작성 */}
                 <Route path="/diary/newdiary" element={<MobileView/>}>
-                    <Route index element={<Profile/>}/>
+                    <Route index element={<NewDiary/>}/>
                 </Route>
                 {/* 직관일지 상세 */}
                 <Route path="/diary/:id" element={<MobileView/>}>

@@ -15,7 +15,9 @@ const DiaryList = () => {
     const tabLabels = ["나의 직관일지"];
 
     useEffect(() => {
-        setDiaries(dummyDiaries);
+        //setDiaries(dummyDiaries);
+        const customDiaries = JSON.parse(localStorage.getItem('customDiaries')) || [];
+        setDiaries([...customDiaries, ...dummyDiaries]);
     }, []);
 
     const handlePageChange = (_, value) => {
