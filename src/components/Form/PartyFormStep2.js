@@ -55,7 +55,7 @@ const PartyFormStep2 = ({form, setForm, onSubmit}) => {
     };
     const [activeTab, setActiveTab] = useState(0);
     const navigate = useNavigate();
-    const tabLabels = ["직관팟 구하기", "내 신청 현황", "승인 요청"];
+    const tabLabels = ["직관팟 만들기"];
 
     const isFormValid = () => {
         if (!form.description || form.description.trim() === '') {
