@@ -4,16 +4,21 @@ const dummyDiaries = [
   {
     id: 1,
     title: '한화와 함께한 봄날 직관',
+    teamName: '한화 이글스',
     date: '2025.03.01',
-    image: `${process.env.PUBLIC_URL}/exImage.png`,
+    image: `${process.env.PUBLIC_URL}/exImage2.png`,
     teamLogo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HH.png`,
+    content: '오늘도 하루종일 너무너무 재미있었어요!\n내일도 재밌게 경기 보고 싶다..'
   },
   {
     id: 2,
-    title: 'NC 역전승! 짜릿했다',
+    title: 'NC 역전승! 완전 짜릿했다!!!!',
+    teamName: 'NC 다이노스',
     date: '2025.03.05',
-    image: `${process.env.PUBLIC_URL}/exImage.png`,
-    teamLogo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`,
+    image: `${process.env.PUBLIC_URL}/exImage3.jpg`,
+    teamLogo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_NC.png`,
+    content: '대건우 갓건우 황건우 찬양해😎 ㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅ'
+
   },
   {
     id: 3,

@@ -19,6 +19,7 @@ import Chatting from "../pages/Party/Chatting/Chatting";
 import ReviewParty from "../pages/Party/ReviewParty/ReviewParty";
 import MatchInfo from "../pages/League/MatchInfo";
 import DiaryList from "../pages/LiveMatchDiary/DiaryList";
+import DiaryDetail from "../pages/LiveMatchDiary/DiaryDetail";
 
 function AppRouter() {
     return (
@@ -86,7 +87,7 @@ function AppRouter() {
                 {/* 차후 User Id를 받아 /profile/:userId로 변경 예정 */}
                 </Route>
                 {/* 직관일지 목록 */}
-                <Route path="/diary/list?" element={<MobileView/>}>
+                <Route path="/diary/list" element={<MobileView/>}>
                     <Route index element={<DiaryList/>}/>
                 </Route>
                 {/* 직관일지 작성 */}
@@ -94,8 +95,8 @@ function AppRouter() {
                     <Route index element={<Profile/>}/>
                 </Route>
                 {/* 직관일지 상세 */}
-                <Route path="/diary/:diaryId" element={<MobileView/>}>
-                    <Route index element={<Profile/>}/>
+                <Route path="/diary/:id" element={<MobileView/>}>
+                    <Route index element={<DiaryDetail/>}/>
                 </Route>
             </Routes>
         </Router>
