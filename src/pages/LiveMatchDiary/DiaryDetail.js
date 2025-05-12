@@ -44,7 +44,7 @@ const DiaryDetail = () => {
                                 <div
                                   className={styles.menuItem}
                                   onClick={() => {
-                                    navigate(`/diary/newDiary`, { state: diary });
+                                    navigate(`/diary/newdiary`, { state: diary });
                                   }}
                                 >
                                   수정하기

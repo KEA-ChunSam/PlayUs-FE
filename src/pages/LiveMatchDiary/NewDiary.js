@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {useNavigate, useLocation} from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {useLocation, useNavigate} from 'react-router-dom';
 import styles from './NewDiary.module.css';
 
 const teams = [
@@ -29,8 +29,23 @@ const NewDiary = () => {
     const [content, setContent] = useState(location.state?.content || '');
     const [image, setImage] = useState(location.state?.image || null);
     const [imageFile, setImageFile] = useState(null);
+    const [objectUrl, setObjectUrl] = useState(null);
+
+    useEffect(() => {
+        return () => {
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+            }
+        };
+    }, [objectUrl]);
 
     const handleImageChange = (e) => {
+        if (objectUrl) {
+            URL.revokeObjectURL(objectUrl);
+        }
+        const newUrl = URL.createObjectURL(e.target.files[0]);
+        setObjectUrl(newUrl);
+        setImage(newUrl);
         if (e.target.files && e.target.files[0]) {
             setImage(URL.createObjectURL(e.target.files[0]));
             setImageFile(e.target.files[0]);
