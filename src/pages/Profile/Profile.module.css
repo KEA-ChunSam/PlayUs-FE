@@ -1,6 +1,6 @@
 .container {
   position: relative;
-  top: 10vh;
+  top: 5rem;
   width: 100%;
   padding: 0 1rem 3.5rem;
   display: flex;
@@ -19,8 +19,8 @@
 .profileImg {
   /*width: 80px;*/
   /*height: 80px;*/
-  width: 7rem;
-  height: 7rem;
+  width: 6rem;
+  height: 6rem;
   border-radius: 50%;
   object-fit: cover;
   margin-right: 0.5rem;
@@ -73,8 +73,8 @@
 }
 
 .teamImg {
-  width: 5rem;
-  height: 5rem;
+  width: 4rem;
+  height: 4rem;
   object-fit: contain;
   margin-left: auto;
 }
@@ -130,12 +130,12 @@
 
 .writeBtn {
   padding: 0.5rem 1rem;
-  margin-left: 20px;
-  font-size: 0.9rem;
+  margin-left: 2rem;
+  font-size: 0.7rem;
   border: none;
   background-color: #333;
   color: white;
-  border-radius: 4px;
+  border-radius: 12px;
   cursor: pointer;
 }
 
