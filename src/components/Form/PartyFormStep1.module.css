@@ -1,8 +1,16 @@
 .container {
-  padding:0 16px;
-  box-sizing: border-box;
-  overflow-y: auto;
-  height: auto;
+  position: relative;
+  aspect-ratio: 9 / 16;
+  max-width: 100%;
+  max-height: 100%;
+  /*display: flex;*/
+  top: 5rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding-bottom: 3.5rem;
+  padding-left: 1rem;
 }
 
 .inputForm {

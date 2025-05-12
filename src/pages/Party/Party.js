@@ -1,9 +1,9 @@
 // 직관팟 메인(구하기) & 내 신청 현황 & 승인 요청을 한 코드에 적용.
 import React, {useState} from 'react';
-import Modal from '../../components/Modal/Modal';
 import {useNavigate} from 'react-router-dom';
 import TabNav from "../../components/TabNav/TabNav";
 import styles from './Party.module.css';
+import Modal from '../../components/Modal/Modal';
 
 const Party = () => {
     const [activeTab, setActiveTab] = useState(0);
@@ -92,7 +92,8 @@ const Party = () => {
                         <div className={styles.approvalSection}>
                             <div className={styles.matchHeader}>
                                 <div className={styles.teamBox}>
-                                    <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/HH.png`} alt="한화" className={styles.teamLogo}/>
+                                    <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/HH.png`} alt="한화"
+                                         className={styles.teamLogo}/>
                                     <span className={styles.teamName}>한화 이글스</span>
                                 </div>
                                 <div className={styles.vsBlock}>
@@ -101,7 +102,8 @@ const Party = () => {
                                     <div className={styles.time}>18:30</div>
                                 </div>
                                 <div className={styles.teamBox}>
-                                    <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/KT.png`} alt="KT" className={styles.teamLogo}/>
+                                    <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/KT.png`} alt="KT"
+                                         className={styles.teamLogo}/>
                                     <span className={styles.teamName}>KT 위즈</span>
                                 </div>
                             </div>
@@ -244,7 +246,8 @@ const Party = () => {
                                     className={styles.partyCard}
                                     onClick={() => navigate(`/party/matchid/partyid`)}
                                 >
-                                    <img src={`${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`} alt="player" className={styles.playerImg}/>
+                                    <img src={`${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`} alt="player"
+                                         className={styles.playerImg}/>
                                     <div className={styles.partyContent}>
                                         <div className={styles.tags}>
                                             <span className={styles.tag}>승인제</span>
@@ -403,26 +406,70 @@ const Party = () => {
                     show: showCancelModal,
                     title: '신청 취소',
                     message: '정말 취소하시겠습니까?',
-                    onClose: () => setShowCancelModal(false)
+                    buttons:
+                        [
+                            {label: '취소', onClick: () => setShowCancelModal(false)},
+                            {
+                                label: '확인',
+                                onClick: () => {
+                                    // 삭제 로직 실행
+                                    setShowCancelModal(false);
+                                }
+                            }
+                        ]
                 },
-                {show: showDeleteModal, title: '삭제하기', message: '삭제되었습니다.', onClose: () => setShowDeleteModal(false)},
+                {
+                    show: showDeleteModal, title: '삭제하기', message: '삭제되었습니다.', buttons:
+                        [
+                            // {label: '취소', onClick: () => setShowCancelModal(false)},
+                            {
+                                label: '확인',
+                                onClick: () => {
+                                    // 삭제 로직 실행
+                                    setShowDeleteModal(false);
+                                }
+                            }
+                        ]
+                },
                 {
                     show: showApproveModal,
                     title: '승인하기',
                     message: '참가 요청을 승인하시겠습니까?',
-                    onClose: () => setShowApproveModal(false)
+                    buttons:
+                        [
+                            {label: '취소', onClick: () => setShowApproveModal(false)},
+                            {
+                                label: '확인',
+                                onClick: () => {
+                                    // 삭제 로직 실행
+                                    setShowApproveModal(false);
+                                }
+                            }
+                        ]
                 },
                 {
                     show: showDenyModal,
                     title: '삭제하기',
                     message: '참가 요청을 거부하시겠습니까?',
-                    onClose: () => setShowDenyModal(false)
+                    buttons:
+                        [
+                            {label: '취소', onClick: () => setShowDenyModal(false)},
+                            {
+                                label: '확인',
+                                onClick: () => {
+                                    // 삭제 로직 실행
+                                    setShowDenyModal(false);
+                                }
+                            }
+                        ]
                 }
             ].map((modal, idx) => modal.show && (
-                <Modal key={idx} title={modal.title} message={modal.message} onClose={modal.onClose}/>
-            ))}
+                    <Modal key={idx} title={modal.title} message={modal.message} buttons={modal.buttons}/>
+                )
+            )}
         </>
-    );
+    )
+        ;
 };
 
 export default Party;

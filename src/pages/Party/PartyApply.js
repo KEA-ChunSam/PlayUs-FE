@@ -63,6 +63,16 @@ export default function PartyApply() {
                         setShowApplyModal(false);
                         navigate('/party/matchid/partyid');
                     }}
+                    buttons={[
+                        { label: '취소', onClick: () => setShowApplyModal(false) },
+                        {
+                            label: '확인',
+                            onClick: () => {
+                                // 삭제 로직 실행
+                                setShowApplyModal(false);
+                            }
+                        }
+                    ]}
                 />
             )}
         </div>

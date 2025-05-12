@@ -115,7 +115,16 @@ const Profile = () => {
           <Modal
               title="로그아웃"
               message="로그아웃하시겠어요?"
-              onClose={handleLogout}
+              buttons={[
+                { label: '취소', onClick: () => setShowLogoutModal(false) },
+                {
+                  label: '확인',
+                  onClick: () => {
+                    // 삭제 로직 실행
+                    setShowLogoutModal(false);
+                  }
+                }
+              ]}
           />
       )}
       {showWithdrawalModal && (
