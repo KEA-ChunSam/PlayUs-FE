@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// 프로필 설정 페이지
+import React, {useState} from 'react';
+import {useNavigate} from 'react-router-dom';
 import styles from './SetProfile.module.css';
 import LoginHeader from "../../components/Header/LoginHeader/LoginHeader";
 import Modal from "../../components/Modal/Modal";
 
-const SetProfile = ({ birthDate }) => {
+const SetProfile = ({birthDate}) => {
     const [nickname, setNickname] = useState('');
     const [isValid, setIsValid] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -25,13 +26,13 @@ const SetProfile = ({ birthDate }) => {
             setShowModal(true);
             return;
         }
-        console.log({ nickname, birthDate });
+        console.log({nickname, birthDate});
         navigate('/login-complete');
     };
 
     return (
         <div className={styles.container}>
-            <LoginHeader style={{marginBottom:'-50px'}}/>
+            <LoginHeader style={{marginBottom: '-50px'}}/>
             <h1 className={styles.title}>사용하실 닉네임을 설정해 주세요.</h1>
             <p className={styles.subtitle}>
                 (닉네임은 한글/영어/숫자 포함 최대 8글자까지 가능합니다.)

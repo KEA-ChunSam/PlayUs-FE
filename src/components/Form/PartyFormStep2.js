@@ -1,3 +1,4 @@
+// 직관팟 만들기 2단계 Flow 컴포넌트.
 import React, {useState} from 'react';
 import styles from './PartyFormStep2.module.css';
 import TabNav from "../TabNav/TabNav";

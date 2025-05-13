@@ -41,7 +41,7 @@ const Profile = () => {
             nickname: 'ZSJ',
             email: 'cho010105@gachon.ac.kr',
             teamLogo: 'NC',
-            profileImg: `${process.env.PUBLIC_URL}/Logo/profile2.png`,
+            profileImg: `${process.env.PUBLIC_URL}/Logo/default.png`,
             joined: '2025년 3월 13일',
         },
         '2': {

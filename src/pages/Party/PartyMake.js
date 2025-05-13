@@ -1,3 +1,4 @@
+// 직관팟 작성 페이지
 import React, { useState } from 'react';
 import PartyFormStep1 from '../../components/Form/PartyFormStep1';
 import PartyFormStep2 from '../../components/Form/PartyFormStep2';

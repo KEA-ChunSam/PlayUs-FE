@@ -1,3 +1,4 @@
+// 일정 메뉴의 각 경기별 정보 컴포넌트
 import React from "react";
 import {useNavigate} from 'react-router-dom';
 import styles from './GameCard.module.css';

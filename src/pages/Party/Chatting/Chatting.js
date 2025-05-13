@@ -1,3 +1,4 @@
+// 직관팟 채팅 페이지
 import React, {useState} from 'react';
 import styles from './Chatting.module.css';
 import {useNavigate} from "react-router-dom";
@@ -10,7 +11,7 @@ const Chatting = () => {
 
     const users = [
         {name: 'ZSJ', avatar: `${process.env.PUBLIC_URL}/Logo/profile.png`},
-        {name: '네모', avatar: `${process.env.PUBLIC_URL}/Logo/profile2.png`},
+        {name: '네모', avatar: `${process.env.PUBLIC_URL}/Logo/default.png`},
         {name: '세모', avatar: `${process.env.PUBLIC_URL}/Logo/profile.png`},
     ];
 
@@ -80,7 +81,8 @@ const Chatting = () => {
                         key={idx}
                         className={msg.mine ? styles.messageRowReverse : styles.messageRow}
                     >
-                        {!msg.mine && <img src={`${process.env.PUBLIC_URL}/Logo/profile.png`} className={styles.avatar} alt="user"/>}
+                        {!msg.mine && <img src={`${process.env.PUBLIC_URL}/Logo/profile.png`} className={styles.avatar}
+                                           alt="user"/>}
                         <div>
                             {!msg.mine && <div className={styles.sender}>{msg.sender}</div>}
                             <div className={msg.mine ? styles.messageBubbleMine : styles.messageBubble}>

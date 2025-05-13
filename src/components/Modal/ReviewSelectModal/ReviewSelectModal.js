@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+// 직관팟 후기 모달 컴포넌트
+import React, {useState} from 'react';
 import styles from './ReviewSelectModal.module.css';
 import PropTypes from "prop-types";
 
-const ReviewSelectModal = ({ title, selectedMessage, onSelect, onClose }) => {
+const ReviewSelectModal = ({title, selectedMessage, onSelect, onClose}) => {
     const [open, setOpen] = useState(false);
 
     const PRESET_MESSAGES = [

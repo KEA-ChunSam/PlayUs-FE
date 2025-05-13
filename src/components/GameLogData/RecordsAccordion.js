@@ -1,5 +1,7 @@
+// AI 시뮬레이션 시 선수 기록을 나타내는 드롭다운 컴포넌트
 import styles from './RecordsSection.module.css';
-function RecordsAccordion({ title, isOpen, toggleOpen, children }) {
+
+function RecordsAccordion({title, isOpen, toggleOpen, children}) {
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -30,4 +32,5 @@ function RecordsAccordion({ title, isOpen, toggleOpen, children }) {
         </div>
     );
 }
+
 export default RecordsAccordion;
