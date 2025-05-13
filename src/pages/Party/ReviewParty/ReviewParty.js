@@ -1,3 +1,4 @@
+// 직관팟 기간 만료 시 직관팟 참가자들의 후기를 작성하는 페이지
 import React, {useState} from 'react';
 import styles from './ReviewParty.module.css';
 import Modal from '../../../components/Modal/Modal';

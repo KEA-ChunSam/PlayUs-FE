@@ -1,3 +1,4 @@
+// 직관팟 만들기 1단계 Flow 컴포넌트. 모든 란이 작성되어야 다음 단계 진행
 import React, {useState} from 'react';
 import styles from './PartyFormStep1.module.css';
 import TabNav from "../TabNav/TabNav";

@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/react';
-import { BrowserTracing } from '@sentry/tracing';
+import {BrowserTracing} from '@sentry/tracing';
 
 if (['prod', 'dev'].includes(process.env.REACT_APP_ENVIRONMENT)) {
     Sentry.init({
@@ -32,6 +32,6 @@ function sendToSlack(error) {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ text: logMessage }),
+        body: JSON.stringify({text: logMessage}),
     }).catch(console.error);
 }

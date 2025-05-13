@@ -1,3 +1,4 @@
+// 프로필 편집 모달 컴포넌트
 import React, {useEffect, useState} from 'react';
 import styles from './ProfileEditModal.module.css';
 
@@ -5,7 +6,7 @@ const ProfileEditModal = ({onClose, onSubmit}) => {
     const [nickname, setNickname] = useState('ZSJ');
     const [validationMessage, setValidationMessage] = useState('사용할 수 있는 닉네임입니다.');
     const [isValid, setIsValid] = useState(true);
-    const [profileImage, setProfileImage] = useState(`${process.env.PUBLIC_URL}/Logo/profile2.png`);
+    const [profileImage, setProfileImage] = useState(`${process.env.PUBLIC_URL}/Logo/default.png`);
     const [objectUrl, setObjectUrl] = useState(null);
 
     useEffect(() => {

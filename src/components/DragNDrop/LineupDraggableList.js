@@ -1,4 +1,5 @@
-import React, {useState, useEffect} from 'react';
+// AI 시뮬레이션 시 라인업 설정을 위한 Draggable 컴포넌트
+import React, {useEffect, useState} from 'react';
 import {DragDropContext, Draggable, Droppable} from '@hello-pangea/dnd';
 import styles from './LineupManager.module.css';
 

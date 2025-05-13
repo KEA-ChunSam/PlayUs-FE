@@ -1,3 +1,4 @@
+// 메인 토글 네비게이션
 import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import styles from "./TabNav.module.css";
@@ -37,7 +38,7 @@ const TabNav = ({tabs = [], onTabChange, onBack}) => {
                         role="tab"
                         id={`tab-${index}`}
                         aria-selected={activeIndex === index}
-                        aria-controls={`tabpanel-${index}`}ㅡ
+                        aria-controls={`tabpanel-${index}`} ㅡ
                         tabIndex={activeIndex === index ? 0 : -1}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
