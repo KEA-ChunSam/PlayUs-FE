@@ -35,7 +35,7 @@ function Login() {
 
                 <a
                     // href={`https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.REACT_APP_KAKAO_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_KAKAO_REDIRECT_URI}`}
-                    href="http://localhost:8080/oauth2/authorization/kakao"
+                    href={`${process.env.REACT_APP_LOCAL_BACKEND_URI}/oauth2/authorization/kakao`}
                     className={`${styles.login_button} ${styles.kakao_button}`}
                 >
                     <img
@@ -46,7 +46,7 @@ function Login() {
                     <span>카카오로 시작하기</span>
                 </a>
 
-                <a href="http://localhost:8080/oauth2/authorization/naver"
+                <a href={`${process.env.REACT_APP_LOCAL_BACKEND_URI}/oauth2/authorization/naver`}
                    className={`${styles.login_button} ${styles.naver_button}`}>
                     <img
                         src={`${process.env.PUBLIC_URL}/Logo/Naver_logo.png`}

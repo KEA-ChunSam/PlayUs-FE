@@ -31,7 +31,7 @@ const TeamChoice = () => {
     }
     return (
         <div className={styles.login_container}>
-            <LoginHeader style={{marginBottom: '-50px'}}/>
+            <LoginHeader/>
             <div className={styles.team_choice_wrapper}>
                 <h2 className={styles.team_choice_title}>선호하는 팀을 선택해 주세요.</h2>
                 <p className={styles.team_choice_subtitle}>(이후 선호 팀 추가가 가능합니다.)</p>
