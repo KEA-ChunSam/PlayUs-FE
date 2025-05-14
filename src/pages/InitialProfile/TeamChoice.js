@@ -27,8 +27,9 @@ const TeamChoice = () => {
             setShowModal(true);
             return;
         }
+        localStorage.setItem('selectedTeam', selectedTeam);
         navigate("/setprofile");
-    }
+    };
     return (
         <div className={styles.login_container}>
             <LoginHeader/>

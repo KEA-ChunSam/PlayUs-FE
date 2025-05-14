@@ -1,6 +1,7 @@
 // 프로필 설정 페이지
 import React, {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
+import axios from 'axios';
 import styles from './SetProfile.module.css';
 import LoginHeader from "../../components/Header/LoginHeader/LoginHeader";
 import Modal from "../../components/Modal/Modal";
@@ -14,6 +15,7 @@ const SetProfile = ({birthDate}) => {
     const [birthYear, setBirthYear] = useState(birthDate?.slice(0, 4) || '');
     const [birthMonth, setBirthMonth] = useState(birthDate?.slice(5, 7) || '');
     const [birthDay, setBirthDay] = useState(birthDate?.slice(8, 10) || '');
+    const [selectedTeam, setSelectedTeam] = useState(localStorage.getItem('selectedTeam') || '');
 
     const handleNicknameChange = (e) => {
         const value = e.target.value;
@@ -21,14 +23,51 @@ const SetProfile = ({birthDate}) => {
         setIsValid(value.length <= 8 && /^[a-zA-Z0-9가-힣]*$/.test(value));
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = () => { // 임시 데이터 타입을 맞추기 위한 전송 코드
         if (!isValid || nickname === '') {
             setShowModal(true);
             return;
         }
-        console.log({nickname, birthDate});
+        const payload = {
+            nickname,
+            // birthDate: `${birthYear}-${birthMonth}-${birthDay}`, 해당 데이터는 백엔드에서 자체 작성됨 -> 프로필 설정 시 필요한지에 대해 의견 수렴 필요
+            favoriteTeam: selectedTeam,
+        };
+        console.log("회원가입 정보:", payload);
         navigate('/login-complete');
     };
+
+    // const handleSubmit = async () => {
+    //     if (!isValid || nickname === '') {
+    //         setShowModal(true);
+    //         return;
+    //     }
+    //
+    //     const payload = {
+    //         nickname,
+    //         favoriteTeam: selectedTeam,
+    //     };
+    //
+    //     try {
+    //         const token = localStorage.getItem('Authorization');
+    //         const response = await axios.post(
+    //             `${process.env.REACT_APP_LOCAL_BACKEND_URI}/api/users`,
+    //             payload,
+    //             {
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                     'Authorization': `Bearer ${token}`,
+    //                 },
+    //             }
+    //         );
+    //
+    //         console.log("가입 성공:", response.data);
+    //         navigate('/login-complete');
+    //     } catch (error) {
+    //         console.error("가입 실패:", error);
+    //         setShowModal(true); // 에러 발생 시 모달로 안내
+    //     }
+    // };
 
     return (
         <div className={styles.container}>
@@ -87,7 +126,11 @@ const SetProfile = ({birthDate}) => {
                 <Modal
                     title="알림"
                     message="유효한 닉네임을 입력해주세요."
-                    onClose={() => setShowModal(false)}
+                    buttons={[
+                        {label: '취소', onClick: () => setShowModal(false)},
+                        {label: '확인', onClick: () => {setShowModal(false)}
+                        }
+                    ]}
                 />
             )}
         </div>
