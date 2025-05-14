@@ -14,10 +14,10 @@
   display: flex;
   gap: 0;
   position: relative;
-  max-width: 90%;         /* 기존보다 오른쪽까지 확장 */
+  max-width: 90%;        
   justify-content: space-between;
-  flex-grow: 1;           /* 공간을 꽉 채우도록 */
-  overflow-x: auto;             /* ✅ 가로 스크롤 허용 */
+  flex-grow: 1;           
+  overflow-x: auto;           
   white-space: nowrap;
   padding-bottom: 4px;
   border-bottom: 1px solid #ccc;
@@ -28,8 +28,8 @@
   font-weight: 600;
   color: #222;
   cursor: pointer;
-  flex: none;                 /* ✅ 고정 너비 */
-  padding: 8px 8px;         /* ✅ 좌우 여백 부여 */
+  flex: none;               
+  padding: 8px 8px;      
   text-align: center;  
 }
 

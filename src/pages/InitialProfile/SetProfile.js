@@ -25,7 +25,7 @@ const SetProfile = ({ birthDate }) => {
             setShowModal(true);
             return;
         }
-        console.log({ nickname, birthDate });
+        localStorage.setItem('user', JSON.stringify({ nickname }));
         navigate('/login-complete');
     };
 

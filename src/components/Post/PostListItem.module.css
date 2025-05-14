@@ -1,0 +1,56 @@
+.item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    background: #fff;
+    transition: background 0.15s;
+  }
+  
+  .item:hover {
+    background: #f3f6fa;
+  }
+  
+  .thumbnail {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 12px;
+  }
+  
+  .row {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #222;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .time {
+    font-size: 0.85rem;
+    color: #888;
+  }
+  
+  .author {
+    font-size: 0.92rem;
+    color: #0a2a47;
+    font-weight: 500;
+    margin-left: 12px;
+  }

@@ -1,0 +1,52 @@
+.tabNavContainer {
+  /*height: 6rem;*/
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff;
+  padding: 8px 8px 0 8px;
+  position: relative;
+}
+
+.backIcon {
+  width: 12px;
+  height: 16px;
+  margin-right: 4px;
+  cursor: pointer;
+}
+
+.tabWrapper {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  width: 350px; /* 원하는 탭 총 너비 */
+  margin: 0 auto; /* 가운데 정렬 */
+  padding-bottom: 6px;
+  border-bottom: 1px solid #ccc;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  color: #222;
+  cursor: pointer;
+  padding: 4px 0;
+  position: relative;
+}
+
+.tab.active {
+  color: #0D1A80;
+}
+
+.indicator {
+  position: absolute;
+  bottom: -1px; /* 이 값을 조정해 배경선과 딱 붙게 */
+  left: 0;
+  width: 33.3333%;
+  height: 3px;
+  background-color: #0D1A80;
+  transition: left 0.3s ease;
+  border-radius: 2px;
+}

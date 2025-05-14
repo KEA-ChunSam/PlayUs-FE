@@ -1,0 +1,393 @@
+.container {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    max-width: 100%;
+    max-height: 100%;
+    /*display: flex;*/
+    top: 5rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding-bottom: 5.5rem;
+}
+
+/* 경기 정보 섹션 */
+.teamsSection {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 20px 2rem 0 2rem;
+    /*overflow-y: scroll;*/
+}
+
+.team {
+    text-align: center;
+}
+
+.teamLogo {
+    width: 120px;
+    height: auto;
+    margin-bottom: 18px;
+}
+
+.teamName {
+    display: block;
+    font-weight: bold;
+    color: white;
+    background-color: #ff5c5c;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.pitcherCount {
+    color: #000080;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.matchBox{
+    display: grid;
+    justify-items: center;
+}
+
+.matchPark{
+    font-weight: bold;
+}
+
+.matchTime {
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.matchBadgeArea {
+    font-size: 13px;
+    background-color: #4040ff;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: bold;
+    /*width: 4rem;*/
+    display: inline-block;
+    justify-content: center;
+}
+
+.vsRecordSection {
+    margin-top: 24px;
+}
+
+.sectionTitle {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 8px;
+    /*padding-left: 1rem;*/
+    display: flex;
+    justify-content: center;
+}
+
+.vsRecordBar {
+    display: flex;
+    flex-direction: column;
+    /*align-items: center;*/
+    padding: 0 2.5rem;
+}
+
+.vsRecordLeft {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 14px;
+    margin: 4px 1rem;
+}
+
+.vsRecordRight {
+    font-size: 14px;
+    margin: 4px 1rem;
+}
+
+.progressBar {
+    width: 100%;
+    height: 10px;
+    background-color: #ddd;
+    display: flex;
+    margin: 4px 0;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progressLeft {
+    background-color: #ff5c5c;
+}
+
+.progressDraw {
+    background-color: gray;
+}
+
+.progressRight {
+    background-color: black;
+}
+
+/*.recentSection {*/
+/*    margin-top: 54px;*/
+/*}*/
+
+.metricsRow {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.metric {
+    font-size: 14px;
+}
+
+.metricLabel {
+    font-weight: bold;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: center;
+}
+
+.metricValues {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.metricValueLeft,
+.metricValueRight {
+    width: 7rem;
+    text-align: center;
+    font-size: 15px;
+}
+
+.metricBar {
+    flex: 1;
+    height: 10px;
+    background-color: #eee;
+    /*margin: 0 8px;*/
+    display: flex;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.metricBarLeft {
+    background-color: #ff5c5c;
+}
+
+.metricBarRight {
+    background-color: black;
+}
+
+/* AI 시뮬레이터 섹션 */
+.contents {
+    /*height: 100%;*/
+    padding-bottom: 2rem;
+}
+.aiSimSection {
+    padding: 1.5rem 1rem;
+    text-align: center;
+    height: calc(100vh - 10vh);
+    /*overflow: hidden;*/
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.simTitle {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.simTeams {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.simTeam img {
+    width: 80px;
+    height: auto;
+    margin-bottom: 0.5rem;
+}
+
+.simTeamButton {
+    background-color: #ff5c5c;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.simVs {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.simStart {
+    margin: 0 0 1rem 0;
+    background-color: navy;
+    color: white;
+    padding: 8px 16px;
+    font-weight: bold;
+    border-radius: 20px;
+    border: none;
+    display: flex;
+    justify-self: center;
+}
+
+.simStart:hover {
+    background-color: navy;
+    color: white;
+
+}
+
+.simTabNav {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 2rem;
+    border-bottom: 2px solid #ddd;
+}
+
+.simTabNav button {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 0.75rem 0;
+    font-weight: bold;
+    font-size: 14px;
+    border-bottom: 2px solid transparent;
+    color: #333;
+}
+
+.simTabNav .active {
+    border-bottom: 2px solid navy;
+    color: navy;
+}
+
+/*AI 시뮬레이션 라인업 설정 서브메뉴*/
+.simLineups {
+  position: relative;
+  flex: 1;
+  max-height: calc(100vh - 550px);
+  overflow-y: auto;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0 2.5rem;
+}
+
+.simLineups::after {
+    content: "";
+    display: block;
+    height: 56px;
+    flex-shrink: 0;
+}
+
+.lineup {
+    min-height: 300px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    margin-bottom: 8px;
+}
+
+.lineupItem {
+    background: white;
+    padding: 12px;
+    margin-bottom: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: grab;
+    transition: all 0.2s ease;
+}
+
+.lineupItem:hover {
+    background-color: #ff4f4f;
+    border-color: #aaa;
+}
+
+.lineupItem:active {
+    cursor: grabbing;
+}
+
+
+.lineupColumn {
+    flex: 1;
+    min-width: 150px;
+    text-align: center;
+    padding: 0 18px 0 18px;
+    /*overflow-y: hidden;*/
+}
+
+.pitcher {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    font-size: 14px;
+}
+
+.pitcher span {
+    font-weight: normal;
+    font-size: 13px;
+    margin-left: 0.25rem;
+    color: #555;
+}
+
+.lineup div {
+    margin: 0.25rem 0;
+    font-size: 13px;
+}
+
+.lineup span {
+    color: #777;
+    font-size: 12px;
+    display: block;
+}
+
+/*경기 로그 서브메뉴*/
+.gamelogbox {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid lightgray;
+    border-radius: 8px;
+    margin-top: 8px;
+    table-layout: auto;
+    /*max-height: calc(100vh - 550px);*/
+    /*margin-bottom: 500px;*/
+}
+
+.gamelogHeader {
+    display: table-header-group;
+    background-color: #ccc;
+}
+
+.gamelogHeader th {
+    padding: 8px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    border-bottom: 1px solid #aaa;
+}
+
+.gamelog {
+    display: table-row-group;
+
+}
+
+.gamelog tr {
+    border-bottom: 1px solid #eee;
+}
+
+.gamelog td {
+    padding: 6px 8px;
+    text-align: center;
+    font-size: 13px;
+}

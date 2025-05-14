@@ -1,9 +1,7 @@
 import { useState } from "react";
-import GenericTabNav from "../../components/TeamTabNav/TeamTabNav";
 import ScheduleSection from "./ScheduleSection";
 import PopularPost from "./PopularPost";
 import MyPartyCard from "./MyPartyCard";
-import NavBar from "../../components/NavBar/NavBar";
 
 const sampleData = {
   "NC 다이노스": {
@@ -49,39 +47,27 @@ const sampleData = {
 };
 
 export default function MainPage() {
-  const teams = ["NC 다이노스", "LG 트윈스", "삼성 라이온즈"];
-  const [activeTeamIndex, setActiveTeamIndex] = useState(0);
-  const selectedTeam = teams[activeTeamIndex];
-
+  const selectedTeam = "NC 다이노스"; // 기본값으로 NC 다이노스 선택
   const { schedule, posts, parties } = sampleData[selectedTeam];
 
   return (
-    <>
-      <GenericTabNav
-        tabs={teams}
-        activeIndex={activeTeamIndex}
-        onTabClick={setActiveTeamIndex}
-        onPlusClick={() => console.log("플러스 버튼 클릭됨!")}
-    />
-      <div className="pt-[20px] px-4 pb-[60px] bg-white min-h-screen">
-        <h2 className="font-bold text-sm mt-4 mb-2">오늘의 일정</h2>
-        <ScheduleSection schedule={schedule} />
+    <div className="pt-[20px] px-4 pb-[60px] bg-white min-h-screen">
+      <h2 className="font-bold text-sm mt-4 mb-2">오늘의 일정</h2>
+      <ScheduleSection schedule={schedule} />
 
-        <h2 className="font-bold text-sm mt-6 mb-2">인기 포스트</h2>
-        {posts.length > 0 ? (
-          posts.map((post, i) => <PopularPost key={i} {...post} />)
-        ) : (
-          <p className="text-sm text-gray-500">게시글이 없습니다.</p>
-        )}
+      <h2 className="font-bold text-sm mt-6 mb-2">인기 포스트</h2>
+      {posts.length > 0 ? (
+        posts.map((post, i) => <PopularPost key={i} {...post} />)
+      ) : (
+        <p className="text-sm text-gray-500">게시글이 없습니다.</p>
+      )}
 
-        <h2 className="font-bold text-sm mt-6 mb-2">나의 직관팟</h2>
-        {parties.length > 0 ? (
-          parties.map((party, i) => <MyPartyCard key={i} {...party} />)
-        ) : (
-          <p className="text-sm text-gray-500">등록된 직관팟이 없습니다.</p>
-        )}
-      </div>
-      <NavBar />
-    </>
+      <h2 className="font-bold text-sm mt-6 mb-2">나의 직관팟</h2>
+      {parties.length > 0 ? (
+        parties.map((party, i) => <MyPartyCard key={i} {...party} />)
+      ) : (
+        <p className="text-sm text-gray-500">등록된 직관팟이 없습니다.</p>
+      )}
+    </div>
   );
 }

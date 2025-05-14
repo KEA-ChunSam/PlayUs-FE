@@ -1,0 +1,61 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.modalContent h2 {
+  margin: 0 0 1.5rem;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.message {
+  margin: 0 0 2rem;
+  line-height: 1.6;
+  color: #666;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.cancelButton, .withdrawButton {
+  padding: 0.8rem 2rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+}
+
+.cancelButton {
+  background-color: #f2f2f2;
+  color: #666;
+}
+
+.withdrawButton {
+  background-color: #ff5e5e;
+  color: white;
+}
+
+.withdrawButton:hover {
+  background-color: #ff3d3d;
+} 
