@@ -1,3 +1,4 @@
+// 직관일지 목록 페이지
 import {useEffect, useState} from 'react';
 import {useNavigate, useSearchParams} from 'react-router-dom';
 import Pagination from '@mui/material/Pagination';
@@ -40,49 +41,49 @@ const DiaryList = () => {
             {/*<h2 className={styles.title}>나의 직관일지</h2>*/}
             <TabNav tabs={tabLabels} onBack={handleBack}/>
             <div className={styles.entryBox}>
-            {pagedDiaries.map((entry) => (
-                <div
-                    key={entry.id}
-                    className={styles.entry}
-                    onClick={() => handleClickDiary(entry.id)}
-                    style={{cursor: 'pointer'}}
-                >
-                    {entry.image && (
-                        <img src={entry.image} alt="thumbnail" className={styles.thumbnail}/>
-                    )}
-                    <div className={styles.entryContent}>
-                        <span className={styles.entryTitle}>{entry.title}</span>
-                        <span className={styles.entryDate}>{entry.date}</span>
-                        {entry.teamLogo && <img src={entry.teamLogo} alt="logo" className={styles.teamLogo}/>}
+                {pagedDiaries.map((entry) => (
+                    <div
+                        key={entry.id}
+                        className={styles.entry}
+                        onClick={() => handleClickDiary(entry.id)}
+                        style={{cursor: 'pointer'}}
+                    >
+                        {entry.image && (
+                            <img src={entry.image} alt="thumbnail" className={styles.thumbnail}/>
+                        )}
+                        <div className={styles.entryContent}>
+                            <span className={styles.entryTitle}>{entry.title}</span>
+                            <span className={styles.entryDate}>{entry.date}</span>
+                            {entry.teamLogo && <img src={entry.teamLogo} alt="logo" className={styles.teamLogo}/>}
+                        </div>
                     </div>
+                ))}
+                <div className={styles.paginationWrapper}>
+                    <Pagination
+                        count={Math.ceil(diaries.length / PER_PAGE)}
+                        page={page}
+                        onChange={handlePageChange}
+                        variant="outlined"
+                        shape="rounded"
+                        sx={{
+                            '& .MuiPaginationItem-root': {
+                                color: '#784af4',
+                                border: '1px solid #784af4',
+                                cursor: 'pointer',
+                            },
+                            '& .Mui-selected': {
+                                backgroundColor: '#784af4',
+                                color: '#fff',
+                                borderColor: '#784af4',
+                            },
+                            '& .MuiPaginationItem-ellipsis': {
+                                border: 'none',
+                                color: '#784af4',
+                                backgroundColor: 'transparent',
+                            },
+                        }}
+                    />
                 </div>
-            ))}
-            <div className={styles.paginationWrapper}>
-                <Pagination
-                    count={Math.ceil(diaries.length / PER_PAGE)}
-                    page={page}
-                    onChange={handlePageChange}
-                    variant="outlined"
-                    shape="rounded"
-                    sx={{
-                        '& .MuiPaginationItem-root': {
-                            color: '#784af4',
-                            border: '1px solid #784af4',
-                            cursor: 'pointer',
-                        },
-                        '& .Mui-selected': {
-                            backgroundColor: '#784af4',
-                            color: '#fff',
-                            borderColor: '#784af4',
-                        },
-                        '& .MuiPaginationItem-ellipsis': {
-                            border: 'none',
-                            color: '#784af4',
-                            backgroundColor: 'transparent',
-                        },
-                    }}
-                />
-            </div>
             </div>
         </div>
     );

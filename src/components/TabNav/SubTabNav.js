@@ -1,3 +1,4 @@
+// 디자인 통일을 위한 TabNav. 시뮬레이션 부분에서 사용
 import React, {useState} from "react";
 // import {useNavigate} from "react-router-dom";
 import styles from "./SubTabNav.module.css";

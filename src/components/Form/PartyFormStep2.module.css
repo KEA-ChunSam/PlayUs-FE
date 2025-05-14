@@ -1,0 +1,105 @@
+.container {
+  position: relative;
+  aspect-ratio: 9 / 16;
+  max-width: 100%;
+  max-height: 100%;
+  /*display: flex;*/
+  margin-top: 5rem;
+  /*flex-direction: column;*/
+  /*align-items: center;*/
+  /*justify-content: center;*/
+  width: 100%;
+  padding: 0 1rem 3.5rem;
+}
+
+.inputForm {
+  padding: 1rem 1.5rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+}
+
+.input {
+  display: block;
+  margin-bottom: 1.5rem;
+}
+
+.thumbnailContainer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.thumbnailWrapper {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.thumbnailPreview {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.removeButton {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: rgba(184, 184, 184, 0.7);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 12px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.textarea {
+  width: 100%;
+  height: auto;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  resize: vertical;
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+}
+
+.submitButton {
+  width: 100%;
+  background-color: #ef4444;
+  color: white;
+  font-weight: bold;
+  padding: 12px 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.imageUploadButton {
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.charCount {
+  text-align: right;
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: -2rem;
+  margin-bottom: 1.5rem;
+}

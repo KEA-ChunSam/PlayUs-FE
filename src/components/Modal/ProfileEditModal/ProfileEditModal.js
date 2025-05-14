@@ -1,41 +1,98 @@
-import React, { useState } from 'react';
+// 프로필 편집 모달 컴포넌트
+import React, {useEffect, useState} from 'react';
 import styles from './ProfileEditModal.module.css';
 
-const ProfileEditModal = ({ nickname, onCancel, onSave }) => {
-  const [newNickname, setNewNickname] = useState(nickname);
+const ProfileEditModal = ({onClose, onSubmit}) => {
+    const [nickname, setNickname] = useState('ZSJ');
+    const [validationMessage, setValidationMessage] = useState('사용할 수 있는 닉네임입니다.');
+    const [isValid, setIsValid] = useState(true);
+    const [profileImage, setProfileImage] = useState(`${process.env.PUBLIC_URL}/Logo/default.png`);
+    const [objectUrl, setObjectUrl] = useState(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave(newNickname);
-  };
+    useEffect(() => {
+        // 컴포넌트 언마운트 시 객체 URL 해제
+        return () => {
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+            }
+        };
+    }, [objectUrl]);
 
-  return (
-    <div className={styles.modalOverlay}>
-      <div className={styles.modalContent}>
-        <h2>프로필 수정</h2>
-        <form onSubmit={handleSubmit}>
-          <div className={styles.formGroup}>
-            <label>닉네임</label>
-            <input
-              type="text"
-              value={newNickname}
-              onChange={(e) => setNewNickname(e.target.value)}
-              className={styles.input}
-              required
-            />
-          </div>
-          <div className={styles.buttonGroup}>
-            <button type="button" onClick={onCancel} className={styles.cancelButton}>
-              취소
-            </button>
-            <button type="submit" className={styles.saveButton}>
-              저장
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (objectUrl) {
+                URL.revokeObjectURL(objectUrl);
+            }
+            const imageUrl = URL.createObjectURL(file);
+            setProfileImage(imageUrl);
+            setObjectUrl(imageUrl);
+        }
+    };
+
+    const handleNicknameChange = (e) => {
+        const value = e.target.value;
+        setNickname(value);
+
+        if (value.length < 2 || value.length > 8) {
+            setValidationMessage('2~8자의 닉네임을 입력해주세요.');
+            setIsValid(false);
+        } else if (value === 'existing_user') {
+            // Replace with real duplication check
+            setValidationMessage('이미 사용중인 닉네임입니다.');
+            setIsValid(false);
+        } else {
+            setValidationMessage('사용할 수 있는 닉네임입니다.');
+            setIsValid(true);
+        }
+    };
+
+    const handleSubmit = () => {
+        // if (validationMessage !== '사용할 수 있는 닉네임입니다.') return;
+        if (!isValid) return;
+        onSubmit(nickname);
+        onClose();
+    };
+
+    return (
+        <div className={styles.modal_overlay}>
+            <div className={styles.modal_box}>
+                <label htmlFor="profile-image-upload">
+                    <img
+                        src={profileImage}
+                        alt="프로필 사진"
+                        className={styles.profile_img}
+                        style={{cursor: 'pointer', position: 'relative'}}
+                    />
+                </label>
+                <input
+                    type="file"
+                    id="profile-image-upload"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    style={{display: 'none'}}
+                />
+                <div className={styles.input_container}>
+                    <input
+                        type="text"
+                        value={nickname}
+                        onChange={handleNicknameChange}
+                        className={styles.nickname_input}
+                    />
+                    <button className={styles.clear_button} onClick={() => setNickname('')}>×</button>
+                </div>
+                <div className={
+                    // validationMessage === '사용할 수 있는 닉네임입니다.'
+                    isValid
+                        ? styles.valid_message
+                        : styles.error_message
+                }>
+                    {validationMessage}
+                </div>
+                <button className={styles.confirm_button} onClick={handleSubmit}>수정 완료</button>
+            </div>
+        </div>
+    );
 };
 
-export default ProfileEditModal; 
+export default ProfileEditModal;

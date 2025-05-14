@@ -21,6 +21,7 @@ const Header = () => {
                     className={styles.main_logo}
                     src={`${process.env.PUBLIC_URL}/Logo/NewLogo_small.png`}
                     alt="Logo"
+                    onClick={alwaysHome}
                 />
             </div>
             <div className={styles.header_center}>
@@ -36,14 +37,14 @@ const Header = () => {
             <div className={styles.header_right}>
                 <button>
                     <img
-                        src={`${process.env.PUBLIC_URL}/button/admin.png`}
+                        src={`${process.env.PUBLIC_URL}/Button/admin.png`}
                         alt="알림"
                         className={styles.noti_alert}
                     />
                 </button>
                 <button>
                     <img
-                        src={`${process.env.PUBLIC_URL}/button/alert.png`}
+                        src={`${process.env.PUBLIC_URL}/Button/alert.png`}
                         alt="알림"
                         className={styles.noti_alert}
                     />
