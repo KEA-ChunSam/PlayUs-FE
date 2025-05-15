@@ -391,3 +391,22 @@
     text-align: center;
     font-size: 13px;
 }
+
+.casterbotButton {
+    position: fixed;
+    bottom: 4.5rem;
+    right: 1rem;
+    z-index: 999;
+    width: 60px;
+    height: 65px;
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border: none;
+    padding: 0;
+}
+
+.casterbotButton img {
+    width: 100%;
+    height: 100%;
+}

@@ -2,6 +2,7 @@
 import React, {useEffect, useState} from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
 import styles from './NewDiary.module.css';
+import CasterbotModal from "../Chatbot/CasterbotModal";
 
 const teams = [
     '한화 이글스', '기아 타이거즈', '두산 베어스', 'LG 트윈스', '롯데 자이언츠',
@@ -31,6 +32,8 @@ const NewDiary = () => {
     const [image, setImage] = useState(location.state?.image || null);
     const [imageFile, setImageFile] = useState(null);
     const [objectUrl, setObjectUrl] = useState(null);
+    const [showCasterbot, setShowCasterbot] = useState(false);
+
 
     useEffect(() => {
         return () => {
@@ -90,73 +93,88 @@ const NewDiary = () => {
     };
 
     return (
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <span className={styles.title}>{isEditing ? '직관일지 수정' : '직관일지 작성'}</span>
-                <button onClick={handleCancel} className={styles.closeButton}>✕</button>
+        <>
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <span className={styles.title}>{isEditing ? '직관일지 수정' : '직관일지 작성'}</span>
+                    <button onClick={handleCancel} className={styles.closeButton}>✕</button>
+                </div>
+
+                <form className={styles.body} onSubmit={handleSubmit}>
+                    <label className={styles.imageUpload}>
+                        {image ? (
+                            <img src={image} alt="preview" className={styles.preview}/>
+                        ) : (
+                            <span>사진/동영상</span>
+                        )}
+                        <input type="file" accept="image/*" onChange={handleImageChange} hidden/>
+                    </label>
+
+                    <div className={styles.formGroup}>
+                        <label>직관 팀</label>
+                        <select
+                            value={team}
+                            onChange={(e) => setTeam(e.target.value)}
+                            className={styles.select}
+                            required
+                        >
+                            <option value="" disabled>팀을 선택해주세요</option>
+                            {teams.map((t, i) => (
+                                <option key={i} value={t}>{t}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                        <label>제목</label>
+                        <input
+                            type="text"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            className={styles.input}
+                            placeholder="제목을 입력해주세요"
+                            required
+                        />
+                    </div>
+
+                    <div className={styles.formGroup}>
+                        <label>내용</label>
+                        <textarea
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            className={styles.textarea}
+                            maxLength={1000}
+                            placeholder="직관했던 내용을 자유롭게 작성해 주세요!"
+                            required
+                        />
+                        <div className={styles.charCount}>{`${content.length} / 1000`}</div>
+                    </div>
+
+                    <div className={styles.formActions}>
+                        <button
+                            type="submit"
+                            className={styles.submitButton}
+                            onClick={handleSubmit}
+                        >
+                            {isEditing ? '수정 완료!' : '직관일지 작성!'}
+                        </button>
+                    </div>
+                </form>
             </div>
+            <button
+                onClick={() => setShowCasterbot(true)}
+                className={styles.casterbotButton}
+            >
+                <img
+                    src={`${process.env.PUBLIC_URL}/Button/casterbot.png`}
+                    alt="캐스터봇"
+                />
+            </button>
 
-            <form className={styles.body} onSubmit={handleSubmit}>
-                <label className={styles.imageUpload}>
-                    {image ? (
-                        <img src={image} alt="preview" className={styles.preview}/>
-                    ) : (
-                        <span>사진/동영상</span>
-                    )}
-                    <input type="file" accept="image/*" onChange={handleImageChange} hidden/>
-                </label>
-
-                <div className={styles.formGroup}>
-                    <label>직관 팀</label>
-                    <select
-                        value={team}
-                        onChange={(e) => setTeam(e.target.value)}
-                        className={styles.select}
-                        required
-                    >
-                        <option value="" disabled>팀을 선택해주세요</option>
-                        {teams.map((t, i) => (
-                            <option key={i} value={t}>{t}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className={styles.formGroup}>
-                    <label>제목</label>
-                    <input
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className={styles.input}
-                        placeholder="제목을 입력해주세요"
-                        required
-                    />
-                </div>
-
-                <div className={styles.formGroup}>
-                    <label>내용</label>
-                    <textarea
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        className={styles.textarea}
-                        maxLength={1000}
-                        placeholder="직관했던 내용을 자유롭게 작성해 주세요!"
-                        required
-                    />
-                    <div className={styles.charCount}>{`${content.length} / 1000`}</div>
-                </div>
-
-                <div className={styles.formActions}>
-                    <button
-                        type="submit"
-                        className={styles.submitButton}
-                        onClick={handleSubmit}
-                    >
-                        {isEditing ? '수정 완료!' : '직관일지 작성!'}
-                    </button>
-                </div>
-            </form>
-        </div>
+            {showCasterbot && (
+                <CasterbotModal onClose={() => setShowCasterbot(false)}/>
+            )}
+        </>
     );
 };
 

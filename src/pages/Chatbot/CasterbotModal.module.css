@@ -1,0 +1,129 @@
+.modalOverlay {
+    position: fixed;
+    bottom: 5rem;
+    right: 1rem;
+    width: 320px;
+    max-height: 80vh;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: #1a1a1a;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.backBtn {
+    background: none;
+    color: white;
+    border: none;
+    font-size: 1.25rem;
+    margin-right: 0.5rem;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.headerImg {
+    width: 30px;
+    /*height: 30px;*/
+    /*border-radius: 50%;*/
+}
+
+.chatBody {
+    flex: 1;
+    padding: 0.75rem;
+    overflow-y: auto;
+}
+
+.dateLabel {
+    text-align: center;
+    font-size: 0.75rem;
+    color: gray;
+    margin-bottom: 1rem;
+}
+
+.botMessage,
+.myMessage {
+    display: flex;
+    margin-bottom: 0.75rem;
+}
+
+.botMessage .avatarWrapper {
+    margin-right: 0.5rem;
+}
+
+.avatar {
+    width: 30px;
+    /*height: 30px;*/
+    /*border-radius: 50%;*/
+}
+
+.messageContent {
+    max-width: 75%;
+}
+
+.sender {
+    font-size: 0.75rem;
+    color: gray;
+    margin-bottom: 0.25rem;
+}
+
+.messageBubble {
+    background-color: #f1f1f1;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    white-space: pre-wrap;
+}
+
+.myMessage {
+    justify-content: flex-end;
+}
+
+.myMessage .messageBubble {
+    background-color: #d3e3ff;
+}
+
+.timestamp {
+    font-size: 0.65rem;
+    color: gray;
+    margin-top: 0.25rem;
+}
+
+.inputArea {
+    display: flex;
+    padding: 0.75rem;
+    border-top: 1px solid #eee;
+    background-color: #fff;
+}
+
+.chatInput {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin: 0 0.5rem;
+}
+
+.sendBtn,
+.plusBtn {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+}

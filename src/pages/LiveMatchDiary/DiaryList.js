@@ -1,10 +1,11 @@
 // 직관일지 목록 페이지
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useNavigate, useSearchParams} from 'react-router-dom';
 import Pagination from '@mui/material/Pagination';
 import styles from './DiaryList.module.css';
 import dummyDiaries from '../../components/DummyData/dummyDiaries';
 import TabNav from "../../components/TabNav/TabNav";
+import CasterbotModal from "../Chatbot/CasterbotModal";
 
 const DiaryList = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -14,6 +15,8 @@ const DiaryList = () => {
 
     const navigate = useNavigate();
     const tabLabels = ["나의 직관일지"];
+    const [showCasterbot, setShowCasterbot] = useState(false);
+
 
     useEffect(() => {
         //setDiaries(dummyDiaries);
@@ -37,55 +40,70 @@ const DiaryList = () => {
     };
 
     return (
-        <div className={styles.container}>
-            {/*<h2 className={styles.title}>나의 직관일지</h2>*/}
-            <TabNav tabs={tabLabels} onBack={handleBack}/>
-            <div className={styles.entryBox}>
-                {pagedDiaries.map((entry) => (
-                    <div
-                        key={entry.id}
-                        className={styles.entry}
-                        onClick={() => handleClickDiary(entry.id)}
-                        style={{cursor: 'pointer'}}
-                    >
-                        {entry.image && (
-                            <img src={entry.image} alt="thumbnail" className={styles.thumbnail}/>
-                        )}
-                        <div className={styles.entryContent}>
-                            <span className={styles.entryTitle}>{entry.title}</span>
-                            <span className={styles.entryDate}>{entry.date}</span>
-                            {entry.teamLogo && <img src={entry.teamLogo} alt="logo" className={styles.teamLogo}/>}
+        <>
+            <div className={styles.container}>
+                {/*<h2 className={styles.title}>나의 직관일지</h2>*/}
+                <TabNav tabs={tabLabels} onBack={handleBack}/>
+                <div className={styles.entryBox}>
+                    {pagedDiaries.map((entry) => (
+                        <div
+                            key={entry.id}
+                            className={styles.entry}
+                            onClick={() => handleClickDiary(entry.id)}
+                            style={{cursor: 'pointer'}}
+                        >
+                            {entry.image && (
+                                <img src={entry.image} alt="thumbnail" className={styles.thumbnail}/>
+                            )}
+                            <div className={styles.entryContent}>
+                                <span className={styles.entryTitle}>{entry.title}</span>
+                                <span className={styles.entryDate}>{entry.date}</span>
+                                {entry.teamLogo && <img src={entry.teamLogo} alt="logo" className={styles.teamLogo}/>}
+                            </div>
                         </div>
+                    ))}
+                    <div className={styles.paginationWrapper}>
+                        <Pagination
+                            count={Math.ceil(diaries.length / PER_PAGE)}
+                            page={page}
+                            onChange={handlePageChange}
+                            variant="outlined"
+                            shape="rounded"
+                            sx={{
+                                '& .MuiPaginationItem-root': {
+                                    color: '#784af4',
+                                    border: '1px solid #784af4',
+                                    cursor: 'pointer',
+                                },
+                                '& .Mui-selected': {
+                                    backgroundColor: '#784af4',
+                                    color: '#fff',
+                                    borderColor: '#784af4',
+                                },
+                                '& .MuiPaginationItem-ellipsis': {
+                                    border: 'none',
+                                    color: '#784af4',
+                                    backgroundColor: 'transparent',
+                                },
+                            }}
+                        />
                     </div>
-                ))}
-                <div className={styles.paginationWrapper}>
-                    <Pagination
-                        count={Math.ceil(diaries.length / PER_PAGE)}
-                        page={page}
-                        onChange={handlePageChange}
-                        variant="outlined"
-                        shape="rounded"
-                        sx={{
-                            '& .MuiPaginationItem-root': {
-                                color: '#784af4',
-                                border: '1px solid #784af4',
-                                cursor: 'pointer',
-                            },
-                            '& .Mui-selected': {
-                                backgroundColor: '#784af4',
-                                color: '#fff',
-                                borderColor: '#784af4',
-                            },
-                            '& .MuiPaginationItem-ellipsis': {
-                                border: 'none',
-                                color: '#784af4',
-                                backgroundColor: 'transparent',
-                            },
-                        }}
-                    />
                 </div>
             </div>
-        </div>
+            <button
+                onClick={() => setShowCasterbot(true)}
+                className={styles.casterbotButton}
+            >
+                <img
+                    src={`${process.env.PUBLIC_URL}/Button/casterbot.png`}
+                    alt="캐스터봇"
+                />
+            </button>
+
+            {showCasterbot && (
+                <CasterbotModal onClose={() => setShowCasterbot(false)}/>
+            )}
+        </>
     );
 };
 export default DiaryList;
