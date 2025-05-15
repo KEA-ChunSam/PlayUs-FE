@@ -7,12 +7,14 @@ import SubTabNav from "../../components/TabNav/SubTabNav";
 import LineupDraggableList from '../../components/DragNDrop/LineupDraggableList';
 import GameLogData from "../../components/GameLogData/GameLogData";
 import RecordsSection from "../../components/GameLogData/RecordsSection";
+import CasterbotModal from "../Chatbot/CasterbotModal";
 
 function MatchInfo() {
     const [activeTab, setActiveTab] = useState(0);
     const [activeSubTab, setActiveSubTab] = useState(0);
     const tabLabels = ["경기 정보", "AI 시뮬레이터"];
     const subTabLabels = ["라인업 설정", "경기 로그", "기록"];
+    const [showCasterbot, setShowCasterbot] = useState(false);
     // const navigate = useNavigate();
 
     const [homeBatters, setHomeBatters] = useState([
@@ -216,6 +218,19 @@ function MatchInfo() {
                         <RecordsSection homeBatters={homeBatters} awayBatters={awayBatters}/>
                     )}
                 </div>
+            )}
+            <button
+                onClick={() => setShowCasterbot(true)}
+                className={styles.casterbotButton}
+            >
+                <img
+                    src={`${process.env.PUBLIC_URL}/Button/casterbot.png`}
+                    alt="캐스터봇"
+                />
+            </button>
+
+            {showCasterbot && (
+                <CasterbotModal onClose={() => setShowCasterbot(false)}/>
             )}
         </div>
     );

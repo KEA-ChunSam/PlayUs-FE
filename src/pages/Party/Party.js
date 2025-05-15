@@ -1,5 +1,6 @@
 // 직관팟 메인(구하기) & 내 신청 현황 & 승인 요청을 한 코드에 적용.
 import React, {useState} from 'react';
+import CasterbotModal from '../../pages/Chatbot/CasterbotModal';
 import {useNavigate} from 'react-router-dom';
 import TabNav from "../../components/TabNav/TabNav";
 import styles from './Party.module.css';
@@ -15,6 +16,7 @@ const Party = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showApproveModal, setShowApproveModal] = useState(false);
     const [showDenyModal, setShowDenyModal] = useState(false);
+    const [showCasterbot, setShowCasterbot] = useState(false);
     const tabLabels = ["직관팟 구하기", "내 신청 현황", "승인 요청"];
     const navigate = useNavigate();
 
@@ -467,9 +469,21 @@ const Party = () => {
                     <Modal key={idx} title={modal.title} message={modal.message} buttons={modal.buttons}/>
                 )
             )}
+            <button
+                onClick={() => setShowCasterbot(true)}
+                className={styles.casterbotButton}
+            >
+                <img
+                    src={`${process.env.PUBLIC_URL}/Button/casterbot.png`}
+                    alt="캐스터봇"
+                />
+            </button>
+
+            {showCasterbot && (
+                <CasterbotModal onClose={() => setShowCasterbot(false)}/>
+            )}
         </>
-    )
-        ;
+    );
 };
 
 export default Party;

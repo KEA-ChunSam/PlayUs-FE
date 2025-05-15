@@ -10,6 +10,7 @@ import styles from './Profile.module.css';
 import Modal from '../../components/Modal/Modal';
 import ProfileEditModal from '../../components/Modal/ProfileEditModal/ProfileEditModal';
 import WithdrawalModal from '../../components/Modal/WithdrawalModal/WithdrawalModal';
+import CasterbotModal from "../Chatbot/CasterbotModal";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 const storedDiaries = JSON.parse(localStorage.getItem('customDiaries')) || [];
@@ -57,8 +58,8 @@ const Profile = () => {
     const profileBase = dummyUsers[targetId];
     const diaryCount = allDiaries.filter(d => d.userId === targetId).length;
     const profile = {
-      ...profileBase,
-      diaryCount
+        ...profileBase,
+        diaryCount
     };
     const isMine = !userId || userId === currentUserId;
 
@@ -100,176 +101,197 @@ const Profile = () => {
     const handleNewDiary = () => {
         navigate('/diary/newdiary');
     }
+    const [showCasterbot, setShowCasterbot] = useState(false);
 
     return (
-        <div className={styles.container}>
-            <header className={styles.header}>
-                <img src={profile.profileImg} alt="profile" className={styles.profileImg}/>
-                <div className={styles.userInfo}>
-                    <div className={styles.username}>
-                        <span>{profile.nickname}</span>
+        <>
+            <div className={styles.container}>
+                <header className={styles.header}>
+                    <img src={profile.profileImg} alt="profile" className={styles.profileImg}/>
+                    <div className={styles.userInfo}>
+                        <div className={styles.username}>
+                            <span>{profile.nickname}</span>
+                            {isMine && (
+                                <img
+                                    src={`${process.env.PUBLIC_URL}/Button/create.png`}
+                                    alt="edit"
+                                    className={styles.editIcon}
+                                    onClick={() => setShowProfileEditModal(true)}
+                                />
+                            )}
+                        </div>
+                        {isMine ? (
+                            <div className={styles.email}>{profile.email}</div>
+                        ) : (
+                            <div className={styles.email}>
+                                직관일지 {profile.diaryCount}회 작성 · {profile.joined} 가입
+                            </div>
+                        )}
                         {isMine && (
-                          <img
-                              src={`${process.env.PUBLIC_URL}/Button/create.png`}
-                              alt="edit"
-                              className={styles.editIcon}
-                              onClick={() => setShowProfileEditModal(true)}
-                          />
+                            <>
+                                <div className={styles.logout} onClick={() => setShowLogoutModal(true)}>
+                                    <img src={`${process.env.PUBLIC_URL}/Button/logout.png`} alt="logout"
+                                         className={styles.logoutImg}/>로그아웃
+                                </div>
+                                <div className={styles.withdrawal} onClick={() => setShowWithdrawalModal(true)}>탈퇴하기
+                                </div>
+                            </>
                         )}
                     </div>
-                    {isMine ? (
-                      <div className={styles.email}>{profile.email}</div>
-                    ) : (
-                      <div className={styles.email}>
-                        직관일지 {profile.diaryCount}회 작성 · {profile.joined} 가입
-                      </div>
-                    )}
-                    {isMine && (
-                      <>
-                        <div className={styles.logout} onClick={() => setShowLogoutModal(true)}>
-                          <img src={`${process.env.PUBLIC_URL}/Button/logout.png`} alt="logout" className={styles.logoutImg}/>로그아웃
-                        </div>
-                        <div className={styles.withdrawal} onClick={() => setShowWithdrawalModal(true)}>탈퇴하기</div>
-                      </>
-                    )}
-                </div>
-                <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/${profile.teamLogo}.png`} alt="team"
-                     className={styles.teamImg}/>
-            </header>
+                    <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/${profile.teamLogo}.png`} alt="team"
+                         className={styles.teamImg}/>
+                </header>
 
-            {isMine ? (
-                <>
-                    <section className={styles.calendarSection}>
-                        <h2>직관 달력</h2>
-                        <div className={styles.calendarSectionDiv}>
-                            <Calendar
-                                onChange={setValue}
-                                value={value}
-                                tileContent={tileContent}
-                                formatDay={(locale, date) => date.getDate().toString()}
-                                locale="ko-KR"
-                            />
-                        </div>
-                    </section>
-
-                    <section className={styles.journalSection}>
-                        <div className={styles.journalHeader}>
-                            <h2>이번 달 나의 직관일지</h2>
-                            <button className={styles.writeBtn} onClick={handleNewDiary}>직관일지 작성하기</button>
-                            <div className={styles.logout} onClick={handleDiaryList}>더보기</div>
-                        </div>
-                        <ul className={styles.journalList}>
-                            {journalEntries.map((entry, idx) => (
-                                <li key={idx} className={styles.journalItem}>
-                                    {entry.image && <img src={entry.image} alt="entry" className={styles.entryImg}/>}
-                                    <span className={styles.entryTitle}>{entry.title}</span>
-                                    <span className={styles.entryDate}>{entry.date}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </section>
-                </>
-            ) : (
-                <>
-                    <section className={styles.accuracySection}>
-                        <h2>직관 타율</h2>
-                        <div className={styles.accuracyChartWrapper}>
-                            <div className={styles.accuracyCircle}>
-                                <Doughnut
-                                    data={{
-                                        labels: ['타율', '빈 공간'],
-                                        datasets: [
-                                            {
-                                                data: [accuracyValue, 100 - accuracyValue],
-                                                backgroundColor: ['#f66', '#f2f2f2'],
-                                                borderWidth: 0
-                                            }
-                                        ]
-                                    }}
-                                    options={{
-                                        cutout: '70%',
-                                        plugins: {
-                                            legend: {display: false},
-                                            tooltip: {enabled: false}
-                                        }
-                                    }}
+                {isMine ? (
+                    <>
+                        <section className={styles.calendarSection}>
+                            <h2>직관 달력</h2>
+                            <div className={styles.calendarSectionDiv}>
+                                <Calendar
+                                    onChange={setValue}
+                                    value={value}
+                                    tileContent={tileContent}
+                                    formatDay={(locale, date) => date.getDate().toString()}
+                                    locale="ko-KR"
                                 />
-                                <div className={styles.accuracyNumberOverlay}>{(accuracyValue / 100).toFixed(3)}</div>
                             </div>
-                            <div className={styles.reviewSummary}>
-                                <p>100명 중 42명이 직관팟에 만족했어요.</p>
-                                <div className={styles.reviewTag}>답장이 빨라요.</div>
-                                <div className={styles.reviewTag}>시간 약속을 잘 지켜요.</div>
-                                <div className={styles.reviewTag}>경기 직관이 열정적이에요.</div>
-                            </div>
-                        </div>
-                    </section>
+                        </section>
 
-                    <section className={styles.journalSection}>
-                        <div className={styles.journalHeader}>
-                            <h2>최근 커뮤니티 게시글</h2>
-                            <div className={styles.logout} onClick={handleDiaryList}>더보기</div>
-                        </div>
-                        <ul className={styles.journalList}>
-                            {journalEntries.map((entry, idx) => (
-                                <li key={idx} className={styles.journalItem}>
-                                    {entry.image && <img src={entry.image} alt="entry" className={styles.entryImg}/>}
-                                    <span className={styles.entryTitle}>{entry.title}</span>
-                                    <span className={styles.entryDate}>{entry.date}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    </section>
-                </>
-            )}
-            {showLogoutModal && (
-                <Modal
-                    title="로그아웃"
-                    message="로그아웃하시겠어요?"
-                    buttons={[
-                        {label: '취소', onClick: () => setShowLogoutModal(false)},
-                        {
-                            label: '확인',
-                            onClick: () => {
-                                navigate('/login');
-                                setShowLogoutModal(false);
+                        <section className={styles.journalSection}>
+                            <div className={styles.journalHeader}>
+                                <h2>이번 달 나의 직관일지</h2>
+                                <button className={styles.writeBtn} onClick={handleNewDiary}>직관일지 작성하기</button>
+                                <div className={styles.logout} onClick={handleDiaryList}>더보기</div>
+                            </div>
+                            <ul className={styles.journalList}>
+                                {journalEntries.map((entry, idx) => (
+                                    <li key={idx} className={styles.journalItem}>
+                                        {entry.image &&
+                                            <img src={entry.image} alt="entry" className={styles.entryImg}/>}
+                                        <span className={styles.entryTitle}>{entry.title}</span>
+                                        <span className={styles.entryDate}>{entry.date}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
+                    </>
+                ) : (
+                    <>
+                        <section className={styles.accuracySection}>
+                            <h2>직관 타율</h2>
+                            <div className={styles.accuracyChartWrapper}>
+                                <div className={styles.accuracyCircle}>
+                                    <Doughnut
+                                        data={{
+                                            labels: ['타율', '빈 공간'],
+                                            datasets: [
+                                                {
+                                                    data: [accuracyValue, 100 - accuracyValue],
+                                                    backgroundColor: ['#f66', '#f2f2f2'],
+                                                    borderWidth: 0
+                                                }
+                                            ]
+                                        }}
+                                        options={{
+                                            cutout: '70%',
+                                            plugins: {
+                                                legend: {display: false},
+                                                tooltip: {enabled: false}
+                                            }
+                                        }}
+                                    />
+                                    <div
+                                        className={styles.accuracyNumberOverlay}>{(accuracyValue / 100).toFixed(3)}</div>
+                                </div>
+                                <div className={styles.reviewSummary}>
+                                    <p>100명 중 42명이 직관팟에 만족했어요.</p>
+                                    <div className={styles.reviewTag}>답장이 빨라요.</div>
+                                    <div className={styles.reviewTag}>시간 약속을 잘 지켜요.</div>
+                                    <div className={styles.reviewTag}>경기 직관이 열정적이에요.</div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section className={styles.journalSection}>
+                            <div className={styles.journalHeader}>
+                                <h2>최근 커뮤니티 게시글</h2>
+                                <div className={styles.logout} onClick={handleDiaryList}>더보기</div>
+                            </div>
+                            <ul className={styles.journalList}>
+                                {journalEntries.map((entry, idx) => (
+                                    <li key={idx} className={styles.journalItem}>
+                                        {entry.image &&
+                                            <img src={entry.image} alt="entry" className={styles.entryImg}/>}
+                                        <span className={styles.entryTitle}>{entry.title}</span>
+                                        <span className={styles.entryDate}>{entry.date}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
+                    </>
+                )}
+                {showLogoutModal && (
+                    <Modal
+                        title="로그아웃"
+                        message="로그아웃하시겠어요?"
+                        buttons={[
+                            {label: '취소', onClick: () => setShowLogoutModal(false)},
+                            {
+                                label: '확인',
+                                onClick: () => {
+                                    navigate('/login');
+                                    setShowLogoutModal(false);
+                                }
                             }
-                        }
-                    ]}
-                />
-            )}
-            {showWithdrawalModal && (
-                <WithdrawalModal
-                    nickname={nickname}
-                    onCancel={() => setShowWithdrawalModal(false)}
-                    onWithdraw={() => {
-                        setShowWithdrawalModal(false);
-                        setShowFinalModal(true);
-                    }}
-                />
-            )}
-            {showFinalModal && (
-                <Modal
-                    title="탈퇴 완료"
-                    message={"탈퇴가 완료되었습니다.\n언제든 다시 돌아오세요!"}
-                    buttons={[
-                        {
-                            label: '확인',
-                            onClick: () => {
-                                setShowFinalModal(false);
-                                navigate('/login');
+                        ]}
+                    />
+                )}
+                {showWithdrawalModal && (
+                    <WithdrawalModal
+                        nickname={nickname}
+                        onCancel={() => setShowWithdrawalModal(false)}
+                        onWithdraw={() => {
+                            setShowWithdrawalModal(false);
+                            setShowFinalModal(true);
+                        }}
+                    />
+                )}
+                {showFinalModal && (
+                    <Modal
+                        title="탈퇴 완료"
+                        message={"탈퇴가 완료되었습니다.\n언제든 다시 돌아오세요!"}
+                        buttons={[
+                            {
+                                label: '확인',
+                                onClick: () => {
+                                    setShowFinalModal(false);
+                                    navigate('/login');
+                                }
                             }
-                        }
-                    ]}
+                        ]}
+                    />
+                )}
+                {showProfileEditModal && (
+                    <ProfileEditModal
+                        onClose={() => setShowProfileEditModal(false)}
+                        onSubmit={(newNickname) => setNickname(newNickname)}
+                    />
+                )}
+            </div>
+            <button
+                onClick={() => setShowCasterbot(true)}
+                className={styles.casterbotButton}
+            >
+                <img
+                    src={`${process.env.PUBLIC_URL}/Button/casterbot.png`}
+                    alt="캐스터봇"
                 />
+            </button>
+
+            {showCasterbot && (
+                <CasterbotModal onClose={() => setShowCasterbot(false)}/>
             )}
-            {showProfileEditModal && (
-                <ProfileEditModal
-                    onClose={() => setShowProfileEditModal(false)}
-                    onSubmit={(newNickname) => setNickname(newNickname)}
-                />
-            )}
-        </div>
+        </>
     );
 };
 
