@@ -18,6 +18,7 @@ const CropModal = ({image, onClose, onCropDone}) => {
             onCropDone(croppedImage);
         } catch (e) {
             console.error('Crop failed', e);
+            alert('이미지 크롭에 실패했습니다. 다시 시도해주세요.');
         }
     };
 
