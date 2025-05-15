@@ -8,6 +8,7 @@ import LineupDraggableList from '../../components/DragNDrop/LineupDraggableList'
 import GameLogData from "../../components/GameLogData/GameLogData";
 import RecordsSection from "../../components/GameLogData/RecordsSection";
 import CasterbotModal from "../Chatbot/CasterbotModal";
+import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 
 function MatchInfo() {
     const [activeTab, setActiveTab] = useState(0);
@@ -219,15 +220,7 @@ function MatchInfo() {
                     )}
                 </div>
             )}
-            <button
-                onClick={() => setShowCasterbot(true)}
-                className={styles.casterbotButton}
-            >
-                <img
-                    src={`${process.env.PUBLIC_URL}/Button/casterbot.png`}
-                    alt="캐스터봇"
-                />
-            </button>
+            <CasterbotButton onClick={() => setShowCasterbot(true)} />
 
             {showCasterbot && (
                 <CasterbotModal onClose={() => setShowCasterbot(false)}/>

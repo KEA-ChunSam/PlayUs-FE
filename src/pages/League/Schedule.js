@@ -4,6 +4,7 @@ import GameCard from '../../components/GameCard/GameCard';
 import ScheduleSlider from "../../components/League/ScheduleSlider/ScheduleSlider";
 import styles from './Schedule.module.css';
 import CasterbotModal from "../Chatbot/CasterbotModal";
+import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 
 const Schedule = () => {
     const [showCasterbot, setShowCasterbot] = useState(false);
@@ -56,15 +57,7 @@ const Schedule = () => {
                     />
                 </div>
             </div>
-            <button
-                onClick={() => setShowCasterbot(true)}
-                className={styles.casterbotButton}
-            >
-                <img
-                    src={`${process.env.PUBLIC_URL}/Button/casterbot.png`}
-                    alt="캐스터봇"
-                />
-            </button>
+            <CasterbotButton onClick={() => setShowCasterbot(true)} />
 
             {showCasterbot && (
                 <CasterbotModal onClose={() => setShowCasterbot(false)}/>

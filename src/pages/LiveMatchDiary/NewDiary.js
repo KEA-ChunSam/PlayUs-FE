@@ -3,6 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
 import styles from './NewDiary.module.css';
 import CasterbotModal from "../Chatbot/CasterbotModal";
+import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 
 const teams = [
     '한화 이글스', '기아 타이거즈', '두산 베어스', 'LG 트윈스', '롯데 자이언츠',
@@ -161,15 +162,7 @@ const NewDiary = () => {
                     </div>
                 </form>
             </div>
-            <button
-                onClick={() => setShowCasterbot(true)}
-                className={styles.casterbotButton}
-            >
-                <img
-                    src={`${process.env.PUBLIC_URL}/Button/casterbot.png`}
-                    alt="캐스터봇"
-                />
-            </button>
+            <CasterbotButton onClick={() => setShowCasterbot(true)} />
 
             {showCasterbot && (
                 <CasterbotModal onClose={() => setShowCasterbot(false)}/>

@@ -6,6 +6,7 @@ import styles from './DiaryList.module.css';
 import dummyDiaries from '../../components/DummyData/dummyDiaries';
 import TabNav from "../../components/TabNav/TabNav";
 import CasterbotModal from "../Chatbot/CasterbotModal";
+import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 
 const DiaryList = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -90,15 +91,7 @@ const DiaryList = () => {
                     </div>
                 </div>
             </div>
-            <button
-                onClick={() => setShowCasterbot(true)}
-                className={styles.casterbotButton}
-            >
-                <img
-                    src={`${process.env.PUBLIC_URL}/Button/casterbot.png`}
-                    alt="캐스터봇"
-                />
-            </button>
+            <CasterbotButton onClick={() => setShowCasterbot(true)} />
 
             {showCasterbot && (
                 <CasterbotModal onClose={() => setShowCasterbot(false)}/>

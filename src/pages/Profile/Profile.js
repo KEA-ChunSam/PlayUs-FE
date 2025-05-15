@@ -11,6 +11,7 @@ import Modal from '../../components/Modal/Modal';
 import ProfileEditModal from '../../components/Modal/ProfileEditModal/ProfileEditModal';
 import WithdrawalModal from '../../components/Modal/WithdrawalModal/WithdrawalModal';
 import CasterbotModal from "../Chatbot/CasterbotModal";
+import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 const storedDiaries = JSON.parse(localStorage.getItem('customDiaries')) || [];
@@ -278,15 +279,7 @@ const Profile = () => {
                     />
                 )}
             </div>
-            <button
-                onClick={() => setShowCasterbot(true)}
-                className={styles.casterbotButton}
-            >
-                <img
-                    src={`${process.env.PUBLIC_URL}/Button/casterbot.png`}
-                    alt="캐스터봇"
-                />
-            </button>
+            <CasterbotButton onClick={() => setShowCasterbot(true)}/>
 
             {showCasterbot && (
                 <CasterbotModal onClose={() => setShowCasterbot(false)}/>

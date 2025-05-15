@@ -6,6 +6,7 @@ import styles from './DiaryDetail.module.css';
 import TabNav from "../../components/TabNav/TabNav";
 import Modal from "../../components/Modal/Modal";
 import CasterbotModal from "../Chatbot/CasterbotModal";
+import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 
 const DiaryDetail = () => {
     const {id} = useParams();
@@ -99,15 +100,7 @@ const DiaryDetail = () => {
                     />
                 )}
             </div>
-            <button
-                onClick={() => setShowCasterbot(true)}
-                className={styles.casterbotButton}
-            >
-                <img
-                    src={`${process.env.PUBLIC_URL}/Button/casterbot.png`}
-                    alt="캐스터봇"
-                />
-            </button>
+            <CasterbotButton onClick={() => setShowCasterbot(true)} />
 
             {showCasterbot && (
                 <CasterbotModal onClose={() => setShowCasterbot(false)}/>
