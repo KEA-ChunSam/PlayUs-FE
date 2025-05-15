@@ -1,6 +1,6 @@
-// 프로필 설정 페이지
 import React, {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
+import axios from 'axios';
 import styles from './SetProfile.module.css';
 import LoginHeader from "../../components/Header/LoginHeader/LoginHeader";
 import Modal from "../../components/Modal/Modal";
@@ -10,10 +10,8 @@ const SetProfile = ({birthDate}) => {
     const [isValid, setIsValid] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
-
-    const [birthYear, setBirthYear] = useState(birthDate?.slice(0, 4) || '');
-    const [birthMonth, setBirthMonth] = useState(birthDate?.slice(5, 7) || '');
-    const [birthDay, setBirthDay] = useState(birthDate?.slice(8, 10) || '');
+    const location = useLocation();
+    const [selectedTeam, setSelectedTeam] = useState(location.state?.selectedTeam || '');
 
     const handleNicknameChange = (e) => {
         const value = e.target.value;
@@ -21,13 +19,37 @@ const SetProfile = ({birthDate}) => {
         setIsValid(value.length <= 8 && /^[a-zA-Z0-9가-힣]*$/.test(value));
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!isValid || nickname === '') {
             setShowModal(true);
             return;
         }
-        console.log({nickname, birthDate});
-        navigate('/login-complete');
+
+        const payload = {
+            nickname,
+            teamId: Number(selectedTeam),
+        };
+
+        try {
+            const response = await axios.post(
+                `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/register`,
+                payload,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    withCredentials: true,
+                }
+            );
+
+            console.log("✅ 요청 성공:", response.data);
+            console.log("📤 보낸 데이터:", payload);
+            navigate('/login-complete');
+        } catch (error) {
+            console.error("❌ 요청 실패:", error.response ? error.response.data : error.message);
+            console.log("📤 보낸 데이터:", payload);
+            setShowModal(true);
+        }
     };
 
     return (
@@ -46,38 +68,9 @@ const SetProfile = ({birthDate}) => {
             />
             {!isValid && <div className={styles.error}>닉네임이 유효하지 않습니다.</div>}
 
-            <h2 className={styles.birthLabel}>생년월일을 입력해 주세요.</h2>
-            <div className={styles.birthInputGroup}>
-                <input
-                    type="text"
-                    placeholder="YYYY"
-                    maxLength={4}
-                    value={birthYear}
-                    onChange={(e) => setBirthYear(e.target.value.replace(/\D/g, ''))}
-                    className={styles.birthInput}
-                    disabled
-                />
-                <span>/</span>
-                <input
-                    type="text"
-                    placeholder="MM"
-                    maxLength={2}
-                    value={birthMonth}
-                    onChange={(e) => setBirthMonth(e.target.value.replace(/\D/g, ''))}
-                    className={styles.birthInput}
-                    disabled
-                />
-                <span>/</span>
-                <input
-                    type="text"
-                    placeholder="DD"
-                    maxLength={2}
-                    value={birthDay}
-                    onChange={(e) => setBirthDay(e.target.value.replace(/\D/g, ''))}
-                    className={styles.birthInput}
-                    disabled
-                />
-            </div>
+            {/*<h2 className={styles.birthLabel}>생년월일을 입력해 주세요.</h2>*/}
+            {/*<div className={styles.birthInputGroup}></div>*/}
+            // TODO: 생년월일 대신 차후 프로필 이미지 추가 예정
 
             <div className={styles.buttonGroup}>
                 <button className={styles.backButton} onClick={() => navigate('/choice-team')}>이전으로</button>
@@ -87,7 +80,13 @@ const SetProfile = ({birthDate}) => {
                 <Modal
                     title="알림"
                     message="유효한 닉네임을 입력해주세요."
-                    onClose={() => setShowModal(false)}
+                    buttons={[
+                        {
+                            label: '확인', onClick: () => {
+                                setShowModal(false)
+                            }
+                        }
+                    ]}
                 />
             )}
         </div>
