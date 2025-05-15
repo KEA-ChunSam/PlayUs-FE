@@ -68,8 +68,9 @@ const SetProfile = ({birthDate}) => {
             />
             {!isValid && <div className={styles.error}>닉네임이 유효하지 않습니다.</div>}
 
-            <h2 className={styles.birthLabel}>생년월일을 입력해 주세요.</h2>
-            <div className={styles.birthInputGroup}></div>
+            {/*<h2 className={styles.birthLabel}>생년월일을 입력해 주세요.</h2>*/}
+            {/*<div className={styles.birthInputGroup}></div>*/}
+            // TODO: 생년월일 대신 차후 프로필 이미지 추가 예정
 
             <div className={styles.buttonGroup}>
                 <button className={styles.backButton} onClick={() => navigate('/choice-team')}>이전으로</button>
