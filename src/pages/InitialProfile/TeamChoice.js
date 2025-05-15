@@ -13,13 +13,18 @@ const TeamChoice = () => {
     // 로그인 직후 전달된 JWT 토큰을 URL query에서 추출해 저장
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
-        const token = params.get('token');
+        const token = params.get('accessToken'); // URL에서 accessToken 추출
+
         if (token) {
-            localStorage.setItem('Authorization', token);
-            console.log('✅ JWT 저장 완료:', token);
+            console.warn('❌ accessToken이 URL에 포함되어 있습니다. 쿠키를 사용 중이라면 URL에서 토큰을 제거하세요.');
         } else {
-            console.warn('❌ URL에 token 파라미터가 없습니다.');
+            console.log('✅ 쿠키를 통해 토큰이 관리됩니다.');
         }
+
+        // 필요 시, 토큰 검증 API 호출
+        // apiClient.get('/auth/validate-token')
+        //     .then(response => console.log('✅ 토큰 유효:', response.data))
+        //     .catch(error => console.error('❌ 토큰 유효성 검증 실패:', error));
     }, []);
 
     const onButtonClick = () => {
@@ -39,21 +44,21 @@ const TeamChoice = () => {
 
                 <div className={styles.team_grid}>
                     {[
-                        {name: 'LG', logo: 'emblem_LG.png'},
-                        {name: 'KIA', logo: 'emblem_HT.png'},
-                        {name: '롯데', logo: 'emblem_LT.png'},
-                        {name: '한화', logo: 'emblem_HH.png'},
-                        {name: '삼성', logo: 'emblem_SS.png'},
-                        {name: '두산', logo: 'emblem_OB.png'},
-                        {name: 'SSG', logo: 'emblem_SK.png'},
-                        {name: 'NC', logo: 'emblem_NC.png'},
-                        {name: '키움', logo: 'emblem_WO.png'},
-                        {name: 'KT', logo: 'emblem_KT.png'},
+                        {id: 8, teamId: 'LG Twins', name: 'LG', logo: 'emblem_LG.png'},
+                        {id: 5, teamId: 'Kia Tigers', name: 'KIA', logo: 'emblem_HT.png'},
+                        {id: 7, teamId: 'Lotte Giants', name: '롯데', logo: 'emblem_LT.png'},
+                        {id: 4, teamId: 'Hanhwa Eagles', name: '한화', logo: 'emblem_HH.png'},
+                        {id: 2, teamId: 'Samsung Lions', name: '삼성', logo: 'emblem_SS.png'},
+                        {id: 3, teamId: 'Doosan Bears', name: '두산', logo: 'emblem_OB.png'},
+                        {id: 9, teamId: 'SSG Landers', name: 'SSG', logo: 'emblem_SK.png'},
+                        {id: 1, teamId: 'NC Dinos', name: 'NC', logo: 'emblem_NC.png'},
+                        {id: 10, teamId: 'Kiwoom Heroes', name: '키움', logo: 'emblem_WO.png'},
+                        {id: 6, teamId: 'KT Wiz', name: 'KT', logo: 'emblem_KT.png'},
                     ].map((team) => (
                         <div
-                            className={`${styles.team_card} ${selectedTeam === team.name ? styles.selected : ''}`}
-                            key={team.name}
-                            onClick={() => setSelectedTeam(team.name)}
+                            className={`${styles.team_card} ${selectedTeam === team.id ? styles.selected : ''}`}
+                            key={team.id}
+                            onClick={() => setSelectedTeam(team.id)}
                         >
                             <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo/${team.logo}`} alt={`${team.name} 로고`}/>
                             <p>{team.name}</p>
