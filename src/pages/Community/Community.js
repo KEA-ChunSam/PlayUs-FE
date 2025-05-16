@@ -109,6 +109,19 @@ const Community = () => {
     }
   }, [location.state?.team, selectedTeam]);
 
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && showModal) {
+        handleCloseModal();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [showModal]);
+
   const handlePostClick = (postId) => {
     navigate(`/community/post/${postId}`, { state: { team: selectedTeam } });
   };
@@ -158,10 +171,19 @@ const Community = () => {
         ))}
       </ul>
       {showModal && (
-        <div className={styles.modalOverlay}>
+        <div 
+          className={styles.modalOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="community-modal-title"
+        >
           <div className={styles.modalContent}>
-            <h2 className={styles.modalTitle}>커뮤니티 이동</h2>
-            <div className={styles.teamGrid}>
+            <h2 id="community-modal-title" className={styles.modalTitle}>커뮤니티 이동</h2>
+            <div 
+              className={styles.teamGrid}
+              role="radiogroup"
+              aria-label="팀 선택"
+            >
               {teams.map((team) => (
                 <button
                   key={team.id}
@@ -171,15 +193,30 @@ const Community = () => {
                       : styles.teamBtn
                   }
                   onClick={() => setTempTeam(team.id)}
+                  role="radio"
+                  aria-checked={tempTeam === team.id}
+                  aria-label={`${team.name} 선택`}
                 >
-                  <img src={team.logo} alt={team.name} className={styles.teamModalLogo} />
+                  <img src={team.logo} alt="" className={styles.teamModalLogo} />
                   <span>{team.name}</span>
                 </button>
               ))}
             </div>
             <div className={styles.modalActions}>
-              <button className={styles.selectBtn} onClick={handleSelectTeam}>선택</button>
-              <button className={styles.cancelBtn} onClick={handleCloseModal}>취소</button>
+              <button 
+                className={styles.selectBtn} 
+                onClick={handleSelectTeam}
+                aria-label="선택한 팀으로 이동"
+              >
+                선택
+              </button>
+              <button 
+                className={styles.cancelBtn} 
+                onClick={handleCloseModal}
+                aria-label="팀 선택 취소"
+              >
+                취소
+              </button>
             </div>
           </div>
         </div>
