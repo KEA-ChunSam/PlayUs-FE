@@ -5,13 +5,9 @@ const PostListItem = ({ title, time, author, image, onClick }) => {
   return (
     <li className={styles.item} onClick={onClick}>
       {image && <img src={image} alt="썸네일" className={styles.thumbnail} />}
-      <div className={styles.row}>
-        <div className={styles.left}>
-          <span className={styles.title}>{title}</span>
-          <span className={styles.time}>{time}</span>
-        </div>
-        <span className={styles.author}>{author}</span>
-      </div>
+      <span className={styles.title}>{title}</span>
+      <span className={styles.time}>{time}</span>
+      <span className={styles.author}>{author}</span>
     </li>
   );
 };

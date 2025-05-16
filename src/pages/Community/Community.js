@@ -2,30 +2,37 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PostListItem from '../../components/Post/PostListItem';
 import styles from './Community.module.css';
+import Modal from '../../components/Modal/Modal';
 
 const initialPosts = [
   {
     id: 1,
     title: '비와서 경기 종료',
     time: '18:36',
+    date: new Date().toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).replace(/\. /g, '.').replace('.', ''),
     author: '이플립스',
-    image: '/Logo/TeamLogo/emblem_HH.png',
+    image: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HH.png`,
     team: 'hanwha',
-    teamName: '한화 이글스'
+    teamName: '한화 이글스',
+    timestamp: Date.now()
   }
 ];
 
 const teams = [
-  { id: 'hanwha', name: '한화 이글스', logo: '/Logo/TeamLogo/emblem_HH.png' },
-  { id: 'lg', name: 'LG 트윈스', logo: '/Logo/TeamLogo/emblem_LG.png' },
-  { id: 'kt', name: 'KT 위즈', logo: '/Logo/TeamLogo/emblem_KT.png' },
-  { id: 'ssg', name: 'SSG 랜더스', logo: '/Logo/TeamLogo/emblem_SK.png' },
-  { id: 'nc', name: 'NC 다이노스', logo: '/Logo/TeamLogo/emblem_NC.png' },
-  { id: 'doosan', name: '두산 베어스', logo: '/Logo/TeamLogo/emblem_OB.png' },
-  { id: 'kia', name: 'KIA 타이거즈', logo: '/Logo/TeamLogo/emblem_HT.png' },
-  { id: 'samsung', name: '삼성 라이온즈', logo: '/Logo/TeamLogo/emblem_SS.png' },
-  { id: 'lotte', name: '롯데 자이언츠', logo: '/Logo/TeamLogo/emblem_LT.png' },
-  { id: 'kiwoom', name: '키움 히어로즈', logo: '/Logo/TeamLogo/emblem_WO.png' },
+  { id: 'hanwha', name: '한화 이글스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HH.png` },
+  { id: 'lg', name: 'LG 트윈스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LG.png` },
+  { id: 'kt', name: 'KT 위즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png` },
+  { id: 'ssg', name: 'SSG 랜더스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SK.png` },
+  { id: 'nc', name: 'NC 다이노스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_NC.png` },
+  { id: 'doosan', name: '두산 베어스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_OB.png` },
+  { id: 'kia', name: 'KIA 타이거즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HT.png` },
+  { id: 'samsung', name: '삼성 라이온즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SS.png` },
+  { id: 'lotte', name: '롯데 자이언츠', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LT.png` },
+  { id: 'kiwoom', name: '키움 히어로즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png` },
 ];
 
 const Community = () => {
@@ -35,22 +42,72 @@ const Community = () => {
   const [showModal, setShowModal] = useState(false);
   const [tempTeam, setTempTeam] = useState(selectedTeam);
   const [posts, setPosts] = useState(initialPosts);
+  const [showAbsModal, setShowAbsModal] = useState(false);
+  const [profanityMessage, setProfanityMessage] = useState('');
 
   useEffect(() => {
     // location.state.team이 있으면 해당 팀으로 세팅
     if (location.state?.team && location.state.team !== selectedTeam) {
       setSelectedTeam(location.state.team);
     }
+
+    // 사용자 정보 검증
+    let user = null;
+    try {
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        user = JSON.parse(userData);
+        if (!user || typeof user !== 'object') {
+          throw new Error('Invalid user data');
+        }
+      }
+    } catch (error) {
+      console.error('사용자 정보를 불러오는 중 오류가 발생했습니다:', error);
+      user = null;
+    }
+
     // localStorage에서 모든 게시글 불러오기
-    const saved = JSON.parse(localStorage.getItem('communityPosts'));
-    if (Array.isArray(saved) && saved.length > 0) {
+    let saved = [];
+    try {
+      const storedPosts = localStorage.getItem('communityPosts');
+      saved = storedPosts ? JSON.parse(storedPosts) : [];
+      if (!Array.isArray(saved)) {
+        throw new Error('Invalid data format');
+      }
+
+      // 게시글 데이터 정규화 (날짜/시간 형식 통일)
+      saved = saved.map(post => ({
+        ...post,
+        date: post.date || new Date(post.timestamp).toLocaleDateString('ko-KR', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        }).replace(/\. /g, '.').replace('.', ''),
+        time: post.time || new Date(post.timestamp).toLocaleTimeString('ko-KR', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        }),
+        timestamp: post.timestamp || Date.now()
+      }));
+    } catch (error) {
+      console.error('게시물 데이터를 불러오는 중 오류가 발생했습니다:', error);
+      saved = [];
+    }
+
+    if (saved.length > 0) {
       setPosts(saved);
     } else {
       // localStorage가 비어있으면, 샘플 데이터를 localStorage에 복사
-      localStorage.setItem('communityPosts', JSON.stringify(initialPosts));
-      setPosts(initialPosts);
+      try {
+        localStorage.setItem('communityPosts', JSON.stringify(initialPosts));
+        setPosts(initialPosts);
+      } catch (error) {
+        console.error('샘플 데이터 저장 중 오류가 발생했습니다:', error);
+        setPosts(initialPosts);
+      }
     }
-  }, [showModal, location.state?.team]);
+  }, [location.state?.team, selectedTeam]);
 
   const handlePostClick = (postId) => {
     navigate(`/community/post/${postId}`, { state: { team: selectedTeam } });
@@ -127,6 +184,7 @@ const Community = () => {
           </div>
         </div>
       )}
+      
     </div>
   );
 };

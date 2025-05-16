@@ -29,6 +29,8 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  max-width: 2200px;
+  margin: 0 auto;
 }
 
 .postItem {
@@ -37,6 +39,8 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
+  max-width: 2200px;
+  margin: 0 auto;
 }
 
 .postItem:hover {
@@ -83,7 +87,7 @@
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 50%;
-  background-color: #007bff;
+  background-color: #3F53D3;
   color: white;
   border: none;
   font-size: 1.5rem;
@@ -103,6 +107,7 @@
 .pageWrapper {
   min-height: 100vh;
   background: #fff;
+  padding-top: 100px;
 }
 
 .lockerHeader {
@@ -171,11 +176,6 @@
   align-items: center;
 }
 
-.postList {
-  list-style: none;
-  padding: 0 1rem;
-  margin: 0;
-}
 
 /* 모달 */
 .modalOverlay {
@@ -211,6 +211,7 @@
   margin-bottom: 1.5rem;
 }
 .teamBtn, .teamBtnSelected {
+  min-width: 80px;
   background: #f7f7f7;
   border: 2px solid #eee;
   border-radius: 12px;
@@ -224,14 +225,17 @@
   transition: border 0.2s, background 0.2s;
 }
 .teamBtnSelected {
-  border: 2px solid #007bff;
+  border: 2px solid #0056b3;
   background: #e3f0ff;
-  color: #007bff;
+  color: #0056b3;
 }
 .teamModalLogo {
-  width: 36px;
+  width: 80px;
   height: 36px;
+  object-fit: contain;
+  display: block;
   margin-bottom: 0.3rem;
+  max-width: 100%;
 }
 .modalActions {
   display: flex;
@@ -240,7 +244,7 @@
   justify-content: center;
 }
 .selectBtn {
-  background: #007bff;
+  background: #ff4f4f;
   color: #fff;
   border: none;
   border-radius: 20px;
@@ -250,7 +254,7 @@
   transition: background 0.2s;
 }
 .selectBtn:hover {
-  background: #0056b3;
+  background: #ff4f4f;
 }
 .cancelBtn {
   background: #f2f2f2;
@@ -277,6 +281,58 @@
 }
 
 .teamSelectBtn img {
-  width: 24px;
+  width: 34px;
   height: 24px;
+}
+
+/* ABS봇 모달 스타일 */
+.absModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.absModalContent {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.absModalTitle {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ff4f4f;
+  margin-bottom: 1rem;
+}
+
+.absModalMessage {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.absModalButton {
+  background: #ff4f4f;
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.absModalButton:hover {
+  background: #ff3333;
 } 

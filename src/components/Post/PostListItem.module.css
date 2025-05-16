@@ -1,11 +1,14 @@
 .item {
     display: flex;
     align-items: center;
-    padding: 12px 0;
+    padding: 12px 32px;
     border-bottom: 1px solid #eee;
     cursor: pointer;
     background: #fff;
     transition: background 0.15s;
+    width: 100%;
+    max-width: 1800px;
+    margin: 0 auto;
   }
   
   .item:hover {
@@ -17,7 +20,7 @@
     height: 48px;
     object-fit: cover;
     border-radius: 8px;
-    margin-right: 12px;
+    margin-right: 18px;
   }
   
   .row {
@@ -38,19 +41,23 @@
     font-size: 1rem;
     font-weight: 600;
     color: #222;
+    margin-right: 24px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   
   .time {
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     color: #888;
+    margin-right: 24px;
+    white-space: nowrap;
   }
   
   .author {
     font-size: 0.92rem;
     color: #0a2a47;
     font-weight: 500;
-    margin-left: 12px;
+    margin-left: auto;
+    white-space: nowrap;
   }

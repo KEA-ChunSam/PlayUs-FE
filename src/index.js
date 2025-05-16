@@ -5,7 +5,7 @@ import "./index.css";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 import AppRouter from "./routes/AppRouter";
-import { SearchProvider } from "./pages/Community/SearchContext"; 
+import { SearchProvider } from "./components/SearchContext"; 
 
 Sentry.init({
     dsn: process.env.REACT_APP_SENTRY_DSN,

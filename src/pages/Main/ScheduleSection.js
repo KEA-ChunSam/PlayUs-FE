@@ -17,13 +17,13 @@ export default function ScheduleSection({ schedule }) {
           <div className={styles.name}>{away}</div>
           <div className={styles.player}>오승환</div>
         </div>
-        <img src="/Logo/TeamLogo/emblem_SS.png" alt="삼성" className={styles.logo} />
+        <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SS.png`} alt="삼성" className={styles.logo} />
         <div className={styles.score}>{score[1]}</div>
 
         <div className={styles.status}>{status}</div>
 
         <div className={styles.score}>{score[0]}</div>
-        <img src="/Logo/TeamLogo/emblem_LG.png" alt="LG" className={styles.logo} />
+        <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LG.png`} alt="LG" className={styles.logo} />
         <div className={styles.teamColumn}>
           <div className={styles.name}>{home}</div>
           <div className={styles.player}>우강훈</div>

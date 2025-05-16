@@ -1,6 +1,9 @@
 .detailWrapper {
   min-height: 100vh;
   background: #fff;
+  max-width: 490px;
+  margin: 0 auto;
+  padding-top: 20px;
 }
 
 .topBar {
@@ -11,7 +14,7 @@
   padding: 0.7rem 1rem 0.7rem 0.5rem;
   border-bottom: 1.5px solid #e5e5e5;
   min-height: 48px;
-  position: relative;
+  margin-top: 60px;
 }
 .teamLogo {
   width: 60px;
@@ -24,24 +27,6 @@
   color: #222;
   margin-right: auto;
 }
-.profileBox {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-.profileImg {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-  background: #eee;
-}
-.profileName {
-  color: #222;
-  font-weight: 500;
-  font-size: 1rem;
-}
-
 .card {
   background: #fff;
   border-radius: 0;
@@ -53,12 +38,14 @@
   gap: 18px;
   border: none;
 }
+
 .titleRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.5rem;
 }
+
 .title {
   font-size: 1.15rem;
   font-weight: bold;
@@ -67,57 +54,95 @@
   flex: 1;
   text-align: left;
 }
+
+.profileBox {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+}
+
+.profileImg {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #eee;
+}
+
+.profileName {
+  color: #222;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.menuButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #666;
+}
+
 .menuWrapper {
   position: relative;
-  margin-left: 10px;
 }
-.menuButton {
-  background: #f3f6fa;
-  border: none;
-  font-size: 0.97rem;
-  color: #888;
-  cursor: pointer;
-  padding: 6px 14px;
-  border-radius: 16px;
-  font-weight: 500;
-  transition: background 0.15s;
-}
-.menuButton:hover {
-  background: #e5e5e5;
-}
+
 .menuPopup {
   position: absolute;
-  top: 32px;
+  top: 100%;
   right: 0;
-  background: #fff;
+  background: white;
   border: 1px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  z-index: 10;
-  min-width: 90px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 1000;
+  min-width: 100px;
+  margin-top: 4px;
 }
+
 .menuItem {
-  padding: 10px 16px;
-  font-size: 0.97rem;
-  color: #222;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  color: #333;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+  text-align: center;
+  font-weight: normal;
 }
+
 .menuItem:hover {
-  background: #f3f6fa;
+  background-color: #f5f5f5;
+}
+
+.menuItem.delete {
+  color: #333;
 }
 .imageWrapper {
   width: 100%;
-  margin: 12px 0 10px 0;
+  max-width: 340px;
+  margin: 20px auto 10px auto;
   display: flex;
   justify-content: center;
+  align-items: center;
+  background: none;
 }
 .postImage {
   width: 100%;
+  height: auto;
   max-width: 340px;
-  border-radius: 10px;
+  max-height: 340px;
+  border-radius: 8px;
   object-fit: cover;
-  border: 1px solid #eee;
+  border: none;
+  background: none;
+  display: block;
 }
 .body {
   font-size: 1rem;
@@ -199,9 +224,27 @@
 }
 .editBox {
   display: flex;
-  gap: 6px;
-  margin-left: 32px;
-  margin-bottom: 4px;
+  gap: 8px;
+  margin-top: 8px;
+}
+.editBox input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+.editBox button {
+  padding: 8px 16px;
+  background: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.editBox button:hover {
+  background: #0052a3;
 }
 .commentInputBox {
   display: flex;
@@ -277,4 +320,151 @@
 .backBtn img {
   width: 24px;
   height: 24px;
+}
+.titleInput {
+  flex: 1;
+  font-size: 1.15rem;
+  font-weight: bold;
+  color: #222;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-right: 16px;
+}
+
+.editTextarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  line-height: 1.6;
+  resize: vertical;
+  margin-bottom: 16px;
+}
+
+.editButtons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.cancelButton {
+  padding: 8px 16px;
+  background: #f5f5f5;
+  color: #666;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.cancelButton:hover {
+  background: #e5e5e5;
+}
+
+.saveButton {
+  padding: 8px 16px;
+  background: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.saveButton:hover {
+  background: #0052a3;
+}
+
+.editForm {
+  background: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.editHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e5e5;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.editTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submitButton {
+  background: #0066cc;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.submitButton:hover {
+  background: #0052a3;
+}
+
+.editContent {
+  padding: 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.titleInput {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.contentInput {
+  width: 100%;
+  min-height: 300px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.replyRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.replyRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  position: relative;
 } 

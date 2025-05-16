@@ -1,24 +1,29 @@
 .container {
   position: relative;
   padding: 1rem;
-  max-width: 800px;
+  max-width: 490px;
   margin: 0 auto;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: #fff;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  margin-top: 60px;
+  border-bottom: none;
 }
 
-.title {
+.headerTitle {
   font-size: 1.2rem;
   font-weight: bold;
   color: #333;
+  text-align: left;
 }
 
 .closeButton {
@@ -28,6 +33,9 @@
   color: #666;
   cursor: pointer;
   padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .form {
@@ -35,15 +43,31 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  padding-bottom: 80px;
 }
 
 .imageUpload {
-  width: 100%;
-  aspect-ratio: 16/9;
-  border: 2px dashed #ddd;
+  width: 120px;
+  height: 120px;
+  border: 1px dashed #ccc;
   border-radius: 8px;
-  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #999;
+  font-size: 0.8rem;
   cursor: pointer;
+  overflow: hidden;
+  margin: 0 0 1.5rem 0;
+  background: none;
+}
+
+.imageUpload.hasImage {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
 }
 
 .imageLabel {
@@ -71,6 +95,8 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+  border-radius: 8px;
 }
 
 .formGroup {
@@ -114,14 +140,23 @@
 }
 
 .formActions {
-  margin-top: auto;
-  padding: 1rem 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  background: #fff;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: center;
+  max-width: 490px;
+  margin: 0 auto;
 }
 
 .submitButton {
   width: 100%;
   padding: 1rem;
-  background-color: #007bff;
+  background-color: #ff4f4f;
   color: white;
   border: none;
   border-radius: 8px;
@@ -131,5 +166,5 @@
 }
 
 .submitButton:hover {
-  background-color: #0056b3;
+  background-color: #ff3333;
 } 

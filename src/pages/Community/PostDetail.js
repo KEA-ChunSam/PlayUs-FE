@@ -27,9 +27,11 @@ const PostDetail = () => {
   const [editingContent, setEditingContent] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState('');
+  const [editedTitle, setEditedTitle] = useState('');
   const [isCommentEditing, setIsCommentEditing] = useState(false);
   const [editedComment, setEditedComment] = useState('');
   const [currentUser, setCurrentUser] = useState(null); // 현재 로그인한 사용자
+  const [showMenu, setShowMenu] = useState(false);
 
   const teamLogoMap = {
     hanwha: 'HH',
@@ -45,25 +47,51 @@ const PostDetail = () => {
   };
 
   // localStorage의 communityPosts에서만 찾기 (샘플 데이터 제외)
-  const saved = JSON.parse(localStorage.getItem('communityPosts')) || [];
+  let saved = [];
+  try {
+    saved = JSON.parse(localStorage.getItem('communityPosts') ?? '[]');
+  } catch (error) {
+    console.error('게시물 데이터를 불러오는 중 오류가 발생했습니다:', error);
+    saved = [];
+  }
   const post = saved.find(p => String(p.id) === String(postId));
 
   // 댓글 불러오기
   useEffect(() => {
-    const savedComments = JSON.parse(localStorage.getItem(`comments_${postId}`)) || [];
+    let savedComments = [];
+    try {
+      savedComments = JSON.parse(localStorage.getItem(`comments_${postId}`) ?? '[]');
+    } catch (error) {
+      console.error('댓글 데이터를 불러오는 중 오류가 발생했습니다:', error);
+      savedComments = [];
+    }
     setComments(savedComments);
   }, [postId]);
 
   useEffect(() => {
     // localStorage에서 현재 로그인한 사용자 정보 가져오기
-    const user = JSON.parse(localStorage.getItem('user'));
+    let user = null;
+    try {
+      const userData = localStorage.getItem('user') ?? 'null';
+      user = JSON.parse(userData);
+      if (user === null || typeof user !== 'object') {
+        user = null;
+      }
+    } catch (error) {
+      console.error('사용자 정보를 불러오는 중 오류가 발생했습니다:', error);
+      user = null;
+    }
     setCurrentUser(user);
   }, []);
 
   // 댓글 저장
   const saveComments = (newComments) => {
     setComments(newComments);
-    localStorage.setItem(`comments_${postId}` , JSON.stringify(newComments));
+    try {
+      localStorage.setItem(`comments_${postId}`, JSON.stringify(newComments));
+    } catch (error) {
+      console.error('댓글 저장 중 오류가 발생했습니다:', error);
+    }
   };
 
   // 답글쓰기 버튼 클릭 시
@@ -120,12 +148,14 @@ const PostDetail = () => {
     setEditingContent(content);
     setShowCommentMenu(null); // 삼점바 닫기
   };
-  const handleSaveEdit = (id) => {
+
+  const handleSaveCommentEdit = (id) => {
     const newComments = comments.map(c => c.id === id ? {...c, content: editingContent} : c);
     saveComments(newComments);
     setEditingCommentId(null);
     setEditingContent("");
   };
+
   const handleDeleteComment = (id) => {
     const newComments = comments.filter(c => c.id !== id);
     saveComments(newComments);
@@ -173,9 +203,13 @@ const PostDetail = () => {
   }
 
   const handleEdit = () => {
-    // 수정 페이지로 이동 (state로 데이터 전달)
-    navigate('/community/write', { state: { post } });
-    setShowPostMenu(false); // 메뉴 닫기
+    navigate('/community/write', { 
+      state: { 
+        post: post,
+        isEditing: true 
+      }
+    });
+    setShowMenu(false);
   };
 
   const handleDelete = () => {
@@ -191,6 +225,10 @@ const PostDetail = () => {
     navigate('/community', { state: { team: post.team } });
   };
 
+  const toggleMenu = () => {
+    setShowMenu(!showMenu);
+  };
+
   return (
     <div className={styles.detailWrapper}>
       {/* 상단바 */}
@@ -200,29 +238,27 @@ const PostDetail = () => {
             <path d="M16 5L9 12L16 19" stroke="#111" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
-        <img src={`/Logo/TeamLogo/emblem_${teamLogoMap[post.team] || 'HH'}.png`} alt="팀로고" className={styles.teamLogo} />
+        <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_${teamLogoMap[post.team] || 'HH'}.png`} alt="팀로고" className={styles.teamLogo} />
         <span className={styles.teamName}>{post.teamName || '한화 이글스'}</span>
       </div>
       {/* 게시글 카드 */}
       <div className={styles.card}>
         <div className={styles.titleRow}>
-          <div className={styles.titleLeft}>
-            <div className={styles.title}>{post.title}</div>
-            {isAuthor(post.author) && (
+          <h2 className={styles.title}>{post.title}</h2>
+          <div className={styles.profileBox}>
+            <img className={styles.profileImg} src={`${process.env.PUBLIC_URL}/profile/user2.jpg`} alt="프로필" />
+            <span className={styles.profileName}>{post.author}</span>
+            {isAuthor && (
               <div className={styles.menuWrapper}>
-                <button onClick={() => setShowPostMenu((prev) => !prev)} className={styles.menuButton}>수정/삭제</button>
-                {showPostMenu && (
+                <button className={styles.menuButton} onClick={toggleMenu}>⋮</button>
+                {showMenu && (
                   <div className={styles.menuPopup}>
                     <div className={styles.menuItem} onClick={handleEdit}>수정하기</div>
-                    <div className={styles.menuItem} onClick={handleDelete}>삭제하기</div>
+                    <div className={`${styles.menuItem} ${styles.delete}`} onClick={handleDelete}>삭제하기</div>
                   </div>
                 )}
               </div>
             )}
-          </div>
-          <div className={styles.titleRight}>
-            <img className={styles.profileImg} src={`/profile/${post.profileImg || 'user2.jpg'}`} alt="프로필" />
-            <span className={styles.profileName}>{post.author}</span>
           </div>
         </div>
         {post.image && (
@@ -230,7 +266,7 @@ const PostDetail = () => {
             <img src={post.image} alt="게시글 이미지" className={styles.postImage} />
           </div>
         )}
-        <div className={styles.body}>{post.content || '내용이 없습니다.'}</div>
+        <p className={styles.body}>{post.content}</p>
       </div>
       {/* 댓글 영역 */}
       <div className={styles.commentSection}>
@@ -239,7 +275,7 @@ const PostDetail = () => {
             <div key={c.id} className={styles.commentItem}>
               <div className={styles.commentTop}>
                 <div className={styles.commentProfile}>
-                  <img className={styles.commentProfileImg} src={`/profile/${c.profileImg || 'user2.jpg'}`} alt="프로필" />
+                  <img className={styles.commentProfileImg} src={`${process.env.PUBLIC_URL}/profile/user2.jpg`} alt="프로필" />
                   <span className={styles.commentAuthor}>{c.author}</span>
                 </div>
                 <div className={styles.commentRight}>
@@ -260,7 +296,7 @@ const PostDetail = () => {
               {editingCommentId === c.id ? (
                 <div className={styles.editBox}>
                   <input value={editingContent} onChange={e => setEditingContent(e.target.value)} />
-                  <button onClick={() => handleSaveEdit(c.id)}>저장</button>
+                  <button onClick={() => handleSaveCommentEdit(c.id)}>저장</button>
                 </div>
               ) : (
                 <div className={styles.commentContent}>{c.content}</div>
@@ -275,7 +311,7 @@ const PostDetail = () => {
                   <div key={r.id} className={styles.replyItem}>
                     <div className={styles.replyRow}>
                       <div className={styles.commentProfile}>
-                        <img className={styles.commentProfileImg} src={`/profile/${r.profileImg || 'user2.jpg'}`} alt="프로필" />
+                        <img className={styles.commentProfileImg} src={`${process.env.PUBLIC_URL}/profile/user2.jpg`} alt="프로필" />
                         <span className={styles.commentAuthor}>{r.author}</span>
                       </div>
                       <div className={styles.replyRight}>
@@ -317,7 +353,7 @@ const PostDetail = () => {
             placeholder={replyTo ? "답글을 입력하세요" : "댓글을 남겨보세요"}
           />
           <button className={styles.sendBtn} onClick={handleAddComment}>
-            <img src="/button/paperplane.png" alt="전송" width={24} />
+            <img src={`${process.env.PUBLIC_URL}/Button/paperplane.png`} alt="전송" width={24} />
           </button>
         </div>
       </div>

@@ -149,7 +149,7 @@ const NewDiary = () => {
                     <button
                         type="submit"
                         className={styles.submitButton}
-                        onClick={handleSubmit}
+                        
                     >
                         {isEditing ? '수정 완료!' : '직관일지 작성!'}
                     </button>

@@ -1,134 +1,212 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './PostWrite.module.css';
+import Modal from '../../components/Modal/Modal';
 
 const PostWrite = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const editingPost = location.state?.post;
-    const [title, setTitle] = useState(editingPost ? editingPost.title : '');
-    const [content, setContent] = useState(editingPost ? editingPost.content : '');
-    const [image, setImage] = useState(editingPost ? editingPost.image : null);
+    const isEditing = location.state?.isEditing;
+    const post = location.state?.post;
+    const [title, setTitle] = useState(post?.title || '');
+    const [content, setContent] = useState(post?.content || '');
+    const [image, setImage] = useState(post?.image || null);
     const [imageFile, setImageFile] = useState(null);
-    const [objectUrl, setObjectUrl] = useState(null);
+    const [team] = useState(post?.team || 'hanwha');
+    const [teamName] = useState(post?.teamName || '한화 이글스');
     const selectedTeam = location.state?.team || 'hanwha';
-    const teamNameMap = {
-      hanwha: '한화 이글스', lg: 'LG 트윈스', kt: 'KT 위즈', ssg: 'SSG 랜더스', nc: 'NC 다이노스', doosan: '두산 베어스', kia: 'KIA 타이거즈', samsung: '삼성 라이온즈', lotte: '롯데 자이언츠', kiwoom: '키움 히어로즈'
-    };
+    const [showAbsModal, setShowAbsModal] = useState(false);
+    const [profanityMessage, setProfanityMessage] = useState('');
+    
 
     useEffect(() => {
-        if (editingPost) {
-            setTitle(editingPost.title);
-            setContent(editingPost.content);
-            setImage(editingPost.image);
+        if (post) {
+            setTitle(post.title);
+            setContent(post.content);
+            setImage(post.image);
         }
-    }, [editingPost]);
+    }, [post]);
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             setImageFile(file);
             const url = URL.createObjectURL(file);
-            setObjectUrl(url);
             setImage(url);
         }
     };
 
+    // ABS봇 비속어 감지 함수
+    const checkProfanity = (text) => {
+        // 실제 금지어로 교체하세요
+        const badwords = ['욕1', '욕2', '욕3'];
+        const found = badwords.find(word => text.includes(word));
+        if (found) {
+            setProfanityMessage(`감지된 비속어: ${found}`);
+            setShowAbsModal(true);
+            return true;
+        }
+        return false;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        // 비속어 감지
+        if (checkProfanity(title) || checkProfanity(content)) {
+            return;
+        }
         const now = new Date();
-        const user = JSON.parse(localStorage.getItem('user'));
+        
+        // 사용자 정보 검증
+        let user = null;
+        try {
+            const userData = localStorage.getItem('user');
+            if (userData) {
+                user = JSON.parse(userData);
+                if (!user || typeof user !== 'object') {
+                    throw new Error('Invalid user data');
+                }
+            }
+        } catch (error) {
+            console.error('사용자 정보를 불러오는 중 오류가 발생했습니다:', error);
+            user = null;
+        }
+        
         const author = user?.nickname || user?.name || '익명';
-        const time = editingPost ? editingPost.time : now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        
+        // 날짜/시간 형식 현지화
+        const date = now.toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }).replace(/\. /g, '.').replace('.', '');
+        
+        const time = now.toLocaleTimeString('ko-KR', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+
+        // 이미지 파일이 있는 경우 FileReader를 사용하여 base64로 변환
+        let imageData = image;
+        if (imageFile) {
+            const reader = new FileReader();
+            imageData = await new Promise((resolve) => {
+                reader.onloadend = () => {
+                    resolve(reader.result);
+                };
+                reader.readAsDataURL(imageFile);
+            });
+        }
+
         const newPost = {
-            id: editingPost ? editingPost.id : Date.now(),
+            id: post?.id || Date.now(),
             title,
             time,
+            date,
             author,
-            team: selectedTeam,
-            teamName: teamNameMap[selectedTeam],
-            image: image,
+            team,
+            teamName,
+            image: imageData,
             content,
+            timestamp: Date.now(),
         };
-        const prev = JSON.parse(localStorage.getItem('communityPosts')) || [];
-        let updatedPosts;
-        if (editingPost) {
-            updatedPosts = prev.map(p => String(p.id) === String(editingPost.id) ? newPost : p);
-            localStorage.setItem('communityPosts', JSON.stringify(updatedPosts));
-            navigate(`/community/post/${newPost.id}`);
+
+        let prev = [];
+        try {
+            const storedPosts = localStorage.getItem('communityPosts');
+            prev = storedPosts ? JSON.parse(storedPosts) : [];
+        } catch (error) {
+            console.error('게시물 데이터를 불러오는 중 오류가 발생했습니다:', error);
+            alert('게시물 데이터를 불러오는 중 오류가 발생했습니다.');
             return;
+        }
+
+        let updatedPosts;
+        if (isEditing) {
+            updatedPosts = prev.map(p => String(p.id) === String(post.id) ? newPost : p);
+            try {
+                localStorage.setItem('communityPosts', JSON.stringify(updatedPosts));
+            } catch (error) {
+                console.error('게시물을 저장하는 중 오류가 발생했습니다:', error);
+                alert('게시물을 저장하는 중 오류가 발생했습니다.');
+                return;
+            }
+            navigate(`/community/post/${newPost.id}`);
         } else {
             updatedPosts = [newPost, ...prev];
-            localStorage.setItem('communityPosts', JSON.stringify(updatedPosts));
+            try {
+                localStorage.setItem('communityPosts', JSON.stringify(updatedPosts));
+            } catch (error) {
+                console.error('게시물을 저장하는 중 오류가 발생했습니다:', error);
+                alert('게시물을 저장하는 중 오류가 발생했습니다.');
+                return;
+            }
             navigate('/community', { state: { team: selectedTeam } });
         }
     };
 
-    const handleCancel = () => {
-        navigate('/community');
+    const handleClose = () => {
+        navigate(-1);
     };
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <button className={styles.closeButton} onClick={handleCancel}>
-                    ✕
+                <span className={styles.headerTitle}>{isEditing ? '게시글 수정' : '게시글 작성'}</span>
+                <button className={styles.closeButton} onClick={handleClose}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 6L6 18M6 6L18 18" stroke="#111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                 </button>
-                <span className={styles.title}>게시글 작성</span>
-                <div style={{ width: '24px' }}></div>
             </div>
-
-            <form onSubmit={handleSubmit} className={styles.form}>
-                <div className={styles.imageUpload}>
-                    <input
-                        type="file"
-                        id="image"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        style={{ display: 'none' }}
-                    />
-                    <label htmlFor="image" className={styles.imageLabel}>
-                        {image ? (
-                            <img src={image} alt="Preview" className={styles.preview} />
-                        ) : (
-                            <div className={styles.uploadPlaceholder}>
-                                <span>+</span>
-                                <span>이미지 추가</span>
-                            </div>
-                        )}
-                    </label>
-                </div>
-
+            <form className={styles.form} onSubmit={handleSubmit}>
+                <label className={styles.imageUpload}>
+                    {image ? (
+                        <img src={image} alt="preview" className={styles.preview}/>
+                    ) : (
+                        <span>사진/동영상</span>
+                    )}
+                    <input type="file" accept="image/*" onChange={handleImageChange} hidden />
+                </label>
                 <div className={styles.formGroup}>
                     <input
                         type="text"
+                        className={styles.input}
                         placeholder="제목을 입력하세요"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className={styles.input}
                         required
                     />
                 </div>
-
                 <div className={styles.formGroup}>
                     <textarea
+                        className={styles.textarea}
                         placeholder="내용을 입력하세요"
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        className={styles.textarea}
                         required
                     />
-                    <div className={styles.charCount}>
-                        {content.length}/1000
-                    </div>
+                    <div className={styles.charCount}>{content.length}/1000</div>
                 </div>
-
                 <div className={styles.formActions}>
                     <button type="submit" className={styles.submitButton}>
-                        등록하기
+                        {isEditing ? '수정' : '등록'}
                     </button>
                 </div>
             </form>
+            {showAbsModal && (
+                <Modal
+                    title="ABS봇 작동중!"
+                    message={`ABS봇이 부적절한 키워드를 감지했습니다.\n작성글을 수정해 주세요.\n${profanityMessage}`}
+                    buttons={[
+                        {
+                            label: '확인',
+                            onClick: () => setShowAbsModal(false)
+                        }
+                    ]}
+                />
+            )}
         </div>
     );
 };

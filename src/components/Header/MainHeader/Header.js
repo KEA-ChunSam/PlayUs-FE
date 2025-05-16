@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Header.module.css";
-import { useSearch } from "../../../pages/Community/SearchContext";
+import { useSearch } from "../../SearchContext";
 
 const Header = () => {
     const { inputValue, setInputValue, setKeyword } = useSearch();

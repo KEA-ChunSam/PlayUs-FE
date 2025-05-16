@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./SearchResultPage.module.css";
-import { useSearch } from "../../pages/Community/SearchContext";
+import { useSearch } from "../../components/SearchContext";
 import PostListItem from "../../components/Post/PostListItem";
 
 const SearchResultPage = () => {
@@ -11,8 +11,13 @@ const SearchResultPage = () => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('communityPosts')) || [];
-    setPosts(saved);
+    try {
+      const saved = JSON.parse(localStorage.getItem('communityPosts')) || [];
+      setPosts(saved);
+    } catch (error) {
+      console.error('게시물 데이터 로드 중 오류 발생:', error);
+      setPosts([]);
+    }
   }, []);
 
   const filtered = posts.filter(
@@ -32,20 +37,21 @@ const SearchResultPage = () => {
       {/* 상단 남색 바 */}
       <div className={styles.topBar}>
         <button className={styles.backBtn} onClick={handleBack}>
-          <img src={`${process.env.PUBLIC_URL}/Button/back.png`} alt="back" style={{width: 24, height: 24}} />
+          <img src={`${process.env.PUBLIC_URL}/Button/back.png`} alt="back" style={{width: 16, height: 16}} />
         </button>
         <span className={styles.topBarTitle}>검색 결과</span>
         <div className={styles.spacer}></div>
       </div>
 
-      {/* 검색 결과 요약 */}
+      {/* 검색 결과 요약 및 0건 안내 */}
       <div className={styles.summary}>
-        총 <strong>{filtered.length}</strong>건의 검색결과가 있습니다.
+        {filtered.length > 0
+          ? <>총 <strong>{filtered.length}</strong>건의 검색결과가 있습니다.</>
+          : "검색 결과가 없습니다."}
       </div>
 
-      {/* 게시글 목록 */}
       <ul className={styles.list}>
-        {filtered.map((post) => (
+        {filtered.length > 0 && filtered.map((post) => (
           <PostListItem
             key={post.id}
             title={post.title}

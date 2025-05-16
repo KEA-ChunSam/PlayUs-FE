@@ -2,6 +2,7 @@ import { useState } from "react";
 import ScheduleSection from "./ScheduleSection";
 import PopularPost from "./PopularPost";
 import MyPartyCard from "./MyPartyCard";
+import styles from "./MainPage.module.css";
 
 const sampleData = {
   "NC 다이노스": {
@@ -51,8 +52,8 @@ export default function MainPage() {
   const { schedule, posts, parties } = sampleData[selectedTeam];
 
   return (
-    <div className="pt-[20px] px-4 pb-[60px] bg-white min-h-screen">
-      <h2 className="font-bold text-sm mt-4 mb-2">오늘의 일정</h2>
+    <div className={styles.main_page}>
+      <h2 className="font-bold text-sm mb-2">오늘의 일정</h2>
       <ScheduleSection schedule={schedule} />
 
       <h2 className="font-bold text-sm mt-6 mb-2">인기 포스트</h2>
