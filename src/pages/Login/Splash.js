@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// 최초 스플래시 페이지
+import React, {useEffect, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
 import styles from './Splash.module.css';
 
 function Splash() {
@@ -27,9 +28,9 @@ function Splash() {
         <div className={styles.mobile_view}>
             <div className={styles.splash}>
                 <img
-                    src={`${process.env.PUBLIC_URL}/Logo/newLogo_small.png`}
+                    src={`${process.env.PUBLIC_URL}/Logo/NewLogo_small.png`}
                     alt="PlayUs 로고"
-                    style={{ width: 200, height: 'auto' }}
+                    style={{width: 200, height: 'auto'}}
                     className={fadeOut ? styles.fade_out : ''}
                 />
             </div>

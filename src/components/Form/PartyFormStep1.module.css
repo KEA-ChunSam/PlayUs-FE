@@ -1,0 +1,85 @@
+.container {
+  position: relative;
+  aspect-ratio: 9 / 16;
+  max-width: 100%;
+  max-height: 100%;
+  /*display: flex;*/
+  margin-top: 5rem;
+  flex-direction: column;
+  /*align-items: center;*/
+  /*justify-content: center;*/
+  width: 100%;
+  padding: 0 1rem 3.5rem;
+}
+
+.inputForm {
+  padding: 1rem 1.5rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.section {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.button {
+  flex: 1;
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 6px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.buttonActive {
+  background-color: #EDF3FF;
+  border: 2px solid #1D248B;
+  font-weight: bold;
+  color: #1D248B;
+}
+
+.numberSection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 1.5rem;
+}
+
+.numberLabel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.numberInput {
+  width: 64px;
+  border: 1px solid #ccc;
+  padding: 4px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.nextButton {
+  width: 100%;
+  background-color: #ef4444;
+  color: white;
+  font-weight: bold;
+  padding: 12px 0;
+  border-radius: 6px;
+  cursor: pointer;
+}

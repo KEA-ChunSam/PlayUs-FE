@@ -1,92 +1,37 @@
-/* 캘린더 전체 스타일 */
-.react-calendar {
-  width: 100%;
-  border: none;
-  background: white;
-  font-family: inherit;
+/* 프로필 화면에서 직관일지 달력 부분에 커스텀 CSS를 적용하기 위한 CSS 파일 */
+.react-calendar__month-view__days__day--weekend {
+  color: inherit !important;
 }
 
-/* 캘린더 헤더 스타일 */
-.react-calendar__navigation {
-  margin-bottom: 1rem;
-}
-
-.react-calendar__navigation button {
-  min-width: 44px;
-  background: none;
-  font-size: 1rem;
-  color: #333;
-}
-
-.react-calendar__navigation button:enabled:hover,
-.react-calendar__navigation button:enabled:focus {
-  background-color: #f8f8f8;
-}
-
-/* 요일 헤더 스타일 */
-.react-calendar__month-view__weekdays {
-  text-align: center;
-  text-transform: uppercase;
-  font-weight: bold;
-  font-size: 0.8rem;
-  color: #666;
-}
-
-.react-calendar__month-view__weekdays__weekday {
-  padding: 0.5rem;
-}
-
-/* 날짜 셀 스타일 */
-.react-calendar__tile {
-  padding: 0.75rem 0.5rem;
-  background: none;
-  text-align: center;
-  line-height: 16px;
-  font-size: 0.9rem;
-}
-
-.react-calendar__tile:enabled:hover,
-.react-calendar__tile:enabled:focus {
-  background-color: #f8f8f8;
-  border-radius: 4px;
-}
-
-/* 오늘 날짜 스타일 */
-.react-calendar__tile--now {
-  background: #f0f0f0;
-  border-radius: 4px;
-}
-
-.react-calendar__tile--now:enabled:hover,
-.react-calendar__tile--now:enabled:focus {
-  background: #e6e6e6;
-}
-
-/* 선택된 날짜 스타일 */
 .react-calendar__tile--active {
-  background: #007bff !important;
-  color: white;
-  border-radius: 4px;
+  background: none !important;
+  color: inherit !important;
+  border-radius: 0 !important;
 }
 
 .react-calendar__tile--active:enabled:hover,
 .react-calendar__tile--active:enabled:focus {
-  background: #0056b3 !important;
+  background: #e6e6e6 !important;
 }
 
-/* 이전/다음 달 날짜 스타일 */
-.react-calendar__month-view__days__day--neighboringMonth {
-  color: #ccc;
+.react-calendar {
+  border: none !important;
 }
 
-/* 달력 네비게이션 버튼 스타일 */
-.react-calendar__navigation__prev-button,
-.react-calendar__navigation__next-button {
-  font-size: 1.2rem;
+.react-calendar__tile {
+  padding: 0.1rem 0 !important;
+  height: 45px !important;
+  box-sizing: border-box;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
 }
 
-/* 달력 년도/월 표시 스타일 */
-.react-calendar__navigation__label {
-  font-weight: bold;
-  font-size: 1.1rem;
-} 
+.react-calendar__month-view__weekdays {
+  border-top: 1px solid #ddd;
+}
+
+.react-calendar__viewContainer {
+  min-height: 310px;
+}

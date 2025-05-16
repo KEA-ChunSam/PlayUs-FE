@@ -8,7 +8,8 @@
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
-    "@mui/material": "^7.0.1",
+    "@hello-pangea/dnd": "^18.0.1",
+    "@mui/material": "^7.1.0",
     "@sentry/react": "^7.91.0",
     "@sentry/tracing": "^7.91.0",
     "@testing-library/dom": "^10.4.0",
@@ -17,22 +18,31 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.8.4",
     "chart.js": "^4.4.9",
+    "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",
+    "framer-motion": "^12.10.1",
+    "prop-types": "^15.8.1",
     "react": "^18.3.1",
     "react-calendar": "^5.1.0",
     "react-chartjs-2": "^5.3.0",
+    "react-datepicker": "^8.3.0",
     "react-dom": "^18.3.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.5.0",
-    "react-scripts": "5.0.1",
+    "react-use-websocket": "^4.13.0",
+    "socket.io-client": "^4.8.1",
     "sweetalert": "^2.1.2",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "websocket": "^1.0.35"
   },
+  "homepage": "https://KEA-ChunSam.github.io/PlayUs-FE",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -54,7 +64,9 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
+    "gh-pages": "^6.3.0",
     "postcss": "^8.5.3",
+    "react-scripts": "5.0.1",
     "tailwindcss": "^3.4.17"
   }
 }

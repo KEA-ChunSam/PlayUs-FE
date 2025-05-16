@@ -1,0 +1,549 @@
+.wrapper {
+    position: relative;
+    aspect-ratio: 9 / 16;
+    max-width: 100%;
+    max-height: 100%;
+    /*display: flex;*/
+    /*top: 10vh;*/
+    /*margin-top: 10vh;*/
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    margin-bottom: 56px; /* NavBar만큼의 padding을 페이지에 주기. */
+}
+
+.headerSpacer {
+    height: 5rem;
+}
+
+.content {
+    position: relative;
+    top: 5rem;
+    bottom: 0;
+    overflow-y: scroll;
+    width: 100%;
+    max-height: 100%;
+    padding: 0 1rem;
+    box-sizing: border-box;
+    background-color: #fff;
+}
+
+.approvalSection {
+    width: 100%;
+    height: 100%;
+}
+
+.matchHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.teamLogo {
+    width: 8rem;
+    height: 10rem;
+    object-fit: contain;
+    margin: 0 2rem;
+}
+
+.vsBlock {
+    text-align: center;
+}
+
+.vsText {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: darkblue;
+}
+
+.location {
+    font-size: 1rem;
+    color: #666;
+}
+
+.time {
+    font-size: 1rem;
+    color: #000;
+}
+
+.teamBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.teamName {
+    font-weight: bold;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.titleRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1rem 0;
+}
+
+.title {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.filterBtn {
+    background-color: #fff;
+    color: #001b5d;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    border: solid 1px #001b5d;
+}
+
+/* 필터 모달 */
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0%);
+        opacity: 1;
+    }
+}
+
+.modalOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modalContent {
+    width: 100%;
+    background-color: white;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    padding: 1.5rem;
+    max-height: 85%;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    bottom: 0;
+    animation: slideUp 0.3s ease-out;
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.modalTitle {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.modalClose {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    color: #001b5d;
+    cursor: pointer;
+}
+
+/* 직관팟 생성 버튼 */
+.createBtn {
+    background-color: #001b5d;
+    color: #fff;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    border: none;
+}
+
+.partyList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.partyCard {
+    display: flex;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    overflow: hidden;
+    padding: 1rem;
+}
+
+.playerImg {
+    width: 7rem;
+    height: 7rem;
+    align-self: center;
+    border-radius: 8px;
+    object-fit: cover;
+    margin: 0 1.5rem 0 0;
+}
+
+.partyContent {
+    flex: 1;
+}
+
+.tags {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+
+.tag,
+.tagHighlight {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    background-color: #e0e0e0;
+}
+
+.tagHighlight {
+    background-color: #ff4f70;
+    color: white;
+}
+
+.partyTitle {
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+}
+
+.partyMeta {
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.partyStatus {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.avatars {
+    display: flex;
+    /*gap: -6px;*/
+    margin-right: 0.5rem;
+    width: 1.7rem;
+}
+
+.avatars img {
+    margin-left: -6px; /* 첫 번째 이미지 외에 오버랩 적용 */
+}
+
+.avatars img:first-child {
+    margin-left: 0; /* 첫 번째 이미지는 마진 없음 */
+}
+
+.slot {
+    font-size: 0.85rem;
+    color: #333;
+}
+
+.modalReset {
+    background: none;
+    border: none;
+    font-size: 0.9rem;
+    color: #001b5d;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.filterGroup {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.filterLabel {
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: bold;
+    margin-bottom: 0.4rem;
+}
+
+.filterOption {
+    flex: 1;
+    min-width: 30%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    background-color: #fff;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-align: center;
+}
+
+.ageOption {
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid #000;
+    background-color: #fff;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.ageSelected {
+    border-color: #5560ff;
+    background-color: #eef0ff;
+    color: #5560ff;
+}
+
+.filterActions {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.cancelBtn {
+    flex: 1;
+    padding: 0.8rem;
+    background-color: #aaa;
+    color: white;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.applyBtn {
+    flex: 1;
+    padding: 0.8rem;
+    background-color: #ff4f4f;
+    color: white;
+    font-size: 1rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.selected {
+    background-color: #eef0ff;
+    color: #5560ff;
+    border: 1px solid #5560ff;
+    font-weight: bold;
+}
+
+/* 직관팟 신청 현황 섹션 */
+.myStatusList {
+    padding: 1rem;
+}
+
+.myStatusCard {
+    background-color: #f9f9f9;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.myStatusTagRow {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+
+.myStatusTitleRow {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+}
+
+.myStatusTitle {
+    padding-bottom: 0.3rem;
+}
+
+.myStatusMeta {
+    color: #555;
+    font-size: 0.85rem;
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.myStatusButtons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.statusPending {
+    background-color: #ff6363;
+    color: #fff;
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+.statusCancel {
+    background-color: #888;
+    color: #fff;
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+.statusRejected {
+    background-color: #999;
+    color: #fff;
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+.DeleteParty {
+    background-color: #888;
+    color: #fff;
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+.statusApproved {
+    background-color: #ff4f4f;
+    color: #fff;
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+.chatButtonWrapper {
+    position: relative;
+}
+
+.newChatCount {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background-color: red;
+    color: white;
+    font-size: 0.7rem;
+    border-radius: 50%;
+    min-width: 18px;
+    text-align: center;
+}
+
+.thumbnailImg {
+    width: 5rem;
+    height: 5rem;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-left: 1rem;
+    flex-shrink: 0;
+}
+
+
+/* 승인 요청 서브메뉴 */
+.approvalList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    overflow-y: scroll;
+}
+
+.approvalCard {
+    display: flex;
+    align-items: center;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.userAvatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-right: 1rem;
+    object-fit: cover;
+}
+
+.userInfo {
+    flex: 1;
+}
+
+.nameRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+
+.userName {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.ageBadge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    background-color: #eee;
+    border-radius: 8px;
+    color: #333;
+}
+
+.userMessage {
+    font-size: 0.85rem;
+    color: #444;
+}
+
+.actionButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-left: 1rem;
+}
+
+.approveButton {
+    background-color: #ff4f4f;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.rejectButton {
+    background-color: #999;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+

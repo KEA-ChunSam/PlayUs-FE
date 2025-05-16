@@ -1,3 +1,4 @@
+// 직관일지 작성 페이지
 import React, {useEffect, useState} from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
 import styles from './NewDiary.module.css';

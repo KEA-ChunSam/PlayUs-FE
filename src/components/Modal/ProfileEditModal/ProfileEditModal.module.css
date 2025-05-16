@@ -1,78 +1,80 @@
-.modalOverlay {
+.modal_overlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
 }
 
-.modalContent {
+.modal_box {
   background: white;
-  padding: 2rem;
-  border-radius: 8px;
   width: 90%;
   max-width: 400px;
-}
-
-.modalContent h2 {
-  margin: 0 0 1.5rem;
+  padding: 2rem;
+  border-radius: 16px;
   text-align: center;
-  font-size: 1.2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
-.formGroup {
-  margin-bottom: 1.5rem;
+.profile_img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
 }
 
-.formGroup label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.input {
-  width: 100%;
-  padding: 0.8rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-.input:focus {
-  outline: none;
-  border-color: #007bff;
-}
-
-.buttonGroup {
+.input_container {
+  position: relative;
   display: flex;
-  gap: 1rem;
+  align-items: center;
   justify-content: center;
 }
 
-.cancelButton, .saveButton {
-  padding: 0.8rem 2rem;
-  border-radius: 4px;
+.nickname_input {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
   font-size: 1rem;
-  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.clear_button {
+  position: absolute;
+  right: 10px;
+  background: none;
   border: none;
+  font-size: 1.25rem;
+  color: #999;
+  cursor: pointer;
 }
 
-.cancelButton {
-  background-color: #f2f2f2;
-  color: #666;
+.valid_message {
+  color: #31aa27;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
 }
 
-.saveButton {
-  background-color: #007bff;
+.error_message {
+  color: #f44336;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.confirm_button {
+  margin-top: 1.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  background-color: #ff5b5b;
   color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
-
-.saveButton:hover {
-  background-color: #0056b3;
-} 
