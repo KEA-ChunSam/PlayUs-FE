@@ -1,0 +1,129 @@
+.modalWrapper {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    /*margin-top: 8px;*/
+    z-index: 999;
+}
+
+.modal {
+    /*width: 100%;*/
+    width: 19rem;
+    max-width: 360px;
+    background-color: #fff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    overflow: hidden;
+    font-family: 'Arial', sans-serif;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    /*border-bottom: 1px solid #e0e0e0;*/
+    /*background-color: #f8f9fa;*/
+}
+
+.header h3 {
+    font-weight: bold;
+    margin-top: 3px;
+}
+
+.tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabs button {
+    flex: 1;
+    padding: 10px;
+    background: none;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.active {
+    font-weight: bold;
+    border-bottom: 2px solid #007bff;
+    color: #007bff;
+}
+
+.notifications {
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.notificationItem {
+    display: flex;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    position: relative;
+}
+
+.newAlert {
+    background-color: #EDF3FF;
+}
+
+.newDot {
+    width: 8px;
+    height: 8px;
+    background-color: #6f42c1;
+    border-radius: 50%;
+    position: absolute;
+    left: 10px;
+    top: 18px;
+}
+
+.notificationText {
+    padding-left: 16px;
+    font-size: 13px;
+}
+
+.subText {
+    margin-top: 4px;
+    color: #666;
+    font-size: 12px;
+}
+
+.empty {
+    text-align: center;
+    padding: 40px 0;
+    color: #aaa;
+}
+
+.actionButtons {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+}
+
+.approve {
+    background-color: #ff4d4f;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.reject {
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    padding: 6px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.resultText {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #555;
+}

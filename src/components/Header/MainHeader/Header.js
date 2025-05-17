@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import NotificationModal from "../../Modal/NotificationModal/NotificationModal";
 import {useNavigate} from "react-router-dom";
 import styles from "./Header.module.css";
 import {useSearch} from "../../SearchContext";
@@ -6,6 +7,8 @@ import {useSearch} from "../../SearchContext";
 const Header = () => {
     const {inputValue, setInputValue, setKeyword} = useSearch();
     const navigate = useNavigate();
+
+    const [showModal, setShowModal] = useState(false);
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && inputValue.trim() !== "") {
@@ -38,21 +41,23 @@ const Header = () => {
                     onKeyDown={handleKeyDown}
                 />
             </div>
-            <div className={styles.header_right}>
+            <div className={`${styles.header_right} ${styles.header_right_absolute}`}>
                 <button>
+                    {/* 관리자 기능은 현재 Non-MVP이므로 미구현 */}
                     <img
                         src={`${process.env.PUBLIC_URL}/Button/admin.png`}
-                        alt="알림"
+                        alt="관리자"
                         className={styles.noti_alert}
                     />
                 </button>
-                <button>
+                <button onClick={() => setShowModal(!showModal)}>
                     <img
                         src={`${process.env.PUBLIC_URL}/Button/alert.png`}
                         alt="알림"
                         className={styles.noti_alert}
                     />
                 </button>
+                {showModal && <NotificationModal onClose={() => setShowModal(false)} />}
             </div>
         </header>
     );
