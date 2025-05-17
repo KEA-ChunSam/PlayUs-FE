@@ -33,7 +33,9 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
                 <Modal
                     title="입력 오류"
                     message={modalMessage}
-                    onClose={() => setModalOpen(false)}
+                    buttons={[
+                        { label: '확인', onClick: () => setModalMessage(false) },
+                    ]}
                 />
             )}
             <TabNav tabs={tabLabels} onTabChange={setActiveTab} onBack={() => navigate(-1)}/>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PostListItem from '../../components/Post/PostListItem';
 import styles from './Community.module.css';
-import Modal from '../../components/Modal/Modal';
+// import Modal from '../../components/Modal/Modal';
 
 const initialPosts = [
   {
