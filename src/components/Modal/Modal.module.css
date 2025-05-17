@@ -4,7 +4,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -33,40 +33,43 @@
 }
 
 .modal_message {
-    font-size: 1.2rem;
-    margin-bottom: 24px;
-    line-height: 1.4;
-    padding: 0 12px;
-    white-space: pre-wrap;
-    overflow-wrap: break-word;
-    word-break: keep-all;
+    margin: 0 0 20px 0;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.modal_button_group {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
 }
 
 .modal_confirm_button {
-    background-color: #ff5e5e;
-    color: white;
+    padding: 8px 16px;
     border: none;
-    padding: 12px 24px;
-    border-radius: 10px;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
     cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.2s;
+    font-size: 0.875rem;
 }
 
 .modal_confirm_button:hover {
-    background-color: #e54545;
+    background-color: #0056b3;
 }
 
-.modal_confirm_button:focus {
-    outline: 2px solid #0D1A80;
-    outline-offset: 2px;
+.modal_close_button {
+    padding: 8px 16px;
+    border: 1px solid #dc3545;
+    border-radius: 4px;
+    background-color: white;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 0.875rem;
 }
 
-.modal_confirm_button:active {
-    background-color: #cc3a3a;
-}
-.modal_button_group {
-    display: flex;
-    gap: 12px;
-    margin-top: 20px;
+.modal_close_button:hover {
+    background-color: #dc3545;
+    color: white;
 }

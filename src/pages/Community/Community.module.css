@@ -1,0 +1,338 @@
+.container {
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.teamSelect select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.postList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 2200px;
+  margin: 0 auto;
+}
+
+.postItem {
+  padding: 1rem;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  max-width: 2200px;
+  margin: 0 auto;
+}
+
+.postItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.postHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.postHeader h3 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+}
+
+.author {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.postInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #999;
+}
+
+.stats {
+  display: flex;
+  gap: 1rem;
+}
+
+.writeButton {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background-color: #3F53D3;
+  color: white;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.writeButton:hover {
+  transform: scale(1.1);
+  background-color: #0056b3;
+}
+
+.pageWrapper {
+  min-height: 100vh;
+  background: #fff;
+  padding-top: 100px;
+}
+
+.lockerHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 1.2rem 1rem 0.7rem 1rem;
+  border-bottom: 1.5px solid #eee;
+  min-height: 48px;
+}
+
+.teamLogo {
+  width: 50px;
+  height: 32px;
+  object-fit: contain;
+  display: inline-block;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  vertical-align: middle;
+  margin: 0;
+  padding: 0;
+}
+
+.lockerTitle {
+  font-size: 0.92rem;
+  font-weight: bold;
+  color: #162b8a;
+  margin-right: auto;
+  margin-left: 0.6rem;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.writeBtn {
+  background: #0a2a47;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 0.28rem 1.1rem;
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-right: 0.6rem;
+  transition: background 0.2s;
+  line-height: 1.1;
+  display: flex;
+  align-items: center;
+}
+.writeBtn:hover {
+  background: #163a5f;
+}
+
+.arrowBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+
+/* 모달 */
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modalContent {
+  background: #fff;
+  border-radius: 18px;
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  min-width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.modalTitle {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #1a237e;
+  margin-bottom: 1.2rem;
+}
+.teamGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.teamBtn, .teamBtnSelected {
+  min-width: 80px;
+  background: #f7f7f7;
+  border: 2px solid #eee;
+  border-radius: 12px;
+  padding: 0.7rem 0.2rem 0.5rem 0.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.95rem;
+  color: #333;
+  cursor: pointer;
+  transition: border 0.2s, background 0.2s;
+}
+.teamBtnSelected {
+  border: 2px solid #0056b3;
+  background: #e3f0ff;
+  color: #0056b3;
+}
+.teamModalLogo {
+  width: 80px;
+  height: 36px;
+  object-fit: contain;
+  display: block;
+  margin-bottom: 0.3rem;
+  max-width: 100%;
+}
+.modalActions {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  justify-content: center;
+}
+.selectBtn {
+  background: #ff4f4f;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.selectBtn:hover {
+  background: #ff4f4f;
+}
+.cancelBtn {
+  background: #f2f2f2;
+  color: #666;
+  border: none;
+  border-radius: 20px;
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.cancelBtn:hover {
+  background: #e0e0e0;
+}
+
+.teamSelectBtn {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.teamSelectBtn img {
+  width: 34px;
+  height: 24px;
+}
+
+/* ABS봇 모달 스타일 */
+.absModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.absModalContent {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.absModalTitle {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ff4f4f;
+  margin-bottom: 1rem;
+}
+
+.absModalMessage {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.absModalButton {
+  background: #ff4f4f;
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.absModalButton:hover {
+  background: #ff3333;
+} 

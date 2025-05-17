@@ -1,0 +1,80 @@
+.container {
+    padding: 90px 0 0 0;
+    font-family: sans-serif;
+    background: #fff;
+    min-height: 100vh;
+  }
+  
+  .topBar {
+    display: flex;
+    align-items: flex-end;
+    background: #fff;
+    color: #0a2a47;
+    padding: 0.7rem 1rem 0 0.5rem;
+    min-height: 48px;
+    border-bottom: none;
+  }
+  
+  .backBtn {
+    font-size: 22px;
+    background: none;
+    border: none;
+    color: #0a2a47;
+    cursor: pointer;
+    padding: 0 8px 0 0;
+    display: flex;
+    align-items: center;
+  }
+  
+  .topBarTitle {
+    font-weight: bold;
+    font-size: 1.05rem;
+    color: #0a2a47;
+    flex: 1;
+    text-align: center;
+    border-bottom: 2.5px solid #0a2a47;
+    padding-bottom: 7px;
+    background: #fff;
+  }
+  
+  .spacer {
+    width: 24px;
+  }
+  
+  .summary {
+    font-size: 14px;
+    margin: 16px 0 16px 0;
+    padding: 0 1rem;
+    color: #222;
+  }
+  
+  .list {
+    list-style: none;
+    padding: 0 1rem;
+    margin: 0;
+  }
+  
+  .item {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 0;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .itemTitle {
+    font-weight: 600;
+    font-size: 15px;
+  }
+  
+  .itemMeta {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+  }
+  
+  .noResults {
+    text-align: center;
+    color: #888;
+    font-size: 1.05rem;
+    padding: 2rem 0;
+  }

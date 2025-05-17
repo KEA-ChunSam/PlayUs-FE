@@ -62,3 +62,4 @@ const WithdrawalModal = ({nickname, onCancel, onWithdraw}) => {
 };
 
 export default WithdrawalModal;
+

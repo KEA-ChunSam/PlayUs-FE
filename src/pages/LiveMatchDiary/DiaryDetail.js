@@ -20,7 +20,7 @@ const DiaryDetail = () => {
 
     const navigate = useNavigate();
     const tabLabels = ["나의 직관일지"];
-
+  
     function handleBack() {
         navigate('/diary/list');
     }

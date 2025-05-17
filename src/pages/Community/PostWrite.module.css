@@ -1,0 +1,170 @@
+.container {
+  position: relative;
+  padding: 1rem;
+  max-width: 490px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  margin-top: 60px;
+  border-bottom: none;
+}
+
+.headerTitle {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  text-align: left;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #666;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-bottom: 80px;
+}
+
+.imageUpload {
+  width: 120px;
+  height: 120px;
+  border: 1px dashed #ccc;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #999;
+  font-size: 0.8rem;
+  cursor: pointer;
+  overflow: hidden;
+  margin: 0 0 1.5rem 0;
+  background: none;
+}
+
+.imageUpload.hasImage {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.imageLabel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.uploadPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: #999;
+}
+
+.uploadPlaceholder span:first-child {
+  font-size: 2rem;
+}
+
+.preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.textarea {
+  width: 100%;
+  height: 200px;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  resize: none;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.charCount {
+  text-align: right;
+  font-size: 0.9rem;
+  color: #999;
+}
+
+.formActions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  background: #fff;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: center;
+  max-width: 490px;
+  margin: 0 auto;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 1rem;
+  background-color: #ff4f4f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.submitButton:hover {
+  background-color: #ff3333;
+} 
