@@ -5,10 +5,12 @@ import {Outlet} from "react-router-dom";
 import Header from "../Header/MainHeader/Header";
 import NavBar from "../NavBar/NavBar";
 import styles from "./MobileView.module.css";
+import {SearchProvider} from "../SearchContext";
 
 const MobileView = () => {
     return (
         <div className={styles.mobile_view}>
+            <SearchProvider>
             {/* 상단 고정 Header */}
             <Header/>
 
@@ -19,6 +21,7 @@ const MobileView = () => {
 
             {/* 하단 고정 NavBar */}
             <NavBar/>
+            </SearchProvider>
         </div>
     );
 };

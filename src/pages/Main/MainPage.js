@@ -9,7 +9,7 @@ const sampleData = {
     schedule: { home: "NC", away: "삼성", status: "종료", score: [6, 3] },
     posts: [
       {
-        profile: "/profile/user2.jpg",
+        profile: `${process.env.PUBLIC_URL}/profile/user2.jpg`,
         nickname: "NC팬1",
         title: "오늘 경기 너무 재밌었어요!",
         date: "2025.05.02 18:00",
@@ -17,7 +17,7 @@ const sampleData = {
     ],
     parties: [
       {
-        image: "/profile/party1.png",
+        image: `${process.env.PUBLIC_URL}/profile/party1.png`,
         filters: ["승인제", "20대", "여자만"],
         title: "NC 직관팟 모집",
         author: "홍길동",
@@ -32,7 +32,7 @@ const sampleData = {
     schedule: { home: "LG", away: "KT", status: "예정", score: [0, 0] },
     posts: [
       {
-        profile: "/profile/party1.png",
+        profile: `${process.env.PUBLIC_URL}/profile/party1.png`,
         nickname: "엘지빠돌이",
         title: "비 예보 있어서 걱정이네",
         date: "2025.05.02 15:30",

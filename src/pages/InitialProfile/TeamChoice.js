@@ -72,7 +72,9 @@ const TeamChoice = () => {
                 <Modal
                     title="알림"
                     message="팀을 선택해 주세요."
-                    onClose={() => setShowModal(false)}
+                    buttons={[
+                        { label: '확인', onClick: () => setShowModal(false) }
+                    ]}
                 />
             )}
         </div>

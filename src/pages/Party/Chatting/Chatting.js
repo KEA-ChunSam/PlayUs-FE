@@ -150,10 +150,16 @@ const Chatting = () => {
                     <Modal
                         title="직관팟을 나가시겠어요?"
                         message="직관팟을 나가면 더이상 채팅내역을 확인하실 수 없어요."
-                        onClose={() => {
-                            setShowLeaveRoomModal(false);
-                            navigate('/schedule');
-                        }}
+                        buttons={[
+                            { label: '취소', onClick: () => setShowLeaveRoomModal(false) },
+                            {
+                                label: '확인',
+                                onClick: () => {
+                                    setShowLeaveRoomModal(false);
+                                    navigate('/schedule');
+                                }
+                            }
+                        ]}
                     />
                 )}
             </div>

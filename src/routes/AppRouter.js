@@ -7,7 +7,7 @@ import Splash from "../pages/Login/Splash";
 import Login from "../pages/Login/Login";
 import Community from '../pages/Community/Community';
 import PostWrite from '../pages/Community/PostWrite';
-import Party from '../components/Party';
+// import Party from '../components/Party';
 import Profile from '../pages/Profile/Profile';
 import TeamChoice from "../pages/InitialProfile/TeamChoice";
 import SetProfile from "../pages/InitialProfile/SetProfile";
