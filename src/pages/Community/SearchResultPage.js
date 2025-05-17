@@ -25,7 +25,7 @@ const SearchResultPage = () => {
   );
 
   const handleBack = () => {
-    navigate("/community");
+    navigate(-1);
   };
 
   const handlePostClick = (postId) => {
