@@ -1,10 +1,10 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import styles from "./Header.module.css";
-import { useSearch } from "../../SearchContext";
+import {useSearch} from "../../SearchContext";
 
 const Header = () => {
-    const { inputValue, setInputValue, setKeyword } = useSearch();
+    const {inputValue, setInputValue, setKeyword} = useSearch();
     const navigate = useNavigate();
 
     const handleKeyDown = (e) => {
@@ -13,6 +13,10 @@ const Header = () => {
             navigate("/search");
         }
     };
+
+    function alwaysHome() {
+        navigate("/home")
+    }
 
     return (
         <header className={styles.mobile_header}>
