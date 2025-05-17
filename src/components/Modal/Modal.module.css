@@ -12,6 +12,7 @@
 }
 
 .modal_box {
+    position: relative;
     background: white;
     width: 348px;
     height: 298px;
@@ -39,10 +40,13 @@
 }
 
 .modal_button_group {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
     display: flex;
     gap: 8px;
-    justify-content: flex-end;
-    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .modal_confirm_button {
@@ -68,8 +72,8 @@
 .modal_confirm_button:active {
     background-color: #cc3a3a;
 }
-.modal_button_group {
-    display: flex;
-    gap: 12px;
-    margin-top: 20px;
-}
+/*.modal_button_group {*/
+/*    display: flex;*/
+/*    gap: 12px;*/
+/*    margin-top: 20px;*/
+/*}*/

@@ -34,7 +34,7 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
                     title="입력 오류"
                     message={modalMessage}
                     buttons={[
-                        { label: '확인', onClick: () => setModalMessage(false) },
+                        { label: '확인', onClick: () => setModalOpen(false) },
                     ]}
                 />
             )}

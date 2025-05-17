@@ -1,13 +1,31 @@
 // 메인 베이직 모달 컴포넌트
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 import styles from './Modal.module.css';
 
-const Modal = ({title, message, buttons}) => {
+const Modal = ({title, message, buttons, onClose}) => {
+    const modalRef = useRef(null);
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape' && onClose) {
+                onClose();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
     //TODO: 차후 취소 버튼 or 모달 닫기 버튼 구현 필요
     return (
         <div className={styles.modal_overlay}>
-            <div className={styles.modal_box}>
-                <h3 className={styles.modal_title}>{title}</h3>
+            <div
+                className={styles.modal_box}
+                ref={modalRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title"
+            >
+                <h3 id="modal-title" className={styles.modal_title}>{title}</h3>
                 <p className={styles.modal_message}>{message}</p>
                 {buttons && buttons.length > 0 && (
                     <div className={styles.modal_button_group}>
