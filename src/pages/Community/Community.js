@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PostListItem from '../../components/Post/PostListItem';
 import styles from './Community.module.css';
+import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
+import CasterbotModal from "../Chatbot/CasterbotModal";
 // import Modal from '../../components/Modal/Modal';
 
 const initialPosts = [
@@ -44,6 +46,8 @@ const Community = () => {
   const [posts, setPosts] = useState(initialPosts);
   const [showAbsModal, setShowAbsModal] = useState(false);
   const [profanityMessage, setProfanityMessage] = useState('');
+  const [showCasterbot, setShowCasterbot] = useState(false);
+
 
   useEffect(() => {
     // location.state.team이 있으면 해당 팀으로 세팅
@@ -221,7 +225,11 @@ const Community = () => {
           </div>
         </div>
       )}
-      
+      <CasterbotButton onClick={() => setShowCasterbot(true)} />
+
+      {showCasterbot && (
+          <CasterbotModal onClose={() => setShowCasterbot(false)}/>
+      )}
     </div>
   );
 };

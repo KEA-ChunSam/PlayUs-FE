@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {useLocation, useNavigate} from 'react-router-dom';
 import styles from './PostWrite.module.css';
 import Modal from '../../components/Modal/Modal';
+import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
+import CasterbotModal from "../Chatbot/CasterbotModal";
 
 const PostWrite = () => {
     const navigate = useNavigate();
@@ -17,7 +19,8 @@ const PostWrite = () => {
     const selectedTeam = location.state?.team || 'hanwha';
     const [showAbsModal, setShowAbsModal] = useState(false);
     const [profanityMessage, setProfanityMessage] = useState('');
-    
+    const [showCasterbot, setShowCasterbot] = useState(false);
+
 
     useEffect(() => {
         if (post) {
@@ -56,7 +59,7 @@ const PostWrite = () => {
             return;
         }
         const now = new Date();
-        
+
         // 사용자 정보 검증
         let user = null;
         try {
@@ -71,16 +74,16 @@ const PostWrite = () => {
             console.error('사용자 정보를 불러오는 중 오류가 발생했습니다:', error);
             user = null;
         }
-        
+
         const author = user?.nickname || user?.name || '익명';
-        
+
         // 날짜/시간 형식 현지화
         const date = now.toLocaleDateString('ko-KR', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit'
         }).replace(/\. /g, '.').replace('.', '');
-        
+
         const time = now.toLocaleTimeString('ko-KR', {
             hour: '2-digit',
             minute: '2-digit',
@@ -142,7 +145,7 @@ const PostWrite = () => {
                 alert('게시물을 저장하는 중 오류가 발생했습니다.');
                 return;
             }
-            navigate('/community', { state: { team: selectedTeam } });
+            navigate('/community', {state: {team: selectedTeam}});
         }
     };
 
@@ -156,7 +159,8 @@ const PostWrite = () => {
                 <span className={styles.headerTitle}>{isEditing ? '게시글 수정' : '게시글 작성'}</span>
                 <button className={styles.closeButton} onClick={handleClose}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="#111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M18 6L6 18M6 6L18 18" stroke="#111" strokeWidth="2" strokeLinecap="round"
+                              strokeLinejoin="round"/>
                     </svg>
                 </button>
             </div>
@@ -167,7 +171,7 @@ const PostWrite = () => {
                     ) : (
                         <span>사진/동영상</span>
                     )}
-                    <input type="file" accept="image/*" onChange={handleImageChange} hidden />
+                    <input type="file" accept="image/*" onChange={handleImageChange} hidden/>
                 </label>
                 <div className={styles.formGroup}>
                     <input
@@ -206,6 +210,11 @@ const PostWrite = () => {
                         }
                     ]}
                 />
+            )}
+            <CasterbotButton onClick={() => setShowCasterbot(true)}/>
+
+            {showCasterbot && (
+                <CasterbotModal onClose={() => setShowCasterbot(false)}/>
             )}
         </div>
     );
