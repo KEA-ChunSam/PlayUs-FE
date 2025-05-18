@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Doughnut} from 'react-chartjs-2';
 import {ArcElement, Chart as ChartJS, Legend, Tooltip} from 'chart.js';
 import dummyDiaries from '../../components/DummyData/dummyDiaries';
@@ -38,6 +38,7 @@ const Profile = () => {
     const userId = searchParams.get('userId');
     const currentUserId = '1';
     // Move dummyUsers into state with joined and diaryCount added to each user
+    /*
     const [dummyUsers] = useState({
         '1': {
             nickname: 'ZSJ',
@@ -54,8 +55,9 @@ const Profile = () => {
             joined: '2025년 1월 20일',
         }
     });
+    */
+    /*
     const targetId = userId || currentUserId;
-    // Set diaryCount dynamically from allDiaries, and merge with profile data
     const profileBase = dummyUsers[targetId];
     const diaryCount = allDiaries.filter(d => d.userId === targetId).length;
     const profile = {
@@ -64,18 +66,69 @@ const Profile = () => {
     };
     const isMine = !userId || userId === currentUserId;
 
+    const [nickname, setNickname] = useState(profile.nickname);
+    */
+    const [profile, setProfile] = useState(null);
+    const [nickname, setNickname] = useState('');
+    const [isMine, setIsMine] = useState(false);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            const endpoint = userId
+                ? `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/${userId}`
+                : `${process.env.REACT_APP_LOCLA_BACKEND_URI}/user/me`;
+
+            try {
+                const res = await fetch(endpoint, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    }
+                });
+                if (!res.ok) throw new Error('프로필 조회 실패');
+
+                const data = await res.json();
+                setProfile(data);
+                setNickname(data.nickname);
+                setIsMine(!userId || userId === data.id.toString());
+            } catch (err) {
+                console.error('프로필 불러오기 오류:', err);
+            }
+        };
+
+        fetchProfile();
+    }, [userId]);
+
     const today = new Date();
     const [value, setValue] = useState(today);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showProfileEditModal, setShowProfileEditModal] = useState(false);
     const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
     const [showFinalModal, setShowFinalModal] = useState(false);
-    const [nickname, setNickname] = useState(profile.nickname);
     const navigate = useNavigate();
     const handleLogout = () => {
         console.log('로그아웃 확인됨');
         setShowLogoutModal(false);
         navigate('/login');
+    };
+
+    const handleNicknameChange = async (newNickname) => { // 닉네임 변경 로직
+        try {
+            const res = await fetch(`${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/nickname`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}` // 혹은 쿠키 기반 처리
+                },
+                body: JSON.stringify({nickname: newNickname})
+            });
+
+            if (!res.ok) throw new Error('닉네임 변경 실패');
+
+            const data = await res.json();
+            setNickname(data.nickname);
+        } catch (err) {
+            console.error('닉네임 변경 중 오류 발생:', err);
+        }
     };
 
     const accuracyValue = 9.3; // TODO: 해당 값은 후기 타율 데이터를 받아와 구현
@@ -108,39 +161,43 @@ const Profile = () => {
         <>
             <div className={styles.container}>
                 <header className={styles.header}>
-                    <img src={profile.profileImg} alt="profile" className={styles.profileImg}/>
-                    <div className={styles.userInfo}>
-                        <div className={styles.username}>
-                            <span>{profile.nickname}</span>
-                            {isMine && (
-                                <img
-                                    src={`${process.env.PUBLIC_URL}/Button/create.png`}
-                                    alt="edit"
-                                    className={styles.editIcon}
-                                    onClick={() => setShowProfileEditModal(true)}
-                                />
-                            )}
-                        </div>
-                        {isMine ? (
-                            <div className={styles.email}>{profile.email}</div>
-                        ) : (
-                            <div className={styles.email}>
-                                직관일지 {profile.diaryCount}회 작성 · {profile.joined} 가입
+                    {profile && (
+                        <>
+                            <img src={profile.profileImg} alt="profile" className={styles.profileImg}/>
+                            <div className={styles.userInfo}>
+                                <div className={styles.username}>
+                                    <span>{nickname}</span>
+                                    {isMine && (
+                                        <img
+                                            src={`${process.env.PUBLIC_URL}/Button/create.png`}
+                                            alt="edit"
+                                            className={styles.editIcon}
+                                            onClick={() => setShowProfileEditModal(true)}
+                                        />
+                                    )}
+                                </div>
+                                {isMine ? (
+                                    <div className={styles.email}>{profile.email}</div>
+                                ) : (
+                                    <div className={styles.email}>
+                                        직관일지 {profile.diaryCount}회 작성 · {profile.joined} 가입
+                                    </div>
+                                )}
+                                {isMine && (
+                                    <>
+                                        <div className={styles.logout} onClick={() => setShowLogoutModal(true)}>
+                                            <img src={`${process.env.PUBLIC_URL}/Button/logout.png`} alt="logout"
+                                                 className={styles.logoutImg}/>로그아웃
+                                        </div>
+                                        <div className={styles.withdrawal} onClick={() => setShowWithdrawalModal(true)}>탈퇴하기
+                                        </div>
+                                    </>
+                                )}
                             </div>
-                        )}
-                        {isMine && (
-                            <>
-                                <div className={styles.logout} onClick={() => setShowLogoutModal(true)}>
-                                    <img src={`${process.env.PUBLIC_URL}/Button/logout.png`} alt="logout"
-                                         className={styles.logoutImg}/>로그아웃
-                                </div>
-                                <div className={styles.withdrawal} onClick={() => setShowWithdrawalModal(true)}>탈퇴하기
-                                </div>
-                            </>
-                        )}
-                    </div>
-                    <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/${profile.teamLogo}.png`} alt="team"
-                         className={styles.teamImg}/>
+                            <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/${profile.teamLogo}.png`} alt="team"
+                                 className={styles.teamImg}/>
+                        </>
+                    )}
                 </header>
 
                 {isMine ? (
@@ -275,7 +332,10 @@ const Profile = () => {
                 {showProfileEditModal && (
                     <ProfileEditModal
                         onClose={() => setShowProfileEditModal(false)}
-                        onSubmit={(newNickname) => setNickname(newNickname)}
+                        onSubmit={(newNickname) => {
+                            handleNicknameChange(newNickname);
+                            setShowProfileEditModal(false);
+                        }}
                     />
                 )}
             </div>

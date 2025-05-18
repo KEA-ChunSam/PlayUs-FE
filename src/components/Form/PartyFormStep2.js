@@ -59,7 +59,7 @@ const PartyFormStep2 = ({form, setForm, onSubmit}) => {
     const tabLabels = ["직관팟 만들기"];
 
     const isFormValid = () => {
-        if (!form.description || form.description.trim() === '') {
+        if (!form.message || form.message.trim() === '') {
             alert('소개글을 작성해 주세요.');
             return false;
         }
@@ -114,14 +114,14 @@ const PartyFormStep2 = ({form, setForm, onSubmit}) => {
                 <h2 className={styles.title}>소개글을 작성해 주세요.</h2>
                 <textarea
                     rows="8"
-                    value={form.description || ''}
-                    onChange={(e) => handleChange('description', e.target.value)}
+                    value={form.message || ''}
+                    onChange={(e) => handleChange('message', e.target.value)}
                     placeholder="소개글을 자유롭게 작성해 주세요. (최대 500자)"
                     maxLength={500}
                     className={styles.textarea}
                 />
                 <div className={styles.charCount}>
-                    {form.description?.length || 0}/500
+                    {form.message?.length || 0}/500
                 </div>
 
                 <button
