@@ -1,6 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useLocation, useNavigate, useParams} from 'react-router-dom';
 import styles from './PostDetail.module.css';
+import axios from 'axios';
+import Modal from '../../components/Modal/Modal';
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import CasterbotModal from "../Chatbot/CasterbotModal";
 
@@ -15,26 +17,48 @@ const samplePosts = [
 ];
 
 const PostDetail = () => {
-    const {postId} = useParams();
-    const navigate = useNavigate();
-    const location = useLocation();
-    const [showPostMenu, setShowPostMenu] = useState(false); // 게시글 삼점바
-    const [showCommentMenu, setShowCommentMenu] = useState(null); // 댓글 삼점바(댓글 id)
-    const [showReplyMenu, setShowReplyMenu] = useState(null); // 대댓글 삼점바(댓글id_대댓글id)
-    const [comment, setComment] = useState("");
-    const [comments, setComments] = useState([]);
-    const [replyTo, setReplyTo] = useState(null); // 대댓글 대상
-    const commentInputRef = useRef(null); // 입력창 참조
-    const [editingCommentId, setEditingCommentId] = useState(null);
-    const [editingContent, setEditingContent] = useState("");
-    const [isEditing, setIsEditing] = useState(false);
-    const [editedContent, setEditedContent] = useState('');
-    const [editedTitle, setEditedTitle] = useState('');
-    const [isCommentEditing, setIsCommentEditing] = useState(false);
-    const [editedComment, setEditedComment] = useState('');
-    const [currentUser, setCurrentUser] = useState(null); // 현재 로그인한 사용자
-    const [showMenu, setShowMenu] = useState(false);
+  const { postId } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [showPostMenu, setShowPostMenu] = useState(false); // 게시글 삼점바
+  const [showCommentMenu, setShowCommentMenu] = useState(null); // 댓글 삼점바(댓글 id)
+  const [showReplyMenu, setShowReplyMenu] = useState(null); // 대댓글 삼점바(댓글id_대댓글id)
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([]);
+  const [replyTo, setReplyTo] = useState(null); // 대댓글 대상
+  const commentInputRef = useRef(null); // 입력창 참조
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingContent, setEditingContent] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState('');
+  const [editedTitle, setEditedTitle] = useState('');
+  const [isCommentEditing, setIsCommentEditing] = useState(false);
+  const [editedComment, setEditedComment] = useState('');
+  const [currentUser, setCurrentUser] = useState(null); // 현재 로그인한 사용자
+  const [showMenu, setShowMenu] = useState(false);
     const [showCasterbot, setShowCasterbot] = useState(false);
+  const [showAbsModal, setShowAbsModal] = useState(false);
+  const [profanityMessage, setProfanityMessage] = useState('');
+
+  const checkProfanity = async (text) => {
+    try {
+      const response = await axios.post(
+        'https://xrnfbckpskycrstm.tunnel.elice.io/detect',
+        { sentence: text },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      const raw = response.data.result
+        .replace(/```json\n/, '')
+        .replace(/`{3,}[\s\S]*$/, '')
+        .trim();
+      const parsed = JSON.parse(raw);
+      const isCurse = String(parsed.is_curse).toLowerCase() === 'true';
+      return { isCurse, words: parsed.words || [] };
+    } catch (error) {
+      console.error('비속어 감지 실패:', error);
+      return { isCurse: false, words: [] };
+    }
+  };
 
     const teamLogoMap = {
         hanwha: 'HH',
@@ -106,11 +130,19 @@ const PostDetail = () => {
         }, 0);
     };
 
-    // 댓글/답글 등록
-    const handleAddComment = () => {
-        if (!comment.trim()) return;
-        const user = JSON.parse(localStorage.getItem('user'));
-        const author = user?.nickname || user?.name || '익명';
+  // 댓글/답글 등록
+  const handleAddComment = async () => {
+    if (!comment.trim()) return;
+
+    const { isCurse, words } = await checkProfanity(comment);
+    if (isCurse) {
+      setProfanityMessage(words.join(', '));
+      setShowAbsModal(true);
+      return;
+    }
+
+    const user = JSON.parse(localStorage.getItem('user'));
+    const author = user?.nickname || user?.name || '익명';
 
         if (replyTo) {
             // 답글 등록
@@ -382,6 +414,25 @@ const PostDetail = () => {
                     </button>
                 </div>
             </div>
+            {showAbsModal && (
+                <Modal
+                    title="ABS봇이 작동중입니다."
+                    message={
+                        <>
+                            ABS봇이 부적절한 키워드를 감지했습니다.
+                            <br />
+                            작성글을 수정해 주세요.
+                            <br />
+                            <br />
+                            감지된 단어: {profanityMessage}
+                        </>
+                    }
+                    buttons={[
+                        { label: '확인', onClick: () => setShowAbsModal(false) }
+                    ]}
+                    onClose={() => setShowAbsModal(false)}
+                />
+            )}
             <CasterbotButton onClick={() => setShowCasterbot(true)}/>
 
             {showCasterbot && (

@@ -39,17 +39,34 @@ const PostWrite = () => {
         }
     };
 
-    // ABS봇 비속어 감지 함수
-    const checkProfanity = (text) => {
-        // 실제 금지어로 교체하세요
-        const badwords = ['욕1', '욕2', '욕3'];
-        const found = badwords.find(word => text.includes(word));
-        if (found) {
-            setProfanityMessage(`감지된 비속어: ${found}`);
-            setShowAbsModal(true);
-            return true;
+    // ABS봇 비속어 감지 함수 (API 호출)
+    const checkProfanity = async (text) => {
+        if (!text) return false;
+        try {
+            const response = await fetch('https://xrnfbckpskycrstm.tunnel.elice.io/detect', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ sentence: text }),
+            });
+            if (!response.ok) {
+                console.error('Profanity API 호출 실패:', response.statusText);
+                return false;
+            }
+            const data = await response.json();
+            const resultString = data.result.replace(/```json\n|```/g, '');
+            const result = JSON.parse(resultString);
+            if (result.is_curse) {
+                setProfanityMessage(`감지된 비속어: ${result.words.join(', ')}`);
+                setShowAbsModal(true);
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Profanity API 호출 중 오류 발생:', error);
+            return false;
         }
-        return false;
     };
 
     const handleSubmit = async (e) => {
@@ -201,8 +218,17 @@ const PostWrite = () => {
             </form>
             {showAbsModal && (
                 <Modal
-                    title="ABS봇 작동중!"
-                    message={`ABS봇이 부적절한 키워드를 감지했습니다.\n작성글을 수정해 주세요.\n${profanityMessage}`}
+                    title="ABS봇이 작동중입니다."
+                    message={
+                        <>
+                            ABS봇이 부적절한 키워드를 감지했습니다.
+                            <br/>
+                            작성글을 수정해 주세요.
+                            <br/>
+                            <br />
+                            감지된 단어: {profanityMessage}
+                        </>
+                    }
                     buttons={[
                         {
                             label: '확인',
