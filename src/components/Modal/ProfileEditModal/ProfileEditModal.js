@@ -1,13 +1,18 @@
 // 프로필 편집 모달 컴포넌트
 import React, {useEffect, useState} from 'react';
+import axios from 'axios';
 import styles from './ProfileEditModal.module.css';
 
-const ProfileEditModal = ({onClose, onSubmit}) => {
-    const [nickname, setNickname] = useState('ZSJ');
+const ProfileEditModal = ({ onClose, onSubmit, initialNickname }) => {
+    const [nickname, setNickname] = useState(initialNickname);
     const [validationMessage, setValidationMessage] = useState('사용할 수 있는 닉네임입니다.');
     const [isValid, setIsValid] = useState(true);
     const [profileImage, setProfileImage] = useState(`${process.env.PUBLIC_URL}/Logo/default.png`);
     const [objectUrl, setObjectUrl] = useState(null);
+
+    useEffect(() => {
+        setNickname(initialNickname);
+    }, [initialNickname]);
 
     useEffect(() => {
         // 컴포넌트 언마운트 시 객체 URL 해제
@@ -47,11 +52,25 @@ const ProfileEditModal = ({onClose, onSubmit}) => {
         }
     };
 
-    const handleSubmit = () => {
-        // if (validationMessage !== '사용할 수 있는 닉네임입니다.') return;
+    const handleSubmit = async () => {
         if (!isValid) return;
-        onSubmit(nickname);
-        onClose();
+
+        try {
+            const res = await axios.put(
+                `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/nickname`,
+                { nickname },
+                { withCredentials: true }
+            );
+
+            if (res.status === 200) {
+                onSubmit(nickname);
+                onClose();
+            }
+        } catch (error) {
+            console.error("닉네임 수정 오류:", error);
+            setValidationMessage('닉네임 수정 중 오류가 발생했습니다.');
+            setIsValid(false);
+        }
     };
 
     return (

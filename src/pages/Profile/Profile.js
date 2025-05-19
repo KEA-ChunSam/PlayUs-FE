@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Doughnut} from 'react-chartjs-2';
 import {ArcElement, Chart as ChartJS, Legend, Tooltip} from 'chart.js';
 import dummyDiaries from '../../components/DummyData/dummyDiaries';
@@ -12,6 +12,7 @@ import ProfileEditModal from '../../components/Modal/ProfileEditModal/ProfileEdi
 import WithdrawalModal from '../../components/Modal/WithdrawalModal/WithdrawalModal';
 import CasterbotModal from "../Chatbot/CasterbotModal";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
+import axios from "axios";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 const storedDiaries = JSON.parse(localStorage.getItem('customDiaries')) || [];
@@ -37,6 +38,7 @@ const Profile = () => {
     const [searchParams] = useSearchParams();
     const userId = searchParams.get('userId');
     const currentUserId = '1';
+    /*
     // Move dummyUsers into state with joined and diaryCount added to each user
     const [dummyUsers] = useState({
         '1': {
@@ -64,13 +66,41 @@ const Profile = () => {
     };
     const isMine = !userId || userId === currentUserId;
 
+    const [nickname, setNickname] = useState(profile.nickname);
+    */
+    const [profile, setProfile] = useState(null);
+    const [nickname, setNickname] = useState('');
+    const [isMine, setIsMine] = useState(false);
+
+
+    useEffect(() => {
+        // 수정된 fetchProfile 부분
+        const fetchProfile = async () => {
+            const endpoint = `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile`;
+
+            try {
+                const res = await axios.get(endpoint, {
+                    withCredentials: true
+                });
+
+                const data = res.data;
+                setProfile(data);
+                setNickname(data.nickname);
+                setIsMine(true);
+            } catch (err) {
+                console.error('프로필 불러오기 오류:', err);
+            }
+        };
+
+        fetchProfile();
+    }, [userId]);
+
     const today = new Date();
     const [value, setValue] = useState(today);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showProfileEditModal, setShowProfileEditModal] = useState(false);
     const [showWithdrawalModal, setShowWithdrawalModal] = useState(false);
     const [showFinalModal, setShowFinalModal] = useState(false);
-    const [nickname, setNickname] = useState(profile.nickname);
     const navigate = useNavigate();
     const handleLogout = () => {
         console.log('로그아웃 확인됨');
@@ -107,128 +137,132 @@ const Profile = () => {
     return (
         <>
             <div className={styles.container}>
-                <header className={styles.header}>
-                    <img src={profile.profileImg} alt="profile" className={styles.profileImg}/>
-                    <div className={styles.userInfo}>
-                        <div className={styles.username}>
-                            <span>{profile.nickname}</span>
-                            {isMine && (
-                                <img
-                                    src={`${process.env.PUBLIC_URL}/Button/create.png`}
-                                    alt="edit"
-                                    className={styles.editIcon}
-                                    onClick={() => setShowProfileEditModal(true)}
-                                />
-                            )}
-                        </div>
-                        {isMine ? (
-                            <div className={styles.email}>{profile.email}</div>
-                        ) : (
-                            <div className={styles.email}>
-                                직관일지 {profile.diaryCount}회 작성 · {profile.joined} 가입
+                {profile && (
+                    <>
+                        <header className={styles.header}>
+                            <img src={profile.profileImg} alt="profile" className={styles.profileImg}/>
+                            <div className={styles.userInfo}>
+                                <div className={styles.username}>
+                                    <span>{profile.nickname}</span>
+                                    {isMine && (
+                                        <img
+                                            src={`${process.env.PUBLIC_URL}/Button/create.png`}
+                                            alt="edit"
+                                            className={styles.editIcon}
+                                            onClick={() => setShowProfileEditModal(true)}
+                                        />
+                                    )}
+                                </div>
+                                {isMine ? (
+                                    <div className={styles.email}>{profile.email}</div>
+                                ) : (
+                                    <div className={styles.email}>
+                                        직관일지 {profile.diaryCount}회 작성 · {profile.joined} 가입
+                                    </div>
+                                )}
+                                {isMine && (
+                                    <>
+                                        <div className={styles.logout} onClick={() => setShowLogoutModal(true)}>
+                                            <img src={`${process.env.PUBLIC_URL}/Button/logout.png`} alt="logout"
+                                                 className={styles.logoutImg}/>로그아웃
+                                        </div>
+                                        <div className={styles.withdrawal} onClick={() => setShowWithdrawalModal(true)}>탈퇴하기
+                                        </div>
+                                    </>
+                                )}
                             </div>
-                        )}
-                        {isMine && (
+                            <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/${profile.teamLogo}.png`} alt="team"
+                                 className={styles.teamImg}/>
+                        </header>
+
+                        {isMine ? (
                             <>
-                                <div className={styles.logout} onClick={() => setShowLogoutModal(true)}>
-                                    <img src={`${process.env.PUBLIC_URL}/Button/logout.png`} alt="logout"
-                                         className={styles.logoutImg}/>로그아웃
-                                </div>
-                                <div className={styles.withdrawal} onClick={() => setShowWithdrawalModal(true)}>탈퇴하기
-                                </div>
+                                <section className={styles.calendarSection}>
+                                    <h2>직관 달력</h2>
+                                    <div className={styles.calendarSectionDiv}>
+                                        <Calendar
+                                            onChange={setValue}
+                                            value={value}
+                                            tileContent={tileContent}
+                                            formatDay={(locale, date) => date.getDate().toString()}
+                                            locale="ko-KR"
+                                        />
+                                    </div>
+                                </section>
+
+                                <section className={styles.journalSection}>
+                                    <div className={styles.journalHeader}>
+                                        <h2>이번 달 나의 직관일지</h2>
+                                        <button className={styles.writeBtn} onClick={handleNewDiary}>직관일지 작성하기</button>
+                                        <div className={styles.logout} onClick={handleDiaryList}>더보기</div>
+                                    </div>
+                                    <ul className={styles.journalList}>
+                                        {journalEntries.map((entry, idx) => (
+                                            <li key={idx} className={styles.journalItem}>
+                                                {entry.image &&
+                                                    <img src={entry.image} alt="entry" className={styles.entryImg}/>}
+                                                <span className={styles.entryTitle}>{entry.title}</span>
+                                                <span className={styles.entryDate}>{entry.date}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </section>
+                            </>
+                        ) : (
+                            <>
+                                <section className={styles.accuracySection}>
+                                    <h2>직관 타율</h2>
+                                    <div className={styles.accuracyChartWrapper}>
+                                        <div className={styles.accuracyCircle}>
+                                            <Doughnut
+                                                data={{
+                                                    labels: ['타율', '빈 공간'],
+                                                    datasets: [
+                                                        {
+                                                            data: [accuracyValue, 100 - accuracyValue],
+                                                            backgroundColor: ['#f66', '#f2f2f2'],
+                                                            borderWidth: 0
+                                                        }
+                                                    ]
+                                                }}
+                                                options={{
+                                                    cutout: '70%',
+                                                    plugins: {
+                                                        legend: {display: false},
+                                                        tooltip: {enabled: false}
+                                                    }
+                                                }}
+                                            />
+                                            <div
+                                                className={styles.accuracyNumberOverlay}>{(accuracyValue / 100).toFixed(3)}</div>
+                                        </div>
+                                        <div className={styles.reviewSummary}>
+                                            <p>100명 중 42명이 직관팟에 만족했어요.</p>
+                                            <div className={styles.reviewTag}>답장이 빨라요.</div>
+                                            <div className={styles.reviewTag}>시간 약속을 잘 지켜요.</div>
+                                            <div className={styles.reviewTag}>경기 직관이 열정적이에요.</div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section className={styles.journalSection}>
+                                    <div className={styles.journalHeader}>
+                                        <h2>최근 커뮤니티 게시글</h2>
+                                        <div className={styles.logout} onClick={handleDiaryList}>더보기</div>
+                                    </div>
+                                    <ul className={styles.journalList}>
+                                        {journalEntries.map((entry, idx) => (
+                                            <li key={idx} className={styles.journalItem}>
+                                                {entry.image &&
+                                                    <img src={entry.image} alt="entry" className={styles.entryImg}/>}
+                                                <span className={styles.entryTitle}>{entry.title}</span>
+                                                <span className={styles.entryDate}>{entry.date}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </section>
                             </>
                         )}
-                    </div>
-                    <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/${profile.teamLogo}.png`} alt="team"
-                         className={styles.teamImg}/>
-                </header>
-
-                {isMine ? (
-                    <>
-                        <section className={styles.calendarSection}>
-                            <h2>직관 달력</h2>
-                            <div className={styles.calendarSectionDiv}>
-                                <Calendar
-                                    onChange={setValue}
-                                    value={value}
-                                    tileContent={tileContent}
-                                    formatDay={(locale, date) => date.getDate().toString()}
-                                    locale="ko-KR"
-                                />
-                            </div>
-                        </section>
-
-                        <section className={styles.journalSection}>
-                            <div className={styles.journalHeader}>
-                                <h2>이번 달 나의 직관일지</h2>
-                                <button className={styles.writeBtn} onClick={handleNewDiary}>직관일지 작성하기</button>
-                                <div className={styles.logout} onClick={handleDiaryList}>더보기</div>
-                            </div>
-                            <ul className={styles.journalList}>
-                                {journalEntries.map((entry, idx) => (
-                                    <li key={idx} className={styles.journalItem}>
-                                        {entry.image &&
-                                            <img src={entry.image} alt="entry" className={styles.entryImg}/>}
-                                        <span className={styles.entryTitle}>{entry.title}</span>
-                                        <span className={styles.entryDate}>{entry.date}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </section>
-                    </>
-                ) : (
-                    <>
-                        <section className={styles.accuracySection}>
-                            <h2>직관 타율</h2>
-                            <div className={styles.accuracyChartWrapper}>
-                                <div className={styles.accuracyCircle}>
-                                    <Doughnut
-                                        data={{
-                                            labels: ['타율', '빈 공간'],
-                                            datasets: [
-                                                {
-                                                    data: [accuracyValue, 100 - accuracyValue],
-                                                    backgroundColor: ['#f66', '#f2f2f2'],
-                                                    borderWidth: 0
-                                                }
-                                            ]
-                                        }}
-                                        options={{
-                                            cutout: '70%',
-                                            plugins: {
-                                                legend: {display: false},
-                                                tooltip: {enabled: false}
-                                            }
-                                        }}
-                                    />
-                                    <div
-                                        className={styles.accuracyNumberOverlay}>{(accuracyValue / 100).toFixed(3)}</div>
-                                </div>
-                                <div className={styles.reviewSummary}>
-                                    <p>100명 중 42명이 직관팟에 만족했어요.</p>
-                                    <div className={styles.reviewTag}>답장이 빨라요.</div>
-                                    <div className={styles.reviewTag}>시간 약속을 잘 지켜요.</div>
-                                    <div className={styles.reviewTag}>경기 직관이 열정적이에요.</div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <section className={styles.journalSection}>
-                            <div className={styles.journalHeader}>
-                                <h2>최근 커뮤니티 게시글</h2>
-                                <div className={styles.logout} onClick={handleDiaryList}>더보기</div>
-                            </div>
-                            <ul className={styles.journalList}>
-                                {journalEntries.map((entry, idx) => (
-                                    <li key={idx} className={styles.journalItem}>
-                                        {entry.image &&
-                                            <img src={entry.image} alt="entry" className={styles.entryImg}/>}
-                                        <span className={styles.entryTitle}>{entry.title}</span>
-                                        <span className={styles.entryDate}>{entry.date}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </section>
                     </>
                 )}
                 {showLogoutModal && (
@@ -276,6 +310,7 @@ const Profile = () => {
                     <ProfileEditModal
                         onClose={() => setShowProfileEditModal(false)}
                         onSubmit={(newNickname) => setNickname(newNickname)}
+                        initialNickname={nickname}
                     />
                 )}
             </div>

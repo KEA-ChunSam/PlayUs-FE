@@ -130,8 +130,8 @@ const PartyMake = () => {
 
     return (
         <>
-            <input type="file" ref={imageFileRef}/>
-            <button type="button" onClick={handleImageUpload}>이미지 업로드</button>
+            {/*<input type="file" ref={imageFileRef}/>*/}
+            {/*<button type="button" onClick={handleImageUpload}>이미지 업로드</button>*/}
             {step === 1 ? (
                 <PartyFormStep1
                     form={partyForm}
