@@ -109,24 +109,7 @@ function AppRouter() {
                 <Route path="/diary/:id" element={<MobileView/>}>
                     <Route index element={<DiaryDetail/>}/>
                 </Route>
-                {/* 프로필 & 직관일지 */}
-                {/* 프로필 메인 & 타 사용자 프로필 */}
-                <Route path="/profile" element={<MobileView/>}>
-                    <Route index element={<Profile/>}/>
-                {/* 차후 User Id를 받아 /profile/:userId로 변경 예정 */}
-                </Route>
-                {/* 직관일지 목록 */}
-                <Route path="/diary/list" element={<MobileView/>}>
-                    <Route index element={<DiaryList/>}/>
-                </Route>
-                {/* 직관일지 작성 */}
-                <Route path="/diary/newdiary" element={<MobileView/>}>
-                    <Route index element={<NewDiary/>}/>
-                </Route>
-                {/* 직관일지 상세 */}
-                <Route path="/diary/:id" element={<MobileView/>}>
-                    <Route index element={<DiaryDetail/>}/>
-                </Route>
+                {/* 커뮤니티 게시글 상세 */}
                 <Route path="/community/post/:postId" element={<MobileView />}>
                     <Route index element={<PostDetail />} />
                 </Route>

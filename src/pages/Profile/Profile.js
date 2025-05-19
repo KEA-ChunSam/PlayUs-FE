@@ -77,7 +77,7 @@ const Profile = () => {
                     teamLogo
                 });
                 setNickname(data.nickname);
-                setIsMine(true);
+                setIsMine(!userId || userId === String(data.userId));
             } catch (err) {
                 console.error('프로필 불러오기 오류:', err);
             }
@@ -309,7 +309,10 @@ const Profile = () => {
                 {showProfileEditModal && (
                     <ProfileEditModal
                         onClose={() => setShowProfileEditModal(false)}
-                        onSubmit={(newNickname) => setNickname(newNickname)}
+                        onSubmit={(newNickname) => {
+                            setNickname(newNickname);
+                            setProfile(prev => ({ ...prev, nickname: newNickname }));
+                        }}
                         initialNickname={nickname}
                     />
                 )}
