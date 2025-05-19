@@ -17,13 +17,13 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
 
     const isFormValid = () => {
         return (
-            form.partyName &&
-            form.applyType &&
-            form.gender &&
-            form.age &&
-            form.min &&
-            form.max &&
-            form.min < form.max
+            form.title &&
+            form.partyJoinMethod &&
+            form.partyGender &&
+            form.ageGroup &&
+            form.minimumParticipants &&
+            form.maximumParticipants &&
+            form.minimumParticipants < form.maximumParticipants
         );
     };
 
@@ -43,8 +43,8 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
                 <h2 className={styles.title}>파티 이름을 설정해 주세요.</h2>
                 <input
                     type="text"
-                    value={form.partyName || ''}
-                    onChange={e => handleChange('partyName', e.target.value)}
+                    value={form.title || ''}
+                    onChange={e => handleChange('title', e.target.value)}
                     placeholder="부적절한 명칭 설정은 제재를 받을 수 있습니다."
                     className={styles.input}
                 />
@@ -54,8 +54,8 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
                     {['선착순', '승인제'].map(type => (
                         <button
                             key={type}
-                            className={`${styles.button} ${form.applyType === type ? styles.buttonActive : ''}`}
-                            onClick={() => handleChange('applyType', type)}
+                            className={`${styles.button} ${form.partyJoinMethod === type ? styles.buttonActive : ''}`}
+                            onClick={() => handleChange('partyJoinMethod', type)}
                         >
                             {type}
                         </button>
@@ -67,8 +67,8 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
                     {['남자만', '여자만', '상관없음'].map(gender => (
                         <button
                             key={gender}
-                            className={`${styles.button} ${form.gender === gender ? styles.buttonActive : ''}`}
-                            onClick={() => handleChange('gender', gender)}
+                            className={`${styles.button} ${form.partyGender === gender ? styles.buttonActive : ''}`}
+                            onClick={() => handleChange('partyGender', gender)}
                         >
                             {gender}
                         </button>
@@ -80,8 +80,8 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
                     {['10대', '20대', '30대', '40대', '50대', '60대 이상'].map(age => (
                         <button
                             key={age}
-                            className={`${styles.button} ${form.age === age ? styles.buttonActive : ''}`}
-                            onClick={() => handleChange('age', age)}
+                            className={`${styles.button} ${form.ageGroup === age ? styles.buttonActive : ''}`}
+                            onClick={() => handleChange('ageGroup', age)}
                         >
                             {age}
                         </button>
@@ -97,11 +97,11 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
                             min={1}
                             max={20}
                             step={1}
-                            value={form.min || ''}
+                            value={form.minimumParticipants || ''}
                             onChange={e => {
                                 const value = Math.floor(Number(e.target.value));
                                 if (value > 0) {
-                                    handleChange('min', value);
+                                    handleChange('minimumParticipants', value);
                                 }
                             }}
                             className={styles.numberInput}
@@ -112,14 +112,14 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
                         최대
                         <input
                             type="number"
-                            min={form.min || 1}
+                            min={form.minimumParticipants || 1}
                             max={20}
                             step={1}
-                            value={form.max || ''}
+                            value={form.maximumParticipants || ''}
                             onChange={e => {
                                 const value = Math.floor(Number(e.target.value));
-                                if (value > 0 && value >= (form.min || 1)) {
-                                    handleChange('max', value);
+                                if (value > 0 && value >= (form.minimumParticipants || 1)) {
+                                    handleChange('maximumParticipants', value);
                                 }
                             }}
                             className={styles.numberInput}
@@ -132,17 +132,17 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
             <button
                 onClick={() => {
                     if (!isFormValid()) {
-                        if (!form.partyName) {
+                        if (!form.title) {
                             setModalMessage('파티 이름을 입력해 주세요.');
-                        } else if (!form.applyType) {
+                        } else if (!form.partyJoinMethod) {
                             setModalMessage('신청 방식을 선택해 주세요.');
-                        } else if (!form.gender) {
+                        } else if (!form.partyGender) {
                             setModalMessage('참여 성별을 선택해 주세요.');
-                        } else if (!form.age) {
+                        } else if (!form.ageGroup) {
                             setModalMessage('참여자의 나이를 설정해 주세요.');
-                        } else if (!form.min || !form.max) {
+                        } else if (!form.minimumParticipants || !form.maximumParticipants) {
                             setModalMessage('최소 및 최대 인원을 입력해 주세요.');
-                        } else if (form.min >= form.max) {
+                        } else if (form.minimumParticipants >= form.maximumParticipants) {
                             setModalMessage('최소 인원은 최대 인원보다 클 수 없습니다.');
                         }
                         setModalOpen(true);

@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {useLocation, useNavigate} from 'react-router-dom';
 import styles from './PostWrite.module.css';
 import Modal from '../../components/Modal/Modal';
+import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
+import CasterbotModal from "../Chatbot/CasterbotModal";
 
 const PostWrite = () => {
     const navigate = useNavigate();
@@ -17,7 +19,8 @@ const PostWrite = () => {
     const selectedTeam = location.state?.team || 'hanwha';
     const [showAbsModal, setShowAbsModal] = useState(false);
     const [profanityMessage, setProfanityMessage] = useState('');
-    
+    const [showCasterbot, setShowCasterbot] = useState(false);
+
 
     useEffect(() => {
         if (post) {
@@ -36,17 +39,34 @@ const PostWrite = () => {
         }
     };
 
-    // ABS봇 비속어 감지 함수
-    const checkProfanity = (text) => {
-        // 실제 금지어로 교체하세요
-        const badwords = ['욕1', '욕2', '욕3'];
-        const found = badwords.find(word => text.includes(word));
-        if (found) {
-            setProfanityMessage(`감지된 비속어: ${found}`);
-            setShowAbsModal(true);
-            return true;
+    // ABS봇 비속어 감지 함수 (API 호출)
+    const checkProfanity = async (text) => {
+        if (!text) return false;
+        try {
+            const response = await fetch('https://xrnfbckpskycrstm.tunnel.elice.io/detect', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ sentence: text }),
+            });
+            if (!response.ok) {
+                console.error('Profanity API 호출 실패:', response.statusText);
+                return false;
+            }
+            const data = await response.json();
+            const resultString = data.result.replace(/```json\n|```/g, '');
+            const result = JSON.parse(resultString);
+            if (result.is_curse) {
+                setProfanityMessage(`감지된 비속어: ${result.words.join(', ')}`);
+                setShowAbsModal(true);
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Profanity API 호출 중 오류 발생:', error);
+            return false;
         }
-        return false;
     };
 
     const handleSubmit = async (e) => {
@@ -56,7 +76,7 @@ const PostWrite = () => {
             return;
         }
         const now = new Date();
-        
+
         // 사용자 정보 검증
         let user = null;
         try {
@@ -71,16 +91,16 @@ const PostWrite = () => {
             console.error('사용자 정보를 불러오는 중 오류가 발생했습니다:', error);
             user = null;
         }
-        
+
         const author = user?.nickname || user?.name || '익명';
-        
+
         // 날짜/시간 형식 현지화
         const date = now.toLocaleDateString('ko-KR', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit'
         }).replace(/\. /g, '.').replace('.', '');
-        
+
         const time = now.toLocaleTimeString('ko-KR', {
             hour: '2-digit',
             minute: '2-digit',
@@ -142,7 +162,7 @@ const PostWrite = () => {
                 alert('게시물을 저장하는 중 오류가 발생했습니다.');
                 return;
             }
-            navigate('/community', { state: { team: selectedTeam } });
+            navigate('/community', {state: {team: selectedTeam}});
         }
     };
 
@@ -156,7 +176,8 @@ const PostWrite = () => {
                 <span className={styles.headerTitle}>{isEditing ? '게시글 수정' : '게시글 작성'}</span>
                 <button className={styles.closeButton} onClick={handleClose}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M18 6L6 18M6 6L18 18" stroke="#111" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M18 6L6 18M6 6L18 18" stroke="#111" strokeWidth="2" strokeLinecap="round"
+                              strokeLinejoin="round"/>
                     </svg>
                 </button>
             </div>
@@ -167,7 +188,7 @@ const PostWrite = () => {
                     ) : (
                         <span>사진/동영상</span>
                     )}
-                    <input type="file" accept="image/*" onChange={handleImageChange} hidden />
+                    <input type="file" accept="image/*" onChange={handleImageChange} hidden/>
                 </label>
                 <div className={styles.formGroup}>
                     <input
@@ -197,8 +218,17 @@ const PostWrite = () => {
             </form>
             {showAbsModal && (
                 <Modal
-                    title="ABS봇 작동중!"
-                    message={`ABS봇이 부적절한 키워드를 감지했습니다.\n작성글을 수정해 주세요.\n${profanityMessage}`}
+                    title="ABS봇이 작동중입니다."
+                    message={
+                        <>
+                            ABS봇이 부적절한 키워드를 감지했습니다.
+                            <br/>
+                            작성글을 수정해 주세요.
+                            <br/>
+                            <br />
+                            감지된 단어: {profanityMessage}
+                        </>
+                    }
                     buttons={[
                         {
                             label: '확인',
@@ -206,6 +236,11 @@ const PostWrite = () => {
                         }
                     ]}
                 />
+            )}
+            <CasterbotButton onClick={() => setShowCasterbot(true)}/>
+
+            {showCasterbot && (
+                <CasterbotModal onClose={() => setShowCasterbot(false)}/>
             )}
         </div>
     );

@@ -1,8 +1,10 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import ScheduleSection from "./ScheduleSection";
 import PopularPost from "./PopularPost";
 import MyPartyCard from "./MyPartyCard";
 import styles from "./MainPage.module.css";
+import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
+import CasterbotModal from "../Chatbot/CasterbotModal";
 
 const sampleData = {
   "NC 다이노스": {
@@ -50,6 +52,7 @@ const sampleData = {
 export default function MainPage() {
   const selectedTeam = "NC 다이노스"; // 기본값으로 NC 다이노스 선택
   const { schedule, posts, parties } = sampleData[selectedTeam];
+  const [showCasterbot, setShowCasterbot] = useState(false);
 
   return (
     <div className={styles.main_page}>
@@ -69,6 +72,12 @@ export default function MainPage() {
       ) : (
         <p className="text-sm text-gray-500">등록된 직관팟이 없습니다.</p>
       )}
+      <CasterbotButton onClick={() => setShowCasterbot(true)} />
+
+      {showCasterbot && (
+          <CasterbotModal onClose={() => setShowCasterbot(false)}/>
+      )}
     </div>
+
   );
 }
