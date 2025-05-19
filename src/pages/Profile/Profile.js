@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Doughnut} from 'react-chartjs-2';
 import {ArcElement, Chart as ChartJS, Legend, Tooltip} from 'chart.js';
 import dummyDiaries from '../../components/DummyData/dummyDiaries';
@@ -38,43 +38,13 @@ const Profile = () => {
     const [searchParams] = useSearchParams();
     const userId = searchParams.get('userId');
     const currentUserId = '1';
-    /*
-    // Move dummyUsers into state with joined and diaryCount added to each user
-    const [dummyUsers] = useState({
-        '1': {
-            nickname: 'ZSJ',
-            email: 'cho010105@gachon.ac.kr',
-            teamLogo: 'NC',
-            profileImg: `${process.env.PUBLIC_URL}/Logo/default.png`,
-            joined: '2025년 3월 13일',
-        },
-        '2': {
-            nickname: '다른유저',
-            email: 'user2@example.com',
-            teamLogo: 'HH',
-            profileImg: `${process.env.PUBLIC_URL}/Logo/profile.png`,
-            joined: '2025년 1월 20일',
-        }
-    });
-    const targetId = userId || currentUserId;
-    // Set diaryCount dynamically from allDiaries, and merge with profile data
-    const profileBase = dummyUsers[targetId];
-    const diaryCount = allDiaries.filter(d => d.userId === targetId).length;
-    const profile = {
-        ...profileBase,
-        diaryCount
-    };
-    const isMine = !userId || userId === currentUserId;
 
-    const [nickname, setNickname] = useState(profile.nickname);
-    */
     const [profile, setProfile] = useState(null);
     const [nickname, setNickname] = useState('');
     const [isMine, setIsMine] = useState(false);
 
 
     useEffect(() => {
-        // 수정된 fetchProfile 부분
         const fetchProfile = async () => {
             const endpoint = `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile`;
 
@@ -84,7 +54,28 @@ const Profile = () => {
                 });
 
                 const data = res.data;
-                setProfile(data);
+                const favoriteTeams = data.favoriteTeams || [];
+                const primaryTeam = favoriteTeams.find(team => team.displayOrder === 1);
+
+                const teamLogoMap = {
+                    1: 'NC',
+                    2: 'SS',
+                    3: 'OB',
+                    4: 'HH',
+                    5: 'HT',
+                    6: 'KT',
+                    7: 'LT',
+                    8: 'LG',
+                    9: 'SK',
+                    10: 'WO'
+                };
+                const logoPrefix = teamLogoMap[primaryTeam?.teamId] || 'default';
+                const teamLogo = `TeamLogo/emblem_${logoPrefix}.png`;
+
+                setProfile({
+                    ...data,
+                    teamLogo
+                });
                 setNickname(data.nickname);
                 setIsMine(true);
             } catch (err) {
@@ -166,12 +157,13 @@ const Profile = () => {
                                             <img src={`${process.env.PUBLIC_URL}/Button/logout.png`} alt="logout"
                                                  className={styles.logoutImg}/>로그아웃
                                         </div>
-                                        <div className={styles.withdrawal} onClick={() => setShowWithdrawalModal(true)}>탈퇴하기
+                                        <div className={styles.withdrawal}
+                                             onClick={() => setShowWithdrawalModal(true)}>탈퇴하기
                                         </div>
                                     </>
                                 )}
                             </div>
-                            <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/${profile.teamLogo}.png`} alt="team"
+                            <img src={`${process.env.PUBLIC_URL}/Logo/${profile.teamLogo}`} alt="team"
                                  className={styles.teamImg}/>
                         </header>
 
