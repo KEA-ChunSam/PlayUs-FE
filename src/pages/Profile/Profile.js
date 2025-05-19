@@ -131,7 +131,15 @@ const Profile = () => {
                 {profile && (
                     <>
                         <header className={styles.header}>
-                            <img src={profile.profileImg} alt="profile" className={styles.profileImg}/>
+                            <img
+                                src={
+                                    !profile.profileImg || profile.profileImg.includes('default.png')
+                                        ? `${process.env.PUBLIC_URL}/profile/user2.jpg`
+                                        : profile.profileImg
+                                }
+                                alt="profile"
+                                className={styles.profileImg}
+                            />
                             <div className={styles.userInfo}>
                                 <div className={styles.username}>
                                     <span>{profile.nickname}</span>
