@@ -14,15 +14,15 @@ const getCookie = (name) => {
 const PartyMake = () => {
     const [step, setStep] = useState(1);
     const [partyForm, setPartyForm] = useState({
-        partyName: '',
-        applyType: '',
-        gender: '',
-        age: '',
-        min: '',
-        max: '',
-        imageUrls: [],
-        description: '',
-        matchId: '',
+        title: '',
+        partyJoinMethod: '',
+        partyGender: '',
+        ageGroup: [],
+        minimumParticipants: '',
+        maximumParticipants: '',
+        thumbnailImageNameList: [],
+        message: '',
+        matchId: 1,
     });
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -31,33 +31,10 @@ const PartyMake = () => {
     const imageFileRef = useRef();
 
     const handleImageUpload = async () => {
-        const file = imageFileRef.current?.files[0];
-        if (!file) return alert('이미지 파일을 선택하세요.');
-
-        try {
-            const {data} = await axios.post('http://localhost:8081/party/presigned-url', {
-                imageFileName: file.name,
-            });
-
-            await axios.put(data.presignedUrl, file, {
-                headers: {
-                    'Content-Type': file.type,
-                },
-            });
-
-            const uploadedUrl = data.presignedUrl.split('?')[0];
-
-            setPartyForm(prev => ({
-                ...prev,
-                imageUrls: [...prev.imageUrls, uploadedUrl],
-            }));
-
-            alert('이미지 업로드 성공');
-        } catch (err) {
-            alert('이미지 업로드 실패: ' + err.message);
-        }
+        // This function is no longer used for immediate upload
     };
 
+    /*
     const checkProfanity = async (description) => {
         try {
             const response = await axios.post(
@@ -84,31 +61,46 @@ const PartyMake = () => {
             return false;
         }
     };
+    */
 
     const handleSubmit = async () => {
+        /*
         setModalMessage('');
         const isClean = await checkProfanity(partyForm.message);
         if (!isClean) {
             setModalVisible(true);
             return;
         }
+        */
 
-        // const accessToken = getCookie('Access');
-        // console.log('[DEBUG] accessToken:', accessToken);
-        // if (!accessToken) {
-        //   alert('로그인이 필요합니다.');
-        //   return;
-        // }
+        const uploadedFileNames = [];
+
+        for (const file of partyForm.thumbnailImageNameList) {
+            if (typeof file === 'string') {
+                uploadedFileNames.push(file); // already uploaded
+                continue;
+            }
+
+            const { data } = await axios.post('http://localhost:8081/party/presigned-url', {
+                imageFileName: file.name,
+            }, { withCredentials: true });
+
+            await axios.put(data.presignedUrl, file, {
+                headers: { 'Content-Type': file.type },
+            });
+
+            uploadedFileNames.push(file.name); // store filename only
+        }
 
         const payload = {
-            title: partyForm.partyName,
-            partyJoinMethod: partyForm.applyType,
-            partyGender: partyForm.gender,
-            ageGroup: partyForm.age,
-            minimumParticipants: parseInt(partyForm.min),
-            maximumParticipants: parseInt(partyForm.max),
-            thumbnailUrl: partyForm.imageUrls,
-            message: partyForm.description,
+            title: partyForm.title,
+            partyJoinMethod: partyForm.partyJoinMethod,
+            partyGender: partyForm.partyGender,
+            ageGroup: partyForm.ageGroup,
+            minimumParticipants: parseInt(partyForm.minimumParticipants),
+            maximumParticipants: parseInt(partyForm.maximumParticipants),
+            thumbnailUrl: uploadedFileNames,
+            message: partyForm.message,
             matchId: partyForm.matchId,
         };
 
@@ -145,25 +137,25 @@ const PartyMake = () => {
                     onSubmit={handleSubmit}
                 />
             )}
-            {modalVisible && (
-                <Modal
-                    title="ABS봇이 작동중입니다."
-                    message={
-                        <>
-                            ABS봇이 부적절한 키워드를 감지했습니다.
-                            <br/>
-                            작성글을 수정해 주세요.
-                            <br/>
-                            <br />
-                            감지된 단어: {modalMessage}
-                        </>
-                    }
-                    buttons={[
-                        {label: '확인', onClick: () => setModalVisible(false)}
-                    ]}
-                    onClose={() => setModalVisible(false)}
-                />
-            )}
+            {/*{modalVisible && (*/}
+            {/*    <Modal*/}
+            {/*        title="ABS봇이 작동중입니다."*/}
+            {/*        message={*/}
+            {/*            <>*/}
+            {/*                ABS봇이 부적절한 키워드를 감지했습니다.*/}
+            {/*                <br/>*/}
+            {/*                작성글을 수정해 주세요.*/}
+            {/*                <br/>*/}
+            {/*                <br />*/}
+            {/*                감지된 단어: {modalMessage}*/}
+            {/*            </>*/}
+            {/*        }*/}
+            {/*        buttons={[*/}
+            {/*            {label: '확인', onClick: () => setModalVisible(false)}*/}
+            {/*        ]}*/}
+            {/*        onClose={() => setModalVisible(false)}*/}
+            {/*    />*/}
+            {/*)}*/}
         </>
     );
 };

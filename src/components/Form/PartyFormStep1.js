@@ -20,7 +20,7 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
             form.title &&
             form.partyJoinMethod &&
             form.partyGender &&
-            form.ageGroup &&
+            Array.isArray(form.ageGroup) && form.ageGroup.length > 0 &&
             form.minimumParticipants &&
             form.maximumParticipants &&
             form.minimumParticipants < form.maximumParticipants
@@ -77,15 +77,23 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
 
                 <h2 className={styles.title}>참여자의 나이를 설정해 주세요.</h2>
                 <div className={`${styles.section} ${styles.flexWrap}`}>
-                    {['10대', '20대', '30대', '40대', '50대', '60대 이상'].map(age => (
-                        <button
-                            key={age}
-                            className={`${styles.button} ${form.ageGroup === age ? styles.buttonActive : ''}`}
-                            onClick={() => handleChange('ageGroup', age)}
-                        >
-                            {age}
-                        </button>
-                    ))}
+                    {['10대', '20대', '30대', '40대', '50대', '60대 이상'].map(age => {
+                        const selected = Array.isArray(form.ageGroup) && form.ageGroup.includes(age);
+                        return (
+                            <button
+                                key={age}
+                                className={`${styles.button} ${selected ? styles.buttonActive : ''}`}
+                                onClick={() => {
+                                    const updated = selected
+                                        ? form.ageGroup.filter(a => a !== age)
+                                        : [...(form.ageGroup || []), age];
+                                    handleChange('ageGroup', updated);
+                                }}
+                            >
+                                {age}
+                            </button>
+                        );
+                    })}
                 </div>
 
                 <h2 className={styles.title}>신청 최대 인원을 설정해 주세요.</h2>
@@ -138,7 +146,7 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
                             setModalMessage('신청 방식을 선택해 주세요.');
                         } else if (!form.partyGender) {
                             setModalMessage('참여 성별을 선택해 주세요.');
-                        } else if (!form.ageGroup) {
+                        } else if (!Array.isArray(form.ageGroup) || form.ageGroup.length === 0) {
                             setModalMessage('참여자의 나이를 설정해 주세요.');
                         } else if (!form.minimumParticipants || !form.maximumParticipants) {
                             setModalMessage('최소 및 최대 인원을 입력해 주세요.');
