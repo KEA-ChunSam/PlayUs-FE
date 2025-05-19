@@ -7,7 +7,7 @@ const ProfileEditModal = ({ onClose, onSubmit, initialNickname }) => {
     const [nickname, setNickname] = useState(initialNickname);
     const [validationMessage, setValidationMessage] = useState('사용할 수 있는 닉네임입니다.');
     const [isValid, setIsValid] = useState(true);
-    const [profileImage, setProfileImage] = useState(`${process.env.PUBLIC_URL}/Logo/default.png`);
+    const [profileImage, setProfileImage] = useState(`${process.env.PUBLIC_URL}/profile/user2.jpg`);
     const [objectUrl, setObjectUrl] = useState(null);
 
     useEffect(() => {
