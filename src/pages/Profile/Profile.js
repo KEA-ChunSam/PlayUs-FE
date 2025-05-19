@@ -42,7 +42,7 @@ const Profile = () => {
     const [profile, setProfile] = useState(null);
     const [nickname, setNickname] = useState('');
     const [isMine, setIsMine] = useState(false);
-
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -80,6 +80,7 @@ const Profile = () => {
                 setIsMine(!userId || userId === String(data.userId));
             } catch (err) {
                 console.error('프로필 불러오기 오류:', err);
+                setError('프로필을 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.');
             }
         };
 
@@ -128,6 +129,21 @@ const Profile = () => {
     return (
         <>
             <div className={styles.container}>
+
+                {error && (
+                    <Modal
+                        title="에러 발생"
+                        message={error}
+                        buttons={[
+                            {
+                                label: '확인',
+                                onClick: () => setError(null)
+                            }
+                        ]}
+                        onClose={() => setError(null)}
+                    />
+                )}
+
                 {profile && (
                     <>
                         <header className={styles.header}>
@@ -311,7 +327,7 @@ const Profile = () => {
                         onClose={() => setShowProfileEditModal(false)}
                         onSubmit={(newNickname) => {
                             setNickname(newNickname);
-                            setProfile(prev => ({ ...prev, nickname: newNickname }));
+                            setProfile(prev => ({...prev, nickname: newNickname}));
                         }}
                         initialNickname={nickname}
                     />
