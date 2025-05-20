@@ -1,17 +1,51 @@
 // 직관팟 상세 페이지
-import React, {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import React, {useState, useEffect} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
 import styles from './PartyDetail.module.css';
 import TabNav from "../../components/TabNav/TabNav";
 import CasterbotModal from "../Chatbot/CasterbotModal";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
+import axios from 'axios';
 
 const PartyDetail = () => {
-    // const {partyId} = useParams();
+    const {partyId} = useParams();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState(0);
     const tabLabels = ["직관팟 구하기", "내 신청 현황", "승인 요청"];
     const [showCasterbot, setShowCasterbot] = useState(false);
+    const [party, setParty] = useState(null);
+    const [writer, setWriter] = useState(null);
+
+    useEffect(() => {
+        const fetchParty = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8081/party/${partyId}`, {
+                    withCredentials: true
+                });
+                const data = response.data;
+                setParty(data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchParty();
+    }, [partyId]);
+
+    useEffect(() => {
+        if (party?.writerId) {
+            const fetchWriter = async () => {
+                try {
+                    const response = await axios.get(`http://localhost:8080/user/profile`, {
+                        withCredentials: true
+                    });
+                    setWriter(response.data);
+                } catch (error) {
+                    console.error('작성자 정보 로드 실패:', error);
+                }
+            };
+            fetchWriter();
+        }
+    }, [party?.writerId]);
 
     function applyParty() {
         navigate("/Party/applyParty/partyid");
@@ -20,65 +54,63 @@ const PartyDetail = () => {
     return (
         <>
             <div className={styles.wrapper}>
-                {/*<div className={styles.headerSpacer}/>*/}
                 <div className={styles.content}>
                     <TabNav tabs={tabLabels} onTabChange={setActiveTab} onBack={() => navigate(-1)}/>
-                    <div className={styles.partyCard}>
-                        <img src={`${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`} alt="player"
-                             className={styles.partyImage}/>
-                        <div className={styles.partySummary}>
-                            <div className={styles.tags}>
-                                <span className={styles.tag}>승인제</span>
-                                <span className={styles.tag}>20대</span>
-                                <span className={styles.tagHighlight}>여자만</span>
-                            </div>
-                            <div className={styles.partyTitle}>3/22(토) 한화 vs KT 개막전 직관🦁💙</div>
-                            <div className={styles.meta}>
-                                <span>ZSJ</span>
-                                <span>남성</span>
-                                <span>· 3.22(토) 오후 2:00</span>
-                            </div>
-                            <div className={styles.status}>
-                                <div className={styles.avatars}>
-                                    <img src={`${process.env.PUBLIC_URL}/Logo/profile.png`} alt="profile"/>
-                                    <img src={`${process.env.PUBLIC_URL}/Logo/profile.png`} alt="profile"/>
-                                    {/* ...추가 프로필 */}
+                    {party && (
+                        <div className={styles.partyCard}>
+                            {/* twp-service 백엔드에서 presignedUrl 발급시 구현 예정 */}
+                            <img src={`${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`} alt="player"
+                                 className={styles.partyImage}/>
+                            <div className={styles.partySummary}>
+                                <div className={styles.tags}>
+                                    {/* 현재 신청방식, 신청나이, 신청성별은 null로 지정됨 -> 백엔드 수정 필요 */}
+                                    <span className={styles.tag}>
+                                        {party.partyJoinMethod === 'FIRST_COME'
+                                            ? '선착순'
+                                            : party.partyJoinMethod === 'RESERVATION'
+                                                ? '승인제'
+                                                : '기타'}
+                                    </span>
+                                    {/*{party.partyAges && party.partyAges.map(age => (*/}
+                                    {/*    <span key={age} className={styles.tag}>{age}20대</span>*/}
+                                    {/*))}*/}
+                                    <span className={styles.tag}>20대</span>
+                                    <span className={styles.tagHighlight}>
+                                        {party.partyGender === 'MALE'
+                                            ? '남성만'
+                                            : party.partyGender === 'FEMALE'
+                                                ? '여성만'
+                                                : party.partyGender === 'NO_MATTER'
+                                                    ? '상관없음'
+                                                    : '기타'}
+                                    </span>
                                 </div>
-                                <span className={styles.slot}>10/14</span>
+                                <div className={styles.partyTitle}>{party.title}</div>
+                                <div className={styles.meta}>
+                                    <span>{writer?.nickname || '작성자'}</span>
+                                    <span>{writer?.gender === 'MALE' ? '남성' : writer?.gender === 'FEMALE' ? '여성' : '기타'}</span>
+                                    {/* match table 백엔드 연결 필요 */}
+                                    <span>· {party.matchDate}3.22(토) 오후 2:00</span>
+                                </div>
+                                <div className={styles.status}>
+                                    {/* user-service 백엔드 단에서 presigned image 로직 적용 필요 */}
+                                    <div className={styles.avatars}>
+                                        {party.userThumbnailUrls && party.userThumbnailUrls.map((url, i) => (
+                                            <img key={i} src={url} alt="profile"/>
+                                        ))}
+                                    </div>
+                                    <span className={styles.slot}>{party.currentParticipantsCount}/{party.maximumParticipantsCount}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                     <div className={styles.description}>
-                        <p>2025년 같이 활동할 3기 신입 부원들을 모집합니다!...</p>
-                        <p>⚾ 활동 내용<br/>- 프로야구 경기 직관 ...</p>
-                        <p>수도권 위주로 직관 활동</p>
-                        <p>수도권 위주로 직관 활동</p>
-                        <p>수도권 위주로 직관 활동</p>
-                        <p>수도권 위주로 직관 활동</p>
-                        <p>수도권 위주로 직관 활동</p>
-                        <p>수도권 위주로 직관 활동</p>
-                        <br/>
-                        <p>⚾ 모집 관련<br/>- 모집 기간: 2025.03.04~2025.03.31 ...</p>
-                        <p>수도권 위주로 직관 활동</p>
-                        <p>수도권 위주로 직관 활동</p>
-                        <p>수도권 위주로 직관 활동</p>
-                        <p>수도권 위주로 직관 활동</p>
-                        <p>수도권 위주로 직관 활동</p>
-                        <p>수도권 위주로 직관 활동</p>
-                        <p>수도권 위주로 직관 활동</p>
-                        <p>수도권 위주로 직관 활동</p>
-                        <p>수도권 위주로 직관 활동</p>
-                        <p>수도권 위주로 직관 활동</p>
-                        <p>수도권 위주로 직관 활동</p>
-                        <p>수도권 위주로 직관 활동</p>
+                        <p>{party?.text}</p>
                     </div>
                     <button className={styles.applyButton} onClick={applyParty}>파티 신청하기</button>
                 </div>
-
-
             </div>
             <CasterbotButton onClick={() => setShowCasterbot(true)} />
-
             {showCasterbot && (
                 <CasterbotModal onClose={() => setShowCasterbot(false)}/>
             )}

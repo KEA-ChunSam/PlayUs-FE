@@ -69,7 +69,7 @@ function AppRouter() {
                     <Route index element={<Party/>}/>
                 </Route>
                 {/* 직관팟 상세 */}
-                <Route path="/party/matchid/:partyid" element={<MobileView/>}>
+                <Route path="/party/matchid/:partyId" element={<MobileView/>}>
                     <Route index element={<PartyDetail/>}/>
                 </Route>
                 {/* 직관팟 만들기 */}
