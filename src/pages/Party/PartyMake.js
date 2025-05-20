@@ -1,9 +1,10 @@
 // 직관팟 작성 페이지
-import React, {useRef, useState} from 'react';
+import React, {useRef, useState, useEffect} from 'react';
 import axios from 'axios';
 import PartyFormStep1 from '../../components/Form/PartyFormStep1';
 import PartyFormStep2 from '../../components/Form/PartyFormStep2';
 import Modal from '../../components/Modal/Modal'; // adjust path if necessary
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 
 const getCookie = (name) => {
     const cookies = document.cookie.split(';').map(cookie => cookie.trim());
@@ -12,6 +13,11 @@ const getCookie = (name) => {
 };
 
 const PartyMake = () => {
+    const location = useLocation();
+    const { partyId } = useParams();
+    const navigate = useNavigate();
+    const isEditMode = location.pathname.includes('/party/edit');
+
     const [step, setStep] = useState(1);
     const [partyForm, setPartyForm] = useState({
         title: '',
@@ -29,6 +35,23 @@ const PartyMake = () => {
     const [modalMessage, setModalMessage] = useState('');
 
     const imageFileRef = useRef();
+
+    useEffect(() => {
+        if (isEditMode && location.state) {
+            const party = location.state;
+            setPartyForm({
+                title: party.title || '',
+                partyJoinMethod: party.partyJoinMethod || '',
+                partyGender: party.partyGender || '',
+                ageGroup: party.partyAges || [],
+                minimumParticipants: party.minimumParticipantsCount?.toString() || '',
+                maximumParticipants: party.maximumParticipantsCount?.toString() || '',
+                thumbnailImageNameList: [],
+                message: party.message || '',
+                matchId: party.matchId || 1,
+            });
+        }
+    }, [isEditMode, location.state]);
 
     const handleImageUpload = async () => {
         // This function is no longer used for immediate upload
@@ -64,59 +87,43 @@ const PartyMake = () => {
     */
 
     const handleSubmit = async () => {
-        /*
-        setModalMessage('');
-        const isClean = await checkProfanity(partyForm.message);
-        if (!isClean) {
-            setModalVisible(true);
-            return;
-        }
-        */
-
-        const uploadedFileNames = [];
-
-        for (const file of partyForm.thumbnailImageNameList) {
-            if (typeof file === 'string') {
-                uploadedFileNames.push(file); // already uploaded
-                continue;
-            }
-
-            const { data } = await axios.post('http://localhost:8081/party/presigned-url', {
-                imageFileName: file.name,
-            }, { withCredentials: true });
-
-            await axios.put(data.presignedUrl, file, {
-                headers: { 'Content-Type': file.type },
-            });
-
-            uploadedFileNames.push(file.name); // store filename only
-        }
+        const uploadedFileNames = ["default.png"];
 
         const payload = {
+            ...(isEditMode && {
+                partyId: parseInt(partyId),
+                writerId: location.state?.writerId
+            }),
             title: partyForm.title,
             partyJoinMethod: partyForm.partyJoinMethod,
             partyGender: partyForm.partyGender,
             ageGroup: partyForm.ageGroup,
             minimumParticipants: parseInt(partyForm.minimumParticipants),
             maximumParticipants: parseInt(partyForm.maximumParticipants),
-            thumbnailUrl: uploadedFileNames,
+            thumbnailImageNameList: [], // This field is still named thumbnailUrl in payload
             message: partyForm.message,
             matchId: partyForm.matchId,
         };
 
         try {
-            const response = await axios.post('http://localhost:8081/party', payload, {
-                withCredentials: true,
-                headers: {
-                    // Authorization: `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            alert('직관팟이 성공적으로 생성되었습니다!');
-            console.log('Created Party:', response.data);
+            if (isEditMode) {
+                await axios.put(`http://localhost:8081/party/${partyId}`, payload, {
+                    withCredentials: true,
+                    headers: { 'Content-Type': 'application/json' },
+                });
+                setModalMessage('직관팟이 성공적으로 수정되었습니다!');
+                setModalVisible(true);
+            } else {
+                const response = await axios.post('http://localhost:8081/party', payload, {
+                    withCredentials: true,
+                    headers: { 'Content-Type': 'application/json' },
+                });
+                setModalMessage('직관팟이 성공적으로 생성되었습니다!');
+                setModalVisible(true);
+            }
         } catch (err) {
-            alert('생성 실패: ' + err.message);
+            setModalMessage(`${isEditMode ? '수정' : '생성'} 실패: ` + err.message);
+            setModalVisible(true);
         }
     };
 
@@ -156,6 +163,20 @@ const PartyMake = () => {
             {/*        onClose={() => setModalVisible(false)}*/}
             {/*    />*/}
             {/*)}*/}
+            {modalVisible && (
+                <Modal
+                    title="알림"
+                    message={modalMessage}
+                    buttons={[{ label: '확인', onClick: () => {
+                        setModalVisible(false);
+                        if (isEditMode) navigate(`/party/matchid/${partyId}`);
+                    }}]}
+                    onClose={() => {
+                        setModalVisible(false);
+                        if (isEditMode) navigate(`/party/matchid/${partyId}`);
+                    }}
+                />
+            )}
         </>
     );
 };

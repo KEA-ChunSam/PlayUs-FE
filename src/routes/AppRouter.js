@@ -76,6 +76,10 @@ function AppRouter() {
                 <Route path="/party/newparty" element={<MobileView/>}>
                     <Route index element={<PartyMake/>}/>
                 </Route>
+                {/* 직관팟 수정하기 */}
+                <Route path="/party/edit/:partyId" element={<MobileView/>}>
+                    <Route index element={<PartyMake mode="edit" />} />
+                </Route>
                 {/* 직관팟 신청하기 */}
                 <Route path="/party/applyparty/partyid" element={<MobileView/>}>
                     <Route index element={<PartyApply/>}/>

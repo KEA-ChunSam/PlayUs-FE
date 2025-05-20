@@ -2,6 +2,7 @@
 import React, {useState, useEffect} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import styles from './PartyDetail.module.css';
+import Modal from "../../components/Modal/Modal";
 import TabNav from "../../components/TabNav/TabNav";
 import CasterbotModal from "../Chatbot/CasterbotModal";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
@@ -15,6 +16,8 @@ const PartyDetail = () => {
     const [showCasterbot, setShowCasterbot] = useState(false);
     const [party, setParty] = useState(null);
     const [writer, setWriter] = useState(null);
+    const [showMenu, setShowMenu] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         const fetchParty = async () => {
@@ -55,10 +58,40 @@ const PartyDetail = () => {
         <>
             <div className={styles.wrapper}>
                 <div className={styles.content}>
-                    <TabNav tabs={tabLabels} onTabChange={setActiveTab} onBack={() => navigate(-1)}/>
+                    <TabNav tabs={tabLabels} onTabChange={setActiveTab} onBack={() => navigate("/party/matchid")}/>
                     {party && (
                         <div className={styles.partyCard}>
-                            {/* twp-service 백엔드에서 presignedUrl 발급시 구현 예정 */}
+                            {writer?.id === party.writerId && (
+                                <div className={styles.menuWrapper}>
+                                    <button
+                                        onClick={() => setShowMenu((prev) => !prev)}
+                                        className={styles.menuButton}
+                                    >
+                                        ⋮
+                                    </button>
+                                    {showMenu && (
+                                        <div className={styles.menuPopup}>
+                                            <div
+                                                className={styles.menuItem}
+                                                onClick={() => {
+                                                    navigate(`/party/edit/${partyId}`, { state: party });
+                                                }}
+                                            >
+                                                수정하기
+                                            </div>
+                                            <div
+                                                className={styles.menuItem}
+                                                onClick={() => {
+                                                    setShowMenu(false);
+                                                    setShowModal(true);
+                                                }}
+                                            >
+                                                삭제하기
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                             <img src={`${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`} alt="player"
                                  className={styles.partyImage}/>
                             <div className={styles.partySummary}>
@@ -108,6 +141,31 @@ const PartyDetail = () => {
                         <p>{party?.text}</p>
                     </div>
                     <button className={styles.applyButton} onClick={applyParty}>파티 신청하기</button>
+                    {showModal && (
+                        <Modal
+                            title="알림"
+                            message="정말 삭제하시겠습니까?"
+                            buttons={[
+                                { label: '취소', onClick: () => setShowModal(false) },
+                                {
+                                    label: '확인',
+                                    onClick: async () => {
+                                        try {
+                                            await axios.patch(`http://localhost:8081/party/${partyId}`, {
+                                                partyId: parseInt(partyId)
+                                            }, {
+                                                withCredentials: true
+                                            });
+                                            setShowModal(false);
+                                            navigate('/');
+                                        } catch (error) {
+                                            console.error('삭제 실패:', error);
+                                        }
+                                    }
+                                }
+                            ]}
+                        />
+                    )}
                 </div>
             </div>
             <CasterbotButton onClick={() => setShowCasterbot(true)} />
