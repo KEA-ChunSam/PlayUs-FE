@@ -34,7 +34,7 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
                     title="입력 오류"
                     message={modalMessage}
                     buttons={[
-                        { label: '확인', onClick: () => setModalOpen(false) },
+                        {label: '확인', onClick: () => setModalOpen(false)},
                     ]}
                 />
             )}
@@ -83,12 +83,16 @@ const PartyFormStep1 = ({form, setForm, onNext}) => {
                             <button
                                 key={age}
                                 className={`${styles.button} ${selected ? styles.buttonActive : ''}`}
-                                onClick={() => {
-                                    const updated = selected
-                                        ? form.ageGroup.filter(a => a !== age)
-                                        : [...(form.ageGroup || []), age];
-                                    handleChange('ageGroup', updated);
-                                }}
+                                onClick={() =>
+                                    setForm(prev => {
+                                        const current = Array.isArray(prev.ageGroup) ? prev.ageGroup : [];
+                                        const already = current.includes(age);
+                                        const updated = already
+                                            ? current.filter(a => a !== age)
+                                            : [...current, age];
+                                        return {...prev, ageGroup: updated};
+                                    })
+                                }
                             >
                                 {age}
                             </button>
