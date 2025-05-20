@@ -13,46 +13,35 @@ const PartyFormStep2 = ({form, setForm, onSubmit}) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        // 파일 크기 제한 10MB
         if (file.size > 10 * 1024 * 1024) {
-            alert('파일 크기는 5MB 이하여야 합니다.');
+            alert('파일 크기는 10MB 이하여야 합니다.');
             return;
         }
 
-        // 지원되는 이미지 형식 확인
         const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         if (!validTypes.includes(file.type)) {
             alert('JPG, PNG, GIF, WEBP 형식의 이미지만 업로드 가능합니다.');
             return;
         }
 
-        // Do not allow more than 10 images
-        if (Array.isArray(form.imageUrls) && form.imageUrls.length >= 10) {
+        if (Array.isArray(form.thumbnailImageNameList) && form.thumbnailImageNameList.length >= 10) {
             alert('이미지는 최대 10개까지 업로드할 수 있습니다.');
             return;
         }
 
-        setForm(prev => ({...prev, isUploading: true}));
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            const newUrl = reader.result;
-            const updated = Array.isArray(form.imageUrls) ? [...form.imageUrls, newUrl] : [newUrl];
-            handleChange('imageUrls', updated);
-            handleChange('isUploading', false);
-        };
-        reader.onerror = () => {
-            alert('이미지 업로드 중 오류가 발생했습니다.');
-            handleChange('isUploading', false);
-        };
-        reader.readAsDataURL(file);
+        const updated = Array.isArray(form.thumbnailImageNameList)
+            ? [...form.thumbnailImageNameList, file]
+            : [file];
+
+        handleChange('thumbnailImageNameList', updated);
     };
 
     // Remove image at index from imageUrls array
     const removeImageAt = (index) => {
-        if (!Array.isArray(form.imageUrls)) return;
-        const updated = [...form.imageUrls];
+        if (!Array.isArray(form.thumbnailImageNameList)) return;
+        const updated = [...form.thumbnailImageNameList];
         updated.splice(index, 1);
-        handleChange('imageUrls', updated);
+        handleChange('thumbnailImageNameList', updated);
     };
     const [activeTab, setActiveTab] = useState(0);
     const navigate = useNavigate();
@@ -64,7 +53,7 @@ const PartyFormStep2 = ({form, setForm, onSubmit}) => {
             return false;
         }
 
-        if (!Array.isArray(form.imageUrls) || form.imageUrls.length === 0) {
+        if (!Array.isArray(form.thumbnailImageNameList) || form.thumbnailImageNameList.length === 0) {
             alert('최소 1개 이상의 이미지를 업로드해 주세요.');
             return false;
         }
@@ -93,10 +82,10 @@ const PartyFormStep2 = ({form, setForm, onSubmit}) => {
                         onChange={handleThumbnailChange}
                         className={styles.hiddenInput}
                     />
-                    {form.imageUrls && form.imageUrls.length > 0 && form.imageUrls.map((url, index) => (
+                    {form.thumbnailImageNameList && form.thumbnailImageNameList.length > 0 && form.thumbnailImageNameList.map((url, index) => (
                         <div key={index} className={styles.thumbnailWrapper}>
                             <img
-                                src={url}
+                                src={typeof url === 'string' ? url : URL.createObjectURL(url)}
                                 alt={`썸네일 미리보기 ${index + 1}`}
                                 className={styles.thumbnailPreview}
                             />
