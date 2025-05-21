@@ -147,6 +147,15 @@
   text-overflow: ellipsis;
 }
 
+.contentWrapper {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .writeBtn {
   background: #0a2a47;
   color: #fff;
@@ -162,6 +171,7 @@
   display: flex;
   align-items: center;
 }
+
 .writeBtn:hover {
   background: #163a5f;
 }

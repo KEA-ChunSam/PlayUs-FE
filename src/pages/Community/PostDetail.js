@@ -238,7 +238,7 @@ const PostDetail = () => {
     }
 
     const handleEdit = () => {
-        navigate('/community/write', {
+        navigate('/newpost', {
             state: {
                 post: post,
                 isEditing: true
@@ -257,7 +257,7 @@ const PostDetail = () => {
     };
 
     const handleBack = () => {
-        navigate('/community', {state: {team: post.team}});
+        navigate(`/community?team=${post.team}`);
     };
 
     const toggleMenu = () => {

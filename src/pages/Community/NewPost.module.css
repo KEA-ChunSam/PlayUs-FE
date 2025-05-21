@@ -43,7 +43,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding-bottom: 80px;
+  padding-bottom: 20px;
 }
 
 .imageUpload {
@@ -68,27 +68,6 @@
   padding: 0 !important;
   box-shadow: none !important;
   border-radius: 0 !important;
-}
-
-.imageLabel {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.uploadPlaceholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  color: #999;
-}
-
-.uploadPlaceholder span:first-child {
-  font-size: 2rem;
 }
 
 .preview {
@@ -140,13 +119,8 @@
 }
 
 .formActions {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
   padding: 1rem;
   background: #fff;
-  border-top: 1px solid #eee;
   display: flex;
   justify-content: center;
   max-width: 490px;

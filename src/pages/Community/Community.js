@@ -40,7 +40,8 @@ const teams = [
 const Community = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedTeam, setSelectedTeam] = useState(location.state?.team || 'hanwha');
+  const searchParams = new URLSearchParams(location.search);
+  const [selectedTeam, setSelectedTeam] = useState(searchParams.get('team') || 'hanwha');
   const [showModal, setShowModal] = useState(false);
   const [tempTeam, setTempTeam] = useState(selectedTeam);
   const [posts, setPosts] = useState(initialPosts);
@@ -50,9 +51,10 @@ const Community = () => {
 
 
   useEffect(() => {
-    // location.state.team이 있으면 해당 팀으로 세팅
-    if (location.state?.team && location.state.team !== selectedTeam) {
-      setSelectedTeam(location.state.team);
+    // URL의 team 쿼리 파라미터가 있으면 해당 팀으로 세팅
+    const teamParam = searchParams.get('team');
+    if (teamParam && teamParam !== selectedTeam) {
+      setSelectedTeam(teamParam);
     }
 
     // 사용자 정보 검증
@@ -111,7 +113,7 @@ const Community = () => {
         setPosts(initialPosts);
       }
     }
-  }, [location.state?.team, selectedTeam]);
+  }, [searchParams.get('team'), selectedTeam]);
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -127,11 +129,11 @@ const Community = () => {
   }, [showModal]);
 
   const handlePostClick = (postId) => {
-    navigate(`/community/post/${postId}`, { state: { team: selectedTeam } });
+    navigate(`/community/posts/${postId}`, { state: { team: selectedTeam } });
   };
 
   const handleWriteClick = () => {
-    navigate('/community/write', { state: { team: selectedTeam } });
+    navigate('/newpost', { state: { team: selectedTeam } });
   };
 
   const handleOpenModal = () => {
@@ -147,7 +149,7 @@ const Community = () => {
     setSelectedTeam(tempTeam);
     setShowModal(false);
     // 선택한 팀의 게시판으로 이동
-    navigate('/community', { state: { team: tempTeam } });
+    navigate(`/community?team=${tempTeam}`);
   };
 
   return (

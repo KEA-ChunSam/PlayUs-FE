@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
-import styles from './PostWrite.module.css';
+import styles from './NewPost.module.css';
 import Modal from '../../components/Modal/Modal';
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import CasterbotModal from "../Chatbot/CasterbotModal";
 
-const PostWrite = () => {
+const NewPost = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const isEditing = location.state?.isEditing;
@@ -71,10 +71,13 @@ const PostWrite = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
         // 비속어 감지
-        if (checkProfanity(title) || checkProfanity(content)) {
+        const hasProfanity = await checkProfanity(title) || await checkProfanity(content);
+        if (hasProfanity) {
             return;
         }
+
         const now = new Date();
 
         // 사용자 정보 검증
@@ -132,37 +135,26 @@ const PostWrite = () => {
             timestamp: Date.now(),
         };
 
-        let prev = [];
         try {
+            // 기존 게시글 목록 가져오기
             const storedPosts = localStorage.getItem('communityPosts');
-            prev = storedPosts ? JSON.parse(storedPosts) : [];
+            const prev = storedPosts ? JSON.parse(storedPosts) : [];
+            
+            let updatedPosts;
+            if (isEditing) {
+                // 수정인 경우
+                updatedPosts = prev.map(p => String(p.id) === String(post.id) ? newPost : p);
+                localStorage.setItem('communityPosts', JSON.stringify(updatedPosts));
+                navigate(`/community/posts/${newPost.id}`);
+            } else {
+                // 새 게시글 작성인 경우
+                updatedPosts = [newPost, ...prev];
+                localStorage.setItem('communityPosts', JSON.stringify(updatedPosts));
+                navigate(`/community/posts/${newPost.id}`);
+            }
         } catch (error) {
-            console.error('게시물 데이터를 불러오는 중 오류가 발생했습니다:', error);
-            alert('게시물 데이터를 불러오는 중 오류가 발생했습니다.');
-            return;
-        }
-
-        let updatedPosts;
-        if (isEditing) {
-            updatedPosts = prev.map(p => String(p.id) === String(post.id) ? newPost : p);
-            try {
-                localStorage.setItem('communityPosts', JSON.stringify(updatedPosts));
-            } catch (error) {
-                console.error('게시물을 저장하는 중 오류가 발생했습니다:', error);
-                alert('게시물을 저장하는 중 오류가 발생했습니다.');
-                return;
-            }
-            navigate(`/community/post/${newPost.id}`);
-        } else {
-            updatedPosts = [newPost, ...prev];
-            try {
-                localStorage.setItem('communityPosts', JSON.stringify(updatedPosts));
-            } catch (error) {
-                console.error('게시물을 저장하는 중 오류가 발생했습니다:', error);
-                alert('게시물을 저장하는 중 오류가 발생했습니다.');
-                return;
-            }
-            navigate('/community', {state: {team: selectedTeam}});
+            console.error('게시물 저장 중 오류 발생:', error);
+            alert('게시물 저장 중 오류가 발생했습니다.');
         }
     };
 
@@ -212,7 +204,7 @@ const PostWrite = () => {
                 </div>
                 <div className={styles.formActions}>
                     <button type="submit" className={styles.submitButton}>
-                        {isEditing ? '수정' : '등록'}
+                        {isEditing ? '게시글 수정하기' : '게시글 등록하기'}
                     </button>
                 </div>
             </form>
@@ -246,4 +238,4 @@ const PostWrite = () => {
     );
 };
 
-export default PostWrite; 
+export default NewPost; 

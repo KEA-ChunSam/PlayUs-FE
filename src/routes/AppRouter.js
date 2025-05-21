@@ -6,7 +6,7 @@ import MainPage from "../pages/Main/MainPage";
 import Splash from "../pages/Login/Splash";
 import Login from "../pages/Login/Login";
 import Community from '../pages/Community/Community';
-import PostWrite from '../pages/Community/PostWrite';
+import NewPost from '../pages/Community/NewPost';
 // import Party from '../components/Party';
 import Profile from '../pages/Profile/Profile';
 import TeamChoice from "../pages/InitialProfile/TeamChoice";
@@ -44,13 +44,16 @@ function AppRouter() {
                 <Route path="/community" element={<MobileView/>}>
                     <Route index element={<Community/>}/>
                 </Route>
+                <Route path="/community/posts/:postId" element={<MobileView />}>
+                    <Route index element={<PostDetail />} />
+                </Route>
                 {/* 일정 & 직관팟 */}
                 {/* 일정 메인 */}
                 <Route path="/schedule" element={<MobileView/>}>
                     <Route index element={<Schedule/>}/>
                 </Route>
-                <Route path="/community/write" element={<MobileView />}>
-                    <Route index element={<PostWrite />} />
+                <Route path="/newpost" element={<MobileView />}>
+                    <Route index element={<NewPost />} />
                 </Route>
                 <Route path="/search" element={<MobileView />}>
                     <Route index element={<SearchResultPage />} />
@@ -108,10 +111,6 @@ function AppRouter() {
                 {/* 직관일지 상세 */}
                 <Route path="/diary/:id" element={<MobileView/>}>
                     <Route index element={<DiaryDetail/>}/>
-                </Route>
-                {/* 커뮤니티 게시글 상세 */}
-                <Route path="/community/post/:postId" element={<MobileView />}>
-                    <Route index element={<PostDetail />} />
                 </Route>
             </Routes>
         </Router>

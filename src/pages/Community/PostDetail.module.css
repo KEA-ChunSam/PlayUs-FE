@@ -16,17 +16,20 @@
   min-height: 48px;
   margin-top: 60px;
 }
+
 .teamLogo {
   width: 60px;
   height: 38px;
   margin-right: 10px;
 }
+
 .teamName {
   font-weight: bold;
   font-size: 1.1rem;
   color: #222;
   margin-right: auto;
 }
+
 .card {
   background: #fff;
   border-radius: 0;
