@@ -97,9 +97,8 @@ function AppRouter() {
                 {/*</Route>*/}
                 {/* 프로필 & 직관일지 */}
                 {/* 프로필 메인 & 타 사용자 프로필 */}
-                <Route path="/profile" element={<MobileView/>}>
+                <Route path="/profile/:userId" element={<MobileView/>}>
                     <Route index element={<Profile/>}/>
-                {/* 차후 User Id를 받아 /profile/:userId로 변경 예정 */}
                 </Route>
                 {/* 직관일지 목록 */}
                 <Route path="/diary/list" element={<MobileView/>}>

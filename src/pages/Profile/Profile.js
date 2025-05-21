@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Doughnut} from 'react-chartjs-2';
 import {ArcElement, Chart as ChartJS, Legend, Tooltip} from 'chart.js';
 import dummyDiaries from '../../components/DummyData/dummyDiaries';
-import {useNavigate, useSearchParams} from 'react-router-dom';
+import {useNavigate, useParams, useSearchParams} from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import '../../components/CustomCalendar/CalendarOverride.css';
@@ -35,57 +35,61 @@ const journalEntries = [
 ];
 
 const Profile = () => {
-    const [searchParams] = useSearchParams();
-    const userId = searchParams.get('userId');
-    const currentUserId = '1';
+    // const [searchParams] = useSearchParams();
+    // const userId = searchParams.get('userId');
+    const { userId } = useParams();
 
     const [profile, setProfile] = useState(null);
     const [nickname, setNickname] = useState('');
     const [isMine, setIsMine] = useState(false);
     const [error, setError] = useState(null);
+    const [loggedInUserId, setLoggedInUserId] = useState(null);
 
-    useEffect(() => {
-        const fetchProfile = async () => {
-            const endpoint = `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile`;
+useEffect(() => {
+    const fetchProfile = async () => {
+        const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
+        try {
+            // Always fetch the logged-in user's profile to get their ID
+            const loggedInRes = await axios.get(`${baseUrl}/user/profile`, { withCredentials: true });
+            const loggedInData = loggedInRes.data;
+            setLoggedInUserId(loggedInData.id);
 
-            try {
-                const res = await axios.get(endpoint, {
-                    withCredentials: true
-                });
-
-                const data = res.data;
-                const favoriteTeams = data.favoriteTeams || [];
-                const primaryTeam = favoriteTeams.find(team => team.displayOrder === 1);
-
-                const teamLogoMap = {
-                    1: 'NC',
-                    2: 'SS',
-                    3: 'OB',
-                    4: 'HH',
-                    5: 'HT',
-                    6: 'KT',
-                    7: 'LT',
-                    8: 'LG',
-                    9: 'SK',
-                    10: 'WO'
-                };
-                const logoPrefix = teamLogoMap[primaryTeam?.teamId] || 'default';
-                const teamLogo = `TeamLogo/emblem_${logoPrefix}.png`;
-
-                setProfile({
-                    ...data,
-                    teamLogo
-                });
-                setNickname(data.nickname);
-                setIsMine(!userId || userId === String(data.userId));
-            } catch (err) {
-                console.error('프로필 불러오기 오류:', err);
-                setError('프로필을 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.');
+            // Now fetch the target profile (could be mine or another user's)
+            let targetProfileUrl;
+            if (!userId) {
+                targetProfileUrl = `${baseUrl}/user/profile`;
+            } else {
+                targetProfileUrl = `${baseUrl}/user/profile/${userId}`;
             }
-        };
+            const res = await axios.get(targetProfileUrl, { withCredentials: true });
+            const data = res.data;
+            const favoriteTeams = data.favoriteTeams || [];
+            const primaryTeam = favoriteTeams.find(team => team.displayOrder === 1);
 
-        fetchProfile();
-    }, [userId]);
+            const teamLogoMap = {
+                1: 'NC', 2: 'SS', 3: 'OB', 4: 'HH', 5: 'HT',
+                6: 'KT', 7: 'LT', 8: 'LG', 9: 'SK', 10: 'WO'
+            };
+            const logoPrefix = teamLogoMap[primaryTeam?.teamId] || 'default';
+            const teamLogo = `TeamLogo/emblem_${logoPrefix}.png`;
+
+            setProfile({ ...data, teamLogo });
+            setNickname(data.nickname);
+
+            // Compare logged-in user ID with the profile being viewed
+            if (userId) {
+                setIsMine(Number(loggedInData.id) === Number(userId));
+            } else {
+                setIsMine(true);
+            }
+        } catch (err) {
+            console.error('프로필 불러오기 오류:', err);
+            setError('프로필을 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.');
+        }
+    };
+
+    fetchProfile();
+}, [userId]);
 
     const today = new Date();
     const [value, setValue] = useState(today);
