@@ -290,12 +290,20 @@ useEffect(() => {
                         title="로그아웃"
                         message="로그아웃하시겠어요?"
                         buttons={[
-                            {label: '취소', onClick: () => setShowLogoutModal(false)},
+                            { label: '취소', onClick: () => setShowLogoutModal(false) },
                             {
                                 label: '확인',
-                                onClick: () => {
-                                    navigate('/login');
-                                    setShowLogoutModal(false);
+                                onClick: async () => {
+                                    const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
+                                    try {
+                                        await axios.post(`${baseUrl}/auth/logout`, {}, { withCredentials: true });
+                                        navigate('/login');
+                                    } catch (err) {
+                                        navigate('/login');
+                                        alert('logout failed');
+                                    } finally {
+                                        setShowLogoutModal(false);
+                                    }
                                 }
                             }
                         ]}
