@@ -26,7 +26,7 @@ const PartyDetail = () => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const res = await axios.get("http://localhost:8080/user/profile", { withCredentials: true });
+                const res = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile`, { withCredentials: true });
                 setUser(res.data);
             } catch (err) {
                 console.error("로그인 사용자 정보 불러오기 실패", err);
@@ -38,7 +38,7 @@ const PartyDetail = () => {
     useEffect(() => {
         const fetchParty = async () => {
             try {
-                const response = await axios.get(`http://localhost:8081/party/${partyId}`, {
+                const response = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}`, {
                     withCredentials: true
                 });
                 const data = response.data;
@@ -54,7 +54,7 @@ const PartyDetail = () => {
         if (party?.writerId) {
             const fetchWriter = async () => {
                 try {
-                    const response = await axios.post(`http://localhost:8080/user/api/writers`, [party.writerId], {
+                    const response = await axios.post(`${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/api/writers`, [party.writerId], {
                         withCredentials: true
                     });
                     setWriter(response.data[0]);
@@ -72,7 +72,7 @@ const PartyDetail = () => {
         try {
             console.log("✅ 현재 partyJoinMethod:", party?.partyJoinMethod);
             if (party?.partyJoinMethod === "선착순") {
-                const res = await axios.post(`http://localhost:8081/party/${partyId}/apply/fcfs`, {
+                const res = await axios.post(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}/apply/fcfs`, {
                     partyId: partyId
                 }, {
                     withCredentials: true
@@ -195,7 +195,7 @@ const PartyDetail = () => {
                                     label: '확인',
                                     onClick: async () => {
                                         try {
-                                            await axios.patch(`http://localhost:8081/party/${partyId}`, {
+                                            await axios.patch(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}`, {
                                                 partyId: parseInt(partyId)
                                             }, {
                                                 withCredentials: true

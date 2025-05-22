@@ -34,7 +34,7 @@ const Party = () => {
             partyList.every(p => p.writerId)
         ) {
             const writerIds = [...new Set(partyList.map(p => p.writerId))];
-            axios.post(`http://localhost:8080/user/api/writers`, writerIds, {
+            axios.post(`${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/api/writers`, writerIds, {
                 withCredentials: true
             })
                 .then(response => {
@@ -55,17 +55,17 @@ const Party = () => {
 
     useEffect(() => {
         if (activeTab === 2) {
-            axios.get(`http://localhost:8081/party/1/approved-applicants`, {withCredentials: true}) // Replace 1 with dynamic partyId if available
+            axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/1/approved-applicants`, {withCredentials: true}) // Replace 1 with dynamic partyId if available
                 .then(res => setApprovalList(res.data))
                 .catch(err => console.error("신청자 목록 불러오기 실패:", err));
         }
         if (activeTab === 1) {
-            axios.get('http://localhost:8080/user/api/applications', {withCredentials: true})
+            axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/api/applications`, {withCredentials: true})
                 .then(res => setMyApplications(res.data))
                 .catch(err => console.error("내 신청 직관팟 불러오기 실패:", err));
         }
         if (activeTab === 0) {
-            axios.get(`http://localhost:8081/party?matchId=1`, {withCredentials: true})
+            axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party?matchId=1`, {withCredentials: true})
                 .then(res => {
                     setPartyList(res.data);
                     setOriginalPartyList(res.data);
