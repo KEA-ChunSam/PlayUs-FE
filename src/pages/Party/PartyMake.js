@@ -33,6 +33,7 @@ const PartyMake = () => {
 
     const [modalVisible, setModalVisible] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
+    const [redirectId, setRedirectId] = useState(null);
 
     const imageFileRef = useRef();
 
@@ -118,6 +119,8 @@ const PartyMake = () => {
                     withCredentials: true,
                     headers: { 'Content-Type': 'application/json' },
                 });
+                const newPartyId = response.data.partyId;
+                setRedirectId(newPartyId);
                 setModalMessage('직관팟이 성공적으로 생성되었습니다!');
                 setModalVisible(true);
             }
@@ -169,11 +172,19 @@ const PartyMake = () => {
                     message={modalMessage}
                     buttons={[{ label: '확인', onClick: () => {
                         setModalVisible(false);
-                        if (isEditMode) navigate(`/party/matchid/${partyId}`);
+                        if (isEditMode) {
+                            navigate(`/party/matchid/${partyId}`);
+                        } else if (redirectId) {
+                            navigate(`/party/matchid/${redirectId}`);
+                        }
                     }}]}
                     onClose={() => {
                         setModalVisible(false);
-                        if (isEditMode) navigate(`/party/matchid/${partyId}`);
+                        if (isEditMode) {
+                            navigate(`/party/matchid/${partyId}`);
+                        } else if (redirectId) {
+                            navigate(`/party/matchid/${redirectId}`);
+                        }
                     }}
                 />
             )}
