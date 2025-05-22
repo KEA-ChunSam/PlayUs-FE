@@ -12,25 +12,23 @@
 
 .tabWrapper {
   display: flex;
-  gap: 0;
-  position: relative;
-  max-width: 90%;        
   justify-content: space-between;
-  flex-grow: 1;           
-  overflow-x: auto;           
-  white-space: nowrap;
-  padding-bottom: 4px;
+  position: relative;
+  width: 350px;
+  margin: 0 auto;
+  padding-bottom: 6px;
   border-bottom: 1px solid #ccc;
 }
 
 .tab {
-  font-size: 16px;
+  flex: 1;
+  text-align: center;
+  font-size: 15px;
   font-weight: 600;
   color: #222;
   cursor: pointer;
-  flex: none;               
-  padding: 8px 8px;      
-  text-align: center;  
+  padding: 4px 0;
+  position: relative;
 }
 
 .tab.active {
