@@ -5,6 +5,7 @@ import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import CasterbotModal from "../Chatbot/CasterbotModal";
 import TeamTabNav from "../../components/TeamTabNav/TeamTabNav";
 import ScheduleSection from "./ScheduleSection";
+import DummyMatchData from "../../components/DummyData/DummyMatchData";
 
 const teamInfoMap = [
     {id: 1, teamId: 'NC Dinos', name: 'NC', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_NC.png`},
@@ -18,104 +19,6 @@ const teamInfoMap = [
     {id: 9, teamId: 'SSG Landers', name: 'SSG', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SK.png`},
     {id: 10, teamId: 'Kiwoom Heroes', name: '키움', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`},
 ];
-
-// const sampleData = {
-//     "NC 다이노스": {
-//         schedule: {home: "NC", away: "삼성", status: "종료", score: [6, 3]},
-//         posts: [
-//             {
-//                 profile: "/profile/user2.jpg",
-//                 nickname: "NC팬1",
-//                 title: "오늘 경기 너무 재밌었어요!",
-//                 date: "2025.05.02 18:00",
-//             },
-//         ],
-//         parties: [
-//             {
-//                 image: "/profile/party1.png",
-//                 filters: ["승인제", "20대", "여자만"],
-//                 title: "NC 직관팟 모집",
-//                 author: "홍길동",
-//                 gender: "남성",
-//                 date: "5.5(일) 오후 2:00",
-//                 participants: 8,
-//                 maxParticipants: 12,
-//             },
-//         ],
-//     },
-//     "LG 트윈스": {
-//         schedule: {home: "LG", away: "KT", status: "예정", score: [0, 0]},
-//         posts: [
-//             {
-//                 profile: "/profile/party1.png",
-//                 nickname: "엘지빠돌이",
-//                 title: "비 예보 있어서 걱정이네",
-//                 date: "2025.05.02 15:30",
-//             },
-//         ],
-//         parties: [],
-//     },
-//     "삼성 라이온즈": {
-//         schedule: {home: "삼성", away: "SSG", status: "경기중", score: [2, 4]},
-//         posts: [],
-//         parties: [],
-//     },
-// };
-
-const sampleData = { // 차후 Match MSA 연결 시 적용
-    "NC": {
-        schedule: { home: "NC", away: "삼성", status: "종료", score: [5, 3] },
-        posts: [
-            { profile: "/profile/nc1.jpg", nickname: "NC빠", title: "박민우 대박", date: "2025.05.22 18:00" },
-        ]
-    },
-    "삼성": {
-        schedule: { home: "삼성", away: "LG", status: "예정", score: [0, 0] },
-        posts: [
-            { profile: "/profile/ss1.jpg", nickname: "라이언즈짱", title: "구자욱 살아났네", date: "2025.05.22 16:50" },
-        ]
-    },
-    "두산": {
-        schedule: { home: "두산", away: "한화", status: "종료", score: [2, 6] },
-        posts: []
-    },
-    "한화": {
-        schedule: { home: "한화", away: "KT", status: "경기중", score: [1, 3] },
-        posts: [
-            { profile: "/profile/hh1.jpg", nickname: "불꽃한화", title: "오늘 불펜 괜찮은데?", date: "2025.05.22 17:30" },
-        ]
-    },
-    "KIA": {
-        schedule: { home: "KIA", away: "롯데", status: "예정", score: [0, 0] },
-        posts: []
-    },
-    "KT": {
-        schedule: { home: "KT", away: "두산", status: "종료", score: [7, 4] },
-        posts: [
-            { profile: "/profile/kt1.jpg", nickname: "ktkt", title: "강백호 미쳤다", date: "2025.05.22 14:00" },
-        ]
-    },
-    "롯데": {
-        schedule: { home: "롯데", away: "SSG", status: "예정", score: [0, 0] },
-        posts: []
-    },
-    "LG": {
-        schedule: { home: "LG", away: "NC", status: "종료", score: [6, 1] },
-        posts: [
-            { profile: "/profile/lg1.jpg", nickname: "엘지사랑", title: "문보경 미쳤다 ㄷㄷ", date: "2025.05.22 13:00" },
-        ]
-    },
-    "SSG": {
-        schedule: { home: "SSG", away: "키움", status: "예정", score: [0, 0] },
-        posts: []
-    },
-    "키움": {
-        schedule: { home: "키움", away: "KIA", status: "경기중", score: [3, 3] },
-        posts: [
-            { profile: "/profile/wo1.jpg", nickname: "영웅단", title: "이정후 홈런!", date: "2025.05.22 15:10" },
-        ]
-    },
-};
 
 export default function MainPage() {
     const [showCasterbot, setShowCasterbot] = useState(false);
@@ -200,12 +103,12 @@ export default function MainPage() {
     // const { schedule, posts, parties } = sampleData[selectedTeam];
 
     // Schedule extraction logic
-    const currentMatch = sampleData[selectedTeam]?.schedule
+    const currentMatch = DummyMatchData[selectedTeam]?.schedule
       ? {
-          home_team_name: sampleData[selectedTeam].schedule.home,
-          away_team_name: sampleData[selectedTeam].schedule.away,
-          home_score: sampleData[selectedTeam].schedule.score?.[0],
-          away_score: sampleData[selectedTeam].schedule.score?.[1],
+          home_team_name: DummyMatchData[selectedTeam].schedule.home,
+          away_team_name: DummyMatchData[selectedTeam].schedule.away,
+          home_score: DummyMatchData[selectedTeam].schedule.score?.[0],
+          away_score: DummyMatchData[selectedTeam].schedule.score?.[1],
         }
       : null;
     const schedule = currentMatch
@@ -240,6 +143,7 @@ export default function MainPage() {
                 )}
 
                 <h2 className={styles.sectionTitleWithMargin}>인기 포스트</h2>
+                {/* TODO: 이후 ISSUE에서 커뮤니티 Service 수정 시 적용 예정 */}
                 {/*{posts.length > 0 ? (*/}
                 {/*    posts.map((post, i) => <PopularPost key={i} {...post} />)*/}
                 {/*) : (*/}
@@ -247,6 +151,7 @@ export default function MainPage() {
                 {/*)}*/}
             </div>
             <h2 className={styles.sectionTitleWithMargin}>나의 직관팟</h2>
+            {/* TODO: 이후 ISSUE에서 TWP SERVICE merge 이후 적용 예정 */}
             {/*{parties.length > 0 ? (*/}
             {/*    parties.map((party, i) => <MyPartyCard key={i} {...party} />)*/}
             {/*) : (*/}

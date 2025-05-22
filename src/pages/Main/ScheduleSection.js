@@ -21,7 +21,7 @@ export default function ScheduleSection({ schedule }) {
     <div className={styles.card}>
       <div className={styles.dateRow}>
         <button>{'<'}</button>
-        <span className={styles.dateText}>05.02 (목)</span>
+        <span className={styles.dateText}>05.02 (목)</span>{/* TODO: 이후 match api 연결시 적용예정 */}
         <button>{'>'}</button>
       </div>
       <div className={styles.matchCard}>
