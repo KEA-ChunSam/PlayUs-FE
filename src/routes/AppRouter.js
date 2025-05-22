@@ -81,11 +81,11 @@ function AppRouter() {
                     <Route index element={<PartyMake mode="edit" />} />
                 </Route>
                 {/* 직관팟 신청하기 */}
-                <Route path="/party/applyparty/partyid" element={<MobileView/>}>
+                <Route path="/party/applyparty/:partyId" element={<MobileView/>}>
                     <Route index element={<PartyApply/>}/>
                 </Route>
                 {/* 직관팟 입장 시 채팅방 */}
-                <Route path="/chat/party/partyid" element={<MobileView/>}>
+                <Route path="/chat/party/:chatId" element={<MobileView/>}>
                     <Route index element={<Chatting/>}/>
                 </Route>
                 {/* 직관팟 후기 페이지 */}

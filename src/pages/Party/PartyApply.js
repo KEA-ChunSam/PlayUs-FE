@@ -2,18 +2,30 @@
 import React, {useState} from 'react';
 import TabNav from '../../components/TabNav/TabNav';
 import styles from './PartyApply.module.css';
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import Modal from "../../components/Modal/Modal";
+import axios from 'axios';
 
 export default function PartyApply() {
     const [message, setMessage] = useState('');
     const [agreed, setAgreed] = useState(false);
     const navigate = useNavigate();
+    const { partyId } = useParams();
     const [activeTab, setActiveTab] = useState(0);
     const tabLabels = ["직관팟 구하기", "내 신청 현황", "승인 요청"];
     const [showApplyModal, setShowApplyModal] = useState(false);
-    const handleSubmit = () => {
-        setShowApplyModal(true);
+    const handleSubmit = async () => {
+        try {
+            await axios.post(`http://localhost:8081/party/${partyId}/apply`, {
+                requireMessage: message
+            }, {
+                withCredentials: true
+            });
+            setShowApplyModal(true);
+        } catch (error) {
+            console.error("신청 실패:", error.response?.data || error);
+            alert("신청에 실패했습니다. 다시 시도해 주세요.");
+        }
     };
 
     return (
