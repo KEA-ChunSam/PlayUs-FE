@@ -12,7 +12,21 @@ const WithdrawalModal = ({nickname, onCancel, onWithdraw}) => {
         '기타'
     ];
     const handleWithdraw = async () => {
-        onWithdraw(reason);
+        try {
+            const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
+            const res = await fetch(`${baseUrl}/user/withdraw`, {
+                method: 'PATCH',
+                credentials: 'include'
+            });
+
+            if (!res.ok) throw new Error('탈퇴 실패');
+
+            console.log('회원 탈퇴 완료');
+            window.location.href = '/login';
+        } catch (err) {
+            console.error('회원 탈퇴 중 오류 발생:', err);
+            alert('회원 탈퇴에 실패했습니다. 다시 시도해주세요.');
+        }
     }
 
     return (

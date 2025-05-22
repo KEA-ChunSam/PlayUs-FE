@@ -3,7 +3,7 @@
     flex-direction: column;
     gap: 1.5rem;
     padding: 1rem;
-    margin-top: 200px;
+    margin-top: 100px;
     margin-bottom: 60px;
     overflow-y: auto;
     background-color: #ffffff;
@@ -49,4 +49,151 @@
 .news_item {
     font-size: 0.95rem;
     color: #333;
+}
+
+.sectionTitle {
+  font-weight: bold;
+  font-size: 0.875rem; /* 14px */
+  margin-bottom: 0.5rem;
+}
+
+.sectionTitleWithMargin {
+  font-weight: bold;
+  font-size: 0.875rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.noContentText {
+  font-size: 0.875rem;
+  color: #6B7280; /* Tailwind gray-500 */
+}
+
+
+/* 모달 */
+.modalOverlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modalContent {
+    background: #fff;
+    border-radius: 18px;
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+    min-width: 320px;
+    max-width: 90vw;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.modalTitle {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #1a237e;
+    margin-bottom: 1.2rem;
+}
+.teamGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.teamBtnWrapper {
+    position: relative;
+}
+
+.displayOrderBadge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background-color: red;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border-radius: 9999px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.teamBtn, .teamBtnSelected {
+    min-width: 80px;
+    background: #f7f7f7;
+    border: 2px solid #eee;
+    border-radius: 12px;
+    padding: 0.7rem 0.2rem 0.5rem 0.2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.95rem;
+    color: #333;
+    cursor: pointer;
+    transition: border 0.2s, background 0.2s;
+}
+.teamBtnSelected {
+    border: 2px solid #0056b3;
+    background: #e3f0ff;
+    color: #0056b3;
+}
+.teamModalLogo {
+    width: 80px;
+    height: 36px;
+    object-fit: contain;
+    display: block;
+    margin-bottom: 0.3rem;
+    max-width: 100%;
+}
+.modalActions {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+    justify-content: center;
+}
+.selectBtn {
+    background: #ff4f4f;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.selectBtn:hover {
+    background: #ff4f4f;
+}
+.cancelBtn {
+    background: #f2f2f2;
+    color: #666;
+    border: none;
+    border-radius: 20px;
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.cancelBtn:hover {
+    background: #e0e0e0;
+}
+
+.teamSelectBtn {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.teamSelectBtn img {
+    width: 34px;
+    height: 24px;
 }

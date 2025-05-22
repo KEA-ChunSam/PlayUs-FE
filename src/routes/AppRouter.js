@@ -79,12 +79,16 @@ function AppRouter() {
                 <Route path="/party/newparty" element={<MobileView/>}>
                     <Route index element={<PartyMake/>}/>
                 </Route>
+                {/* 직관팟 수정하기 */}
+                <Route path="/party/edit/:partyId" element={<MobileView/>}>
+                    <Route index element={<PartyMake mode="edit" />} />
+                </Route>
                 {/* 직관팟 신청하기 */}
-                <Route path="/party/applyparty/partyid" element={<MobileView/>}>
+                <Route path="/party/applyparty/:partyId" element={<MobileView/>}>
                     <Route index element={<PartyApply/>}/>
                 </Route>
                 {/* 직관팟 입장 시 채팅방 */}
-                <Route path="/chat/party/partyid" element={<MobileView/>}>
+                <Route path="/chat/party/:chatId" element={<MobileView/>}>
                     <Route index element={<Chatting/>}/>
                 </Route>
                 {/* 직관팟 후기 페이지 */}
@@ -96,9 +100,8 @@ function AppRouter() {
                 {/*</Route>*/}
                 {/* 프로필 & 직관일지 */}
                 {/* 프로필 메인 & 타 사용자 프로필 */}
-                <Route path="/profile" element={<MobileView/>}>
+                <Route path="/profile/:userId" element={<MobileView/>}>
                     <Route index element={<Profile/>}/>
-                {/* 차후 User Id를 받아 /profile/:userId로 변경 예정 */}
                 </Route>
                 {/* 직관일지 목록 */}
                 <Route path="/diary/list" element={<MobileView/>}>

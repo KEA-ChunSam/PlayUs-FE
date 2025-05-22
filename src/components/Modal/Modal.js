@@ -15,7 +15,6 @@ const Modal = ({title, message, buttons, onClose}) => {
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [onClose]);
-    //TODO: 차후 취소 버튼 or 모달 닫기 버튼 구현 필요
     return (
         <div className={styles.modal_overlay}>
             <div

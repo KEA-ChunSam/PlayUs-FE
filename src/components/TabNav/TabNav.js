@@ -3,8 +3,8 @@ import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import styles from "./TabNav.module.css";
 
-const TabNav = ({tabs = [], onTabChange, onBack}) => {
-    const [activeIndex, setActiveIndex] = useState(0);
+const TabNav = ({tabs = [], activeTab, onTabChange, onBack}) => {
+    const [activeIndex, setActiveIndex] = useState(activeTab ?? 0);
     const navigate = useNavigate();
 
     const handleTabClick = (index) => {

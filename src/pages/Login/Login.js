@@ -1,12 +1,26 @@
 // Splash 직후의 로그인 페이지
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import styles from './Login.module.css';
 import LoginHeader from "../../components/Header/LoginHeader/LoginHeader";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
+import Modal from "../../components/Modal/Modal";
 
 function Login() {
     const [showModal, setShowModal] = useState(false);
+    const [withdrawnNickname, setWithdrawnNickname] = useState('');
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const isWithdrawn = params.get('error') === 'withdrawn';
+        const nickname = params.get('nickname');
+        if (isWithdrawn && nickname) {
+            setWithdrawnNickname(nickname);
+            setShowModal(true);
+        }
+    }, [location.search]);
+
     // 차후 회원 DB 적용시 모달 구현 예정
     // const onButtonClick = () => {
     //     if (!selectedTeam) {
@@ -56,6 +70,16 @@ function Login() {
                     <span>네이버로 시작하기</span>
                 </a>
             </div>
+            {showModal && (
+                <Modal
+                    title="계정 상태"
+                    message={`${withdrawnNickname}님은 현재 회원 탈퇴 상태입니다.\n계정을 복구하시겠어요?`}
+                    buttons={[
+                        { label: "취소", onClick: () => navigate("/") },
+                        { label: "확인", onClick: () => setShowModal(false) }
+                    ]}
+                />
+            )}
             {/*{showModal && (*/}
             {/*    <Modal*/}
             {/*        title="제재 안내"*/}

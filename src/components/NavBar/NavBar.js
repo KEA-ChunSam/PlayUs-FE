@@ -4,9 +4,12 @@ import styles from "./NavBar.module.css";
 import {Link} from "react-router-dom";
 import "../FontAwesome";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import { useAuth} from "../../utils/AuthContext";
 
 const NavBar = () => {
     const [activeNav, setActiveNav] = useState(1);
+    const { user } = useAuth() || {};
+    const userId = user?.id;
     return (
         <nav className={styles.wrapper}>
             {/* 하단 네비게이션 최상위 태그 */}
@@ -34,7 +37,18 @@ const NavBar = () => {
                     />
                 </div>
             </Link>
-            <Link to="/profile" className={styles.nav_link} onClick={() => setActiveNav(4)}>
+            <Link
+                to={userId ? `/profile/${userId}` : "#"}
+                className={styles.nav_link}
+                onClick={(e) => {
+                    if (!userId) {
+                        e.preventDefault();
+                        console.warn("로그인 정보가 아직 로딩되지 않았습니다.");
+                    } else {
+                        setActiveNav(4);
+                    }
+                }}
+            >
                 <div>
                     <FontAwesomeIcon
                         icon="book"

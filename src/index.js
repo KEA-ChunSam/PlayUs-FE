@@ -5,11 +5,11 @@ import "./index.css";
 
 import AppRouter from "./routes/AppRouter";
 import { SearchProvider } from "./components/SearchContext"; 
-
+import { AuthProvider } from "./utils/AuthContext";
 ReactDOM.createRoot(document.getElementById("root")).render(
-    <React.StrictMode>
-        <div className="fullscreen-container">
-            <AppRouter/>
-        </div>
-    </React.StrictMode>
+        <AuthProvider>
+            <div className="fullscreen-container">
+                <AppRouter/>
+            </div>
+        </AuthProvider>
 );
