@@ -1,5 +1,5 @@
 // 직관팟 상세 페이지
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import styles from './PartyDetail.module.css';
 import Modal from "../../components/Modal/Modal";
@@ -19,6 +19,7 @@ const PartyDetail = () => {
     const [showMenu, setShowMenu] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [showApplyModal, setShowApplyModal] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [user, setUser] = useState(null);
 
@@ -26,7 +27,7 @@ const PartyDetail = () => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const res = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile`, { withCredentials: true });
+                const res = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile`, {withCredentials: true});
                 setUser(res.data);
             } catch (err) {
                 console.error("로그인 사용자 정보 불러오기 실패", err);
@@ -67,10 +68,10 @@ const PartyDetail = () => {
     }, [party?.writerId]);
 
     async function applyParty() {
-        console.log("✅ applyParty 함수 호출됨");
+        // console.log("✅ applyParty 함수 호출됨");
 
         try {
-            console.log("✅ 현재 partyJoinMethod:", party?.partyJoinMethod);
+            // console.log("✅ 현재 partyJoinMethod:", party?.partyJoinMethod);
             if (party?.partyJoinMethod === "선착순") {
                 const res = await axios.post(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}/apply/fcfs`, {
                     partyId: partyId
@@ -78,19 +79,20 @@ const PartyDetail = () => {
                     withCredentials: true
                 });
 
-                console.log("✅ 신청 결과:", res.data);
+                // console.log("✅ 신청 결과:", res.data);
                 if (res.data && typeof res.data.partyJoinRequestStatus !== "undefined") {
-                    console.log("✅ party_join_request_status:", res.data.partyJoinRequestStatus);
+                    // console.log("✅ party_join_request_status:", res.data.partyJoinRequestStatus);
                 }
 
                 setShowApplyModal(true);
-                console.log("✅ 모달 상태 변경됨 (showApplyModal=true)");
+                // console.log("✅ 모달 상태 변경됨 (showApplyModal=true)");
             } else {
-                console.log("✅ 승인제 파티입니다. 승인 요청 페이지로 이동");
+                // console.log("✅ 승인제 파티입니다. 승인 요청 페이지로 이동");
                 navigate(`/party/applyParty/${partyId}`);
             }
         } catch (error) {
-            console.error('❌ 신청 실패:', error.response?.data || error);
+            // console.error('❌ 신청 실패:', error.response?.data || error);
+            setShowErrorModal(true);
         }
     }
 
@@ -114,7 +116,7 @@ const PartyDetail = () => {
                                             <div
                                                 className={styles.menuItem}
                                                 onClick={() => {
-                                                    navigate(`/party/edit/${partyId}`, { state: party });
+                                                    navigate(`/party/edit/${partyId}`, {state: party});
                                                 }}
                                             >
                                                 수정하기
@@ -144,7 +146,7 @@ const PartyDetail = () => {
                                     {/*    <span key={age} className={styles.tag}>{age}20대</span>*/}
                                     {/*))}*/}
                                     {party.partyAges && party.partyAges.map((age, idx) => (
-                                      <span key={idx} className={styles.tag}>{age}</span>
+                                        <span key={idx} className={styles.tag}>{age}</span>
                                     ))}
                                     <span className={styles.tagHighlight}>
                                         {party.availableGender || '기타'}
@@ -165,7 +167,8 @@ const PartyDetail = () => {
                                             <img key={i} src={url} alt="profile"/>
                                         ))}
                                     </div>
-                                    <span className={styles.slot}>{party.currentParticipantsCount}/{party.maximumParticipantsCount}</span>
+                                    <span
+                                        className={styles.slot}>{party.currentParticipantsCount}/{party.maximumParticipantsCount}</span>
                                 </div>
                             </div>
                         </div>
@@ -176,7 +179,7 @@ const PartyDetail = () => {
                     {user?.id === party?.writerId ? (
                         <button
                             className={styles.applyButton}
-                            onClick={() => navigate("/party/matchid", { state: { tabIndex: 2 } })}
+                            onClick={() => navigate("/party/matchid", {state: {tabIndex: 2}})}
                         >
                             신청자 관리
                         </button>
@@ -190,7 +193,7 @@ const PartyDetail = () => {
                             title="알림"
                             message="정말 삭제하시겠습니까?"
                             buttons={[
-                                { label: '취소', onClick: () => setShowModal(false) },
+                                {label: '취소', onClick: () => setShowModal(false)},
                                 {
                                     label: '확인',
                                     onClick: async () => {
@@ -242,7 +245,21 @@ const PartyDetail = () => {
                     ]}
                 />
             )}
-            <CasterbotButton onClick={() => setShowCasterbot(true)} />
+            {showErrorModal && (
+                <Modal
+                    title="에러"
+                    message="신청 중 오류가 발생했습니다."
+                    buttons={[
+                        {
+                            label: '확인',
+                            onClick: () => {
+                                setShowErrorModal(false);
+                            }
+                        }
+                    ]}
+                />
+            )}
+            <CasterbotButton onClick={() => setShowCasterbot(true)}/>
             {showCasterbot && (
                 <CasterbotModal onClose={() => setShowCasterbot(false)}/>
             )}
