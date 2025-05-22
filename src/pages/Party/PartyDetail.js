@@ -200,7 +200,7 @@ const PartyDetail = () => {
                                                 withCredentials: true
                                             });
                                             setShowModal(false);
-                                            navigate('/');
+                                            setShowApplyModal(true); // Reuse or rename if needed
                                         } catch (error) {
                                             console.error('삭제 실패:', error);
                                         }
@@ -214,13 +214,13 @@ const PartyDetail = () => {
             {showApplyModal && (
                 <Modal
                     title="알림"
-                    message="가입이 완료되었습니다."
+                    message="삭제되었습니다."
                     buttons={[
                         {
                             label: '확인',
                             onClick: () => {
                                 setShowApplyModal(false);
-                                navigate(`/chat/party/${partyId}`);
+                                navigate("/party/matchid");
                             }
                         }
                     ]}

@@ -1,8 +1,8 @@
 // 직관팟 메인(구하기) & 내 신청 현황 & 승인 요청을 한 코드에 적용.
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import CasterbotModal from '../../pages/Chatbot/CasterbotModal';
-import {useNavigate, useLocation} from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import TabNav from "../../components/TabNav/TabNav";
 import styles from './Party.module.css';
 import Modal from '../../components/Modal/Modal';
@@ -55,17 +55,17 @@ const Party = () => {
 
     useEffect(() => {
         if (activeTab === 2) {
-            axios.get(`http://localhost:8081/party/1/approved-applicants`, { withCredentials: true }) // Replace 1 with dynamic partyId if available
+            axios.get(`http://localhost:8081/party/1/approved-applicants`, {withCredentials: true}) // Replace 1 with dynamic partyId if available
                 .then(res => setApprovalList(res.data))
                 .catch(err => console.error("신청자 목록 불러오기 실패:", err));
         }
         if (activeTab === 1) {
-            axios.get('http://localhost:8080/user/api/applications', { withCredentials: true })
+            axios.get('http://localhost:8080/user/api/applications', {withCredentials: true})
                 .then(res => setMyApplications(res.data))
                 .catch(err => console.error("내 신청 직관팟 불러오기 실패:", err));
         }
         if (activeTab === 0) {
-            axios.get(`http://localhost:8081/party?matchId=1`, { withCredentials: true })
+            axios.get(`http://localhost:8081/party?matchId=1`, {withCredentials: true})
                 .then(res => {
                     setPartyList(res.data);
                     setOriginalPartyList(res.data);
@@ -76,10 +76,14 @@ const Party = () => {
 
     const mapStatusToKey = (status) => {
         switch (status) {
-            case 'WAIT': return 'pending';
-            case 'ACCEPT': return 'approved';
-            case 'REFUSE': return 'rejected';
-            default: return '';
+            case 'WAIT':
+                return 'pending';
+            case 'ACCEPT':
+                return 'approved';
+            case 'REFUSE':
+                return 'rejected';
+            default:
+                return '';
         }
     };
     const tabLabels = ["직관팟 구하기", "내 신청 현황", "승인 요청"];
@@ -139,7 +143,9 @@ const Party = () => {
                                             className={styles.partyCard}
                                             onClick={() => navigate(`/party/matchid/${party.partyId}`)}
                                         >
-                                            <img src={party.partyThumbnailUrls?.[0] || `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`} alt="직관팟 썸네일" className={styles.playerImg}/>
+                                            <img
+                                                src={party.partyThumbnailUrls?.[0] || `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
+                                                alt="직관팟 썸네일" className={styles.playerImg}/>
                                             <div className={styles.partyContent}>
                                                 <div className={styles.tags}>
                                                     <span className={styles.tag}>{party.partyJoinMethod}</span>
@@ -151,27 +157,35 @@ const Party = () => {
                                                             {tag}
                                                         </span>
                                                     ))}
-                                                    <span className={`${styles.tag} ${styles.tagHighlight}`}>{party.availableGender}</span>
+                                                    <span
+                                                        className={`${styles.tag} ${styles.tagHighlight}`}
+                                                        data-gender={party.availableGender}
+                                                    >{party.availableGender}
+                                                    </span>
                                                 </div>
                                                 <div className={styles.partyTitle}>{party.title}</div>
                                                 <div className={styles.partyMeta}>
                                                     <span>{writerMap[party.writerId]?.writerName || '작성자'}</span>
+                                                    <span>{writerMap[party.writerId]?.writerAge || '나이'}</span>
                                                     <span>
                                                         {writerMap[party.writerId]?.writerGender === 'MALE'
                                                             ? '남성'
                                                             : writerMap[party.writerId]?.writerGender === 'FEMALE'
-                                                            ? '여성'
-                                                            : '기타'}
+                                                                ? '여성'
+                                                                : '기타'}
                                                     </span>
                                                     <span>· {party.matchDate}2022.03.04 14:00</span>
                                                 </div>
                                                 <div className={styles.partyStatus}>
                                                     <div className={styles.avatars}>
                                                         {party.userThumbnailUrls?.slice(0, 1).map((url, i) => (
-                                                            <img key={i} src={url || `${process.env.PUBLIC_URL}/Logo/profile.png`} alt="프로필"/>
+                                                            <img key={i}
+                                                                 src={url || `${process.env.PUBLIC_URL}/Logo/profile.png`}
+                                                                 alt="프로필"/>
                                                         ))}
                                                     </div>
-                                                    <div className={styles.slot}>{party.currentParticipantsCount}/{party.maximumParticipantsCount}</div>
+                                                    <div
+                                                        className={styles.slot}>{party.currentParticipantsCount}/{party.maximumParticipantsCount}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -191,7 +205,8 @@ const Party = () => {
                                             <div className={styles.myStatusCardContent}>
                                                 <div className={styles.myStatusTagRow}>
                                                     {party.filters?.map((tag, index) => (
-                                                        <span key={index} className={`${styles.tag} ${index === 2 ? styles.tagHighlight : ''}`}>{tag}</span>
+                                                        <span key={index}
+                                                              className={`${styles.tag} ${index === 2 ? styles.tagHighlight : ''}`}>{tag}</span>
                                                     ))}
                                                 </div>
                                                 <div className={styles.myStatusTitle}>
@@ -199,7 +214,10 @@ const Party = () => {
                                                 </div>
                                                 <div className={styles.myStatusMeta}>
                                                     <span>{party.writer}</span>
-                                                    <span>{new Date(party.date).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                                                    <span>{new Date(party.date).toLocaleString('ko-KR', {
+                                                        dateStyle: 'short',
+                                                        timeStyle: 'short'
+                                                    })}</span>
                                                 </div>
                                                 <div className={styles.myStatusButtons}>
                                                     {statusKey === 'pending' && (
@@ -228,7 +246,8 @@ const Party = () => {
                                                             <button className={styles.statusApproved}
                                                                     onClick={onEnterChat}>채팅방 입장!
                                                             </button>
-                                                            <span className={styles.newChatCount}>1</span> {/* Placeholder for newMessages */}
+                                                            <span
+                                                                className={styles.newChatCount}>1</span> {/* Placeholder for newMessages */}
                                                         </div>
                                                     )}
                                                 </div>
@@ -278,7 +297,8 @@ const Party = () => {
                             <div className={styles.approvalList}>
                                 {approvalList.map((user, idx) => (
                                     <div key={idx} className={styles.approvalCard}>
-                                        <img src={user.thumbnailUrl || `${process.env.PUBLIC_URL}/Logo/profile.png`} alt="신청자" className={styles.userAvatar}/>
+                                        <img src={user.thumbnailUrl || `${process.env.PUBLIC_URL}/Logo/profile.png`}
+                                             alt="신청자" className={styles.userAvatar}/>
                                         <div className={styles.userInfo}>
                                             <div className={styles.nameRow}>
                                                 <span className={styles.userName}>{user.name}</span>
@@ -450,7 +470,7 @@ const Party = () => {
                     <Modal key={idx} title={modal.title} message={modal.message} buttons={modal.buttons}/>
                 )
             )}
-            <CasterbotButton onClick={() => setShowCasterbot(true)} />
+            <CasterbotButton onClick={() => setShowCasterbot(true)}/>
 
             {showCasterbot && (
                 <CasterbotModal onClose={() => setShowCasterbot(false)}/>

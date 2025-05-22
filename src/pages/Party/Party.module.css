@@ -219,9 +219,19 @@
     background-color: #e0e0e0;
 }
 
-.tagHighlight {
+.tagHighlight[data-gender='남자만'] {
+    background-color: #4fafff;
+    color: #fff;
+}
+
+.tagHighlight[data-gender='여자만'] {
     background-color: #ff4f70;
-    color: white;
+    color: #fff;
+}
+
+.tagHighlight[data-gender='상관없음'] {
+    background-color: #e0e0e0;
+    color: #000;
 }
 
 .partyTitle {
