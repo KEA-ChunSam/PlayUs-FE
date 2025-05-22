@@ -33,41 +33,35 @@ export default function MainPage() {
     const [selectedFavorites, setSelectedFavorites] = useState([]);
 
     useEffect(() => {
-        const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
-        axios.get(`${baseUrl}/user/profile`, { withCredentials: true })
-            .then(res => {
+        const fetchUserProfileAndFavorites = async () => {
+            const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
+            try {
+                const res = await axios.get(`${baseUrl}/user/profile`, {withCredentials: true});
                 const favorites = res.data.favoriteTeams;
+
                 const map = {};
                 favorites.forEach(fav => {
                     map[fav.teamId] = fav.displayOrder;
                 });
                 setFavoriteMap(map);
-                const sorted = [...favorites].sort((a, b) => a.displayOrder - b.displayOrder);
-                setSelectedFavorites(sorted.map(f => f.teamId));
-            })
-            .catch(err => console.error("선호 팀 정보 가져오기 실패", err));
-    }, []);
 
-    useEffect(() => {
-        const fetchUserFavoriteTeams = async () => {
-            const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
-            try {
-                const res = await axios.get(`${baseUrl}/user/profile`, {withCredentials: true});
-                const data = res.data;
-                const sortedFavorites = data.favoriteTeams.sort((a, b) => a.displayOrder - b.displayOrder);
-                const tabs = sortedFavorites
-                    .map(fav => {
-                        const team = teamInfoMap.find(info => info.id === fav.teamId);
+                const sortedFavorites = [...favorites].sort((a, b) => a.displayOrder - b.displayOrder);
+                const teamIds = sortedFavorites.map(f => f.teamId);
+                setSelectedFavorites(teamIds);
+
+                const tabs = teamIds
+                    .map(teamId => {
+                        const team = teamInfoMap.find(info => info.id === teamId);
                         return team?.name;
                     })
                     .filter(Boolean);
                 setTeams2(tabs);
             } catch (err) {
-                console.error('사용자 선호 팀 목록 불러오기 실패:', err);
+                console.error("선호 팀 정보 가져오기 실패:", err);
             }
         };
 
-        fetchUserFavoriteTeams();
+        fetchUserProfileAndFavorites();
     }, []);
 
     const handleOpenModal = () => {
@@ -86,7 +80,7 @@ export default function MainPage() {
                 teamId,
                 displayOrder: index + 1
             }));
-            await axios.put(`${baseUrl}/user/favorite-teams`, requests, { withCredentials: true });
+            await axios.put(`${baseUrl}/user/favorite-teams`, requests, {withCredentials: true});
             setFavoriteMap(Object.fromEntries(requests.map(r => [r.teamId, r.displayOrder])));
             // Inserted block: update tabs and active index
             const updatedTabs = selectedFavorites
@@ -104,27 +98,27 @@ export default function MainPage() {
 
     // Schedule extraction logic
     const currentMatch = DummyMatchData[selectedTeam]?.schedule
-      ? {
-          home_team_name: DummyMatchData[selectedTeam].schedule.home,
-          away_team_name: DummyMatchData[selectedTeam].schedule.away,
-          home_score: DummyMatchData[selectedTeam].schedule.score?.[0],
-          away_score: DummyMatchData[selectedTeam].schedule.score?.[1],
+        ? {
+            home_team_name: DummyMatchData[selectedTeam].schedule.home,
+            away_team_name: DummyMatchData[selectedTeam].schedule.away,
+            home_score: DummyMatchData[selectedTeam].schedule.score?.[0],
+            away_score: DummyMatchData[selectedTeam].schedule.score?.[1],
         }
-      : null;
+        : null;
     const schedule = currentMatch
-      ? {
-          home: currentMatch.home_team_name,
-          away: currentMatch.away_team_name,
-          status:
-            currentMatch.home_score != null && currentMatch.away_score != null
-              ? "종료"
-              : "예정",
-          score: [
-            currentMatch.home_score ?? 0,
-            currentMatch.away_score ?? 0,
-          ],
+        ? {
+            home: currentMatch.home_team_name,
+            away: currentMatch.away_team_name,
+            status:
+                currentMatch.home_score != null && currentMatch.away_score != null
+                    ? "종료"
+                    : "예정",
+            score: [
+                currentMatch.home_score ?? 0,
+                currentMatch.away_score ?? 0,
+            ],
         }
-      : null;
+        : null;
 
     return (
         <div className={styles.main_page}>
@@ -137,9 +131,9 @@ export default function MainPage() {
             <div>
                 <h2 className={styles.sectionTitle}>오늘의 일정</h2>
                 {schedule ? (
-                  <ScheduleSection schedule={schedule} />
+                    <ScheduleSection schedule={schedule}/>
                 ) : (
-                  <p className={styles.noContentText}>해당 팀의 경기가 없습니다.</p>
+                    <p className={styles.noContentText}>해당 팀의 경기가 없습니다.</p>
                 )}
 
                 <h2 className={styles.sectionTitleWithMargin}>인기 포스트</h2>
