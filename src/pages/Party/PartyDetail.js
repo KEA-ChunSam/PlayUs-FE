@@ -19,6 +19,7 @@ const PartyDetail = () => {
     const [showMenu, setShowMenu] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [showApplyModal, setShowApplyModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [user, setUser] = useState(null);
 
 
@@ -200,7 +201,7 @@ const PartyDetail = () => {
                                                 withCredentials: true
                                             });
                                             setShowModal(false);
-                                            setShowApplyModal(true); // Reuse or rename if needed
+                                            setShowDeleteModal(true);
                                         } catch (error) {
                                             console.error('삭제 실패:', error);
                                         }
@@ -211,7 +212,7 @@ const PartyDetail = () => {
                     )}
                 </div>
             </div>
-            {showApplyModal && (
+            {showDeleteModal && (
                 <Modal
                     title="알림"
                     message="삭제되었습니다."
@@ -219,7 +220,22 @@ const PartyDetail = () => {
                         {
                             label: '확인',
                             onClick: () => {
-                                setShowApplyModal(false);
+                                setShowDeleteModal(false);
+                                navigate("/party/matchid");
+                            }
+                        }
+                    ]}
+                />
+            )}
+            {showApplyModal && (
+                <Modal
+                    title="알림"
+                    message="직관팟에 가입되었습니다!"
+                    buttons={[
+                        {
+                            label: '확인',
+                            onClick: () => {
+                                setShowDeleteModal(false);
                                 navigate("/party/matchid");
                             }
                         }
