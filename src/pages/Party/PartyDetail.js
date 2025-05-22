@@ -235,7 +235,7 @@ const PartyDetail = () => {
                         {
                             label: '확인',
                             onClick: () => {
-                                setShowDeleteModal(false);
+                                setShowApplyModal(false);
                                 navigate("/party/matchid");
                             }
                         }
