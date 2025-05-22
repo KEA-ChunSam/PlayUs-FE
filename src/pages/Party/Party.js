@@ -1,14 +1,16 @@
 // 직관팟 메인(구하기) & 내 신청 현황 & 승인 요청을 한 코드에 적용.
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
+import axios from 'axios';
 import CasterbotModal from '../../pages/Chatbot/CasterbotModal';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, useLocation} from 'react-router-dom';
 import TabNav from "../../components/TabNav/TabNav";
 import styles from './Party.module.css';
 import Modal from '../../components/Modal/Modal';
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 
 const Party = () => {
-    const [activeTab, setActiveTab] = useState(0);
+    const location = useLocation();
+    const [activeTab, setActiveTab] = useState(location.state?.tabIndex || 0);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [selectedApplyType, setSelectedApplyType] = useState('');
     const [selectedGender, setSelectedGender] = useState('');
@@ -18,6 +20,68 @@ const Party = () => {
     const [showApproveModal, setShowApproveModal] = useState(false);
     const [showDenyModal, setShowDenyModal] = useState(false);
     const [showCasterbot, setShowCasterbot] = useState(false);
+    const [approvalList, setApprovalList] = useState([]);
+    const [myApplications, setMyApplications] = useState([]);
+    const [partyList, setPartyList] = useState([]);
+    const [originalPartyList, setOriginalPartyList] = useState([]);
+
+    // Writer map state and effect
+    const [writerMap, setWriterMap] = useState({});
+
+    useEffect(() => {
+        if (
+            partyList.length > 0 &&
+            partyList.every(p => p.writerId)
+        ) {
+            const writerIds = [...new Set(partyList.map(p => p.writerId))];
+            axios.post(`http://localhost:8080/user/api/writers`, writerIds, {
+                withCredentials: true
+            })
+                .then(response => {
+                    // Expecting response.data to be an array of writer objects
+                    console.log("👀 Writer API response:", response.data);
+                    const map = {};
+                    response.data.forEach(writer => {
+                        // Fallback to writer.id if writer.writerId is not present
+                        if (writer.writerId || writer.id) {
+                            map[writer.writerId || writer.id] = writer;
+                        }
+                    });
+                    setWriterMap(map);
+                })
+                .catch(error => console.error("작성자 정보 불러오기 실패:", error));
+        }
+    }, [partyList]);
+
+    useEffect(() => {
+        if (activeTab === 2) {
+            axios.get(`http://localhost:8081/party/1/approved-applicants`, { withCredentials: true }) // Replace 1 with dynamic partyId if available
+                .then(res => setApprovalList(res.data))
+                .catch(err => console.error("신청자 목록 불러오기 실패:", err));
+        }
+        if (activeTab === 1) {
+            axios.get('http://localhost:8080/user/api/applications', { withCredentials: true })
+                .then(res => setMyApplications(res.data))
+                .catch(err => console.error("내 신청 직관팟 불러오기 실패:", err));
+        }
+        if (activeTab === 0) {
+            axios.get(`http://localhost:8081/party?matchId=1`, { withCredentials: true })
+                .then(res => {
+                    setPartyList(res.data);
+                    setOriginalPartyList(res.data);
+                })
+                .catch(err => console.error("직관팟 목록 불러오기 실패:", err));
+        }
+    }, [activeTab]);
+
+    const mapStatusToKey = (status) => {
+        switch (status) {
+            case 'WAIT': return 'pending';
+            case 'ACCEPT': return 'approved';
+            case 'REFUSE': return 'rejected';
+            default: return '';
+        }
+    };
     const tabLabels = ["직관팟 구하기", "내 신청 현황", "승인 요청"];
     const navigate = useNavigate();
 
@@ -29,67 +93,13 @@ const Party = () => {
         navigate('/chat/party/partyId'); // 차후 직관팟별로 route 분리
     }
 
-    const DUMMY_PARTIES = [
-        {
-            id: 1,
-            thumbnail: `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`,
-            tags: ["승인제", "20대", "여자만"],
-            highlightedTagIndex: 2,
-            title: "3/22(토) 한화 vs KT 개막전 직관🦁💙",
-            writer: "ZSJ",
-            gender: "남성",
-            date: "3.22(토) 오후 2:00",
-            avatarUrl: `${process.env.PUBLIC_URL}/Logo/profile.png`,
-            currentSlot: 10,
-            maxSlot: 14
-        },
-        {
-            id: 2,
-            thumbnail: `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`,
-            tags: ["승인제", "20대", "남자만"],
-            highlightedTagIndex: 2,
-            title: "3/22(토) 한화 vs KT 개막전 직관🦁💙",
-            writer: "김도영화이팅",
-            gender: "남성",
-            date: "3.22(토) 오후 2:00",
-            avatarUrl: `${process.env.PUBLIC_URL}/Logo/profile.png`,
-            currentSlot: 10,
-            maxSlot: 14
-        },
-        {
-            id: 3,
-            thumbnail: `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`,
-            tags: ["승인제", "20대", "남자만"],
-            highlightedTagIndex: 2,
-            title: "3/22(토) 한화 vs KT 개막전 직관🦁💙",
-            writer: "김도영화이팅",
-            gender: "남성",
-            date: "3.22(토) 오후 2:00",
-            avatarUrl: `${process.env.PUBLIC_URL}/Logo/profile.png`,
-            currentSlot: 10,
-            maxSlot: 14
-        },
-        {
-            id: 4,
-            thumbnail: `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`,
-            tags: ["승인제", "20대", "남자만"],
-            highlightedTagIndex: 2,
-            title: "3/22(토) 한화 vs KT 개막전 직관🦁💙",
-            writer: "김도영화이팅",
-            gender: "남성",
-            date: "3.22(토) 오후 2:00",
-            avatarUrl: `${process.env.PUBLIC_URL}/Logo/profile.png`,
-            currentSlot: 10,
-            maxSlot: 14
-        },
-    ];
 
     return (
         <>
             <div className={styles.wrapper}>
                 {/*<div className={styles.headerSpacer}/>*/}
                 <div className={styles.content}>
-                    <TabNav tabs={tabLabels} onTabChange={setActiveTab}/>
+                    <TabNav tabs={tabLabels} activeTab={activeTab} onTabChange={setActiveTab}/>
                     {/* 직관팟 입장시 접근하는 직관팟 구하기 서브메뉴*/}
                     {activeTab === 0 && (
                         <div className={styles.approvalSection}>
@@ -120,39 +130,53 @@ const Party = () => {
                                 </div>
                             </div>
                             <div className={styles.partyList}>
-                                {DUMMY_PARTIES.map((party) => (
-                                    <div
-                                        key={party.id}
-                                        className={styles.partyCard}
-                                        onClick={() => navigate(`/party/matchid/${party.id}`)}
-                                    >
-                                        <img src={party.thumbnail} alt="직관팟 썸네일" className={styles.playerImg}/>
-                                        <div className={styles.partyContent}>
-                                            <div className={styles.tags}>
-                                                {party.tags.map((tag, index) => (
-                                                    <span
-                                                        key={index}
-                                                        className={`${styles.tag} ${index === party.highlightedTagIndex ? styles.tagHighlight : ''}`}
-                                                    >
-                                                    {tag}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                            <div className={styles.partyTitle}>{party.title}</div>
-                                            <div className={styles.partyMeta}>
-                                                <span>{party.writer}</span>
-                                                <span>{party.gender}</span>
-                                                <span>· {party.date}</span>
-                                            </div>
-                                            <div className={styles.partyStatus}>
-                                                <div className={styles.avatars}>
-                                                    <img src={party.avatarUrl} alt="프로필"/>
+                                {partyList.length === 0 ? (
+                                    <div className={styles.noPartyMessage}>조건에 맞는 직관팟이 없어요!</div>
+                                ) : (
+                                    partyList.map((party) => (
+                                        <div
+                                            key={party.partyId}
+                                            className={styles.partyCard}
+                                            onClick={() => navigate(`/party/matchid/${party.partyId}`)}
+                                        >
+                                            <img src={party.partyThumbnailUrls?.[0] || `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`} alt="직관팟 썸네일" className={styles.playerImg}/>
+                                            <div className={styles.partyContent}>
+                                                <div className={styles.tags}>
+                                                    <span className={styles.tag}>{party.partyJoinMethod}</span>
+                                                    {party.partyAges?.map((tag, index) => (
+                                                        <span
+                                                            key={index}
+                                                            className={`${styles.tag} ${index === 2 ? styles.tagHighlight : ''}`}
+                                                        >
+                                                            {tag}
+                                                        </span>
+                                                    ))}
+                                                    <span className={`${styles.tag} ${styles.tagHighlight}`}>{party.availableGender}</span>
                                                 </div>
-                                                <div className={styles.slot}>{party.currentSlot}/{party.maxSlot}</div>
+                                                <div className={styles.partyTitle}>{party.title}</div>
+                                                <div className={styles.partyMeta}>
+                                                    <span>{writerMap[party.writerId]?.writerName || '작성자'}</span>
+                                                    <span>
+                                                        {writerMap[party.writerId]?.writerGender === 'MALE'
+                                                            ? '남성'
+                                                            : writerMap[party.writerId]?.writerGender === 'FEMALE'
+                                                            ? '여성'
+                                                            : '기타'}
+                                                    </span>
+                                                    <span>· {party.matchDate}2022.03.04 14:00</span>
+                                                </div>
+                                                <div className={styles.partyStatus}>
+                                                    <div className={styles.avatars}>
+                                                        {party.userThumbnailUrls?.slice(0, 1).map((url, i) => (
+                                                            <img key={i} src={url || `${process.env.PUBLIC_URL}/Logo/profile.png`} alt="프로필"/>
+                                                        ))}
+                                                    </div>
+                                                    <div className={styles.slot}>{party.currentParticipantsCount}/{party.maximumParticipantsCount}</div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))
+                                )}
                             </div>
                         </div>
                     )}
@@ -160,84 +184,63 @@ const Party = () => {
                     {activeTab === 1 && (
                         <div className={styles.approvalSection}>
                             <div className={styles.myStatusList}>
-                                {[{
-                                    title: '3/22(토) 한화 vs KT 개막전 직관🦁💙',
-                                    age: '20대',
-                                    gender: '여자만',
-                                    writer: 'ZSJ',
-                                    datetime: '3.22(토) 오후 2:00',
-                                    status: 'pending'
-                                }, {
-                                    title: '3/23(일) 한화 vs LG 개막전 직관',
-                                    age: '20대',
-                                    gender: '남자만',
-                                    writer: '김도영너무조아',
-                                    datetime: '3.23(일) 오후 2:00',
-                                    status: 'rejected'
-                                }, {
-                                    title: '3/22(토) 한화 vs KT 개막전 직관🦁💙',
-                                    age: '40대',
-                                    gender: '',
-                                    writer: '한화30년골수팬',
-                                    datetime: '3.22(토) 오후 2:00',
-                                    status: 'approved',
-                                    newMessages: 3
-                                }].map((party, idx) => (
-                                    <div key={idx} className={styles.myStatusCard}>
-                                        <div className={styles.myStatusCardContent}>
-                                            <div className={styles.myStatusTagRow}>
-                                                {party.age && <span className={styles.tag}>{party.age}</span>}
-                                                {party.gender && (
-                                                    <span
-                                                        className={`${styles.tag} ${styles.tagHighlight}`}>{party.gender}</span>
-                                                )}
+                                {myApplications.map((party, idx) => {
+                                    const statusKey = mapStatusToKey(party.status);
+                                    return (
+                                        <div key={idx} className={styles.myStatusCard}>
+                                            <div className={styles.myStatusCardContent}>
+                                                <div className={styles.myStatusTagRow}>
+                                                    {party.filters?.map((tag, index) => (
+                                                        <span key={index} className={`${styles.tag} ${index === 2 ? styles.tagHighlight : ''}`}>{tag}</span>
+                                                    ))}
+                                                </div>
+                                                <div className={styles.myStatusTitle}>
+                                                    <strong>{party.title}</strong>
+                                                </div>
+                                                <div className={styles.myStatusMeta}>
+                                                    <span>{party.writer}</span>
+                                                    <span>{new Date(party.date).toLocaleString('ko-KR', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                                                </div>
+                                                <div className={styles.myStatusButtons}>
+                                                    {statusKey === 'pending' && (
+                                                        <>
+                                                            <button className={styles.statusPending}>신청중</button>
+                                                            <button
+                                                                className={styles.statusCancel}
+                                                                onClick={() => setShowCancelModal(true)}
+                                                            >
+                                                                취소하기
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    {statusKey === 'rejected' && (
+                                                        <>
+                                                            <button className={styles.statusRejected}>승인 거부됨</button>
+                                                            <button className={styles.DeleteParty}
+                                                                    onClick={() => setShowDeleteModal(true)}
+                                                            >
+                                                                삭제하기
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    {statusKey === 'approved' && (
+                                                        <div className={styles.chatButtonWrapper}>
+                                                            <button className={styles.statusApproved}
+                                                                    onClick={onEnterChat}>채팅방 입장!
+                                                            </button>
+                                                            <span className={styles.newChatCount}>1</span> {/* Placeholder for newMessages */}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className={styles.myStatusTitle}>
-                                                <strong>{party.title}</strong>
-                                            </div>
-                                            <div className={styles.myStatusMeta}>
-                                                <span>{party.writer}</span>
-                                                <span>{party.datetime}</span>
-                                            </div>
-                                            <div className={styles.myStatusButtons}>
-                                                {party.status === 'pending' && (
-                                                    <>
-                                                        <button className={styles.statusPending}>신청중</button>
-                                                        <button
-                                                            className={styles.statusCancel}
-                                                            onClick={() => setShowCancelModal(true)}
-                                                        >
-                                                            취소하기
-                                                        </button>
-                                                    </>
-                                                )}
-                                                {party.status === 'rejected' && (
-                                                    <>
-                                                        <button className={styles.statusRejected}>승인 거부됨</button>
-                                                        <button className={styles.DeleteParty}
-                                                                onClick={() => setShowDeleteModal(true)}
-                                                        >
-                                                            삭제하기
-                                                        </button>
-                                                    </>
-                                                )}
-                                                {party.status === 'approved' && (
-                                                    <div className={styles.chatButtonWrapper}>
-                                                        <button className={styles.statusApproved}
-                                                                onClick={onEnterChat}>채팅방 입장!
-                                                        </button>
-                                                        <span className={styles.newChatCount}>{party.newMessages}</span>
-                                                    </div>
-                                                )}
-                                            </div>
+                                            <img
+                                                src={`${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
+                                                alt="썸네일"
+                                                className={styles.thumbnailImg}
+                                            />
                                         </div>
-                                        <img
-                                            src={`${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
-                                            alt="썸네일"
-                                            className={styles.thumbnailImg}
-                                        />
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
                     )}
@@ -273,46 +276,15 @@ const Party = () => {
                                 </div>
                             </div>
                             <div className={styles.approvalList}>
-                                {[
-                                    {
-                                        name: 'ZSJ',
-                                        age: '20대',
-                                        message: '저도 한화 엄청 좋아해요! 같이 직관하고 싶어요!',
-                                        avatar: `${process.env.PUBLIC_URL}/Logo/profile.png`
-                                    },
-                                    {
-                                        name: '한화짱팬',
-                                        age: '30대',
-                                        message: '맨날 혼자 집에서 야구 봤는데, 이번에 처음 직관 가...',
-                                        avatar: `${process.env.PUBLIC_URL}/Logo/profile.png`
-                                    },
-                                    {
-                                        name: 'master',
-                                        age: '40대',
-                                        message: '야구 좋아하는 분들과 함께 재밌게 직관하고 싶어요!',
-                                        avatar: `${process.env.PUBLIC_URL}/Logo/profile.png`
-                                    },
-                                    {
-                                        name: '한화짱팬',
-                                        age: '30대',
-                                        message: '맨날 혼자 집에서 야구 봤는데, 이번에 처음 직관 가...',
-                                        avatar: `${process.env.PUBLIC_URL}/Logo/profile.png`
-                                    },
-                                    {
-                                        name: '한화짱팬',
-                                        age: '30대',
-                                        message: '맨날 혼자 집에서 야구 봤는데, 이번에 처음 직관 가...',
-                                        avatar: `${process.env.PUBLIC_URL}/Logo/profile.png`
-                                    },
-                                ].map((user, idx) => (
+                                {approvalList.map((user, idx) => (
                                     <div key={idx} className={styles.approvalCard}>
-                                        <img src={user.avatar} alt="신청자" className={styles.userAvatar}/>
+                                        <img src={user.thumbnailUrl || `${process.env.PUBLIC_URL}/Logo/profile.png`} alt="신청자" className={styles.userAvatar}/>
                                         <div className={styles.userInfo}>
                                             <div className={styles.nameRow}>
                                                 <span className={styles.userName}>{user.name}</span>
-                                                <span className={styles.ageBadge}>{user.age}</span>
+                                                <span className={styles.ageBadge}>{`${user.age}대`}</span>
                                             </div>
-                                            <p className={styles.userMessage}>{user.message}</p>
+                                            <p className={styles.userMessage}>{user.requireMessage}</p>
                                         </div>
                                         <div className={styles.actionButtons}>
                                             <button className={styles.approveButton}
@@ -394,7 +366,15 @@ const Party = () => {
                             <button
                                 className={styles.applyBtn}
                                 onClick={() => {
-                                    // TODO: 필터 적용 로직 구현
+                                    const filtered = selectedApplyType || selectedGender || selectedAges.length > 0
+                                        ? originalPartyList.filter(party => {
+                                            const matchApplyType = selectedApplyType ? party.partyJoinMethod === selectedApplyType : true;
+                                            const matchGender = selectedGender ? party.availableGender === selectedGender : true;
+                                            const matchAge = selectedAges.length > 0 ? party.partyAges?.some(age => selectedAges.includes(age)) : true;
+                                            return matchApplyType && matchGender && matchAge;
+                                        })
+                                        : originalPartyList;
+                                    setPartyList(filtered);
                                     setIsFilterOpen(false);
                                 }}
                             >
