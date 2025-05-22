@@ -90,7 +90,7 @@ export default function MainPage() {
             setActiveTeamIndex(0);
             setShowModal(false);
         } catch (err) {
-            console.error("선호 팀 저장 실패", err);
+            alert("선호 팀 저장에 실패했습니다. 잠시 후 다시 시도해주세요.");
         }
     };
 
