@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/PlayUs-FE/static/css/main.dfe83e0e.css",
-    "main.js": "/PlayUs-FE/static/js/main.2d8580d5.js",
+    "main.css": "/PlayUs-FE/static/css/main.7ce5ce5f.css",
+    "main.js": "/PlayUs-FE/static/js/main.d357ca2c.js",
     "index.html": "/PlayUs-FE/index.html",
-    "main.dfe83e0e.css.map": "/PlayUs-FE/static/css/main.dfe83e0e.css.map",
-    "main.2d8580d5.js.map": "/PlayUs-FE/static/js/main.2d8580d5.js.map"
+    "main.7ce5ce5f.css.map": "/PlayUs-FE/static/css/main.7ce5ce5f.css.map",
+    "main.d357ca2c.js.map": "/PlayUs-FE/static/js/main.d357ca2c.js.map"
   },
   "entrypoints": [
-    "static/css/main.dfe83e0e.css",
-    "static/js/main.2d8580d5.js"
+    "static/css/main.7ce5ce5f.css",
+    "static/js/main.d357ca2c.js"
   ]
 }
