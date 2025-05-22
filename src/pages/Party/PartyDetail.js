@@ -18,6 +18,21 @@ const PartyDetail = () => {
     const [writer, setWriter] = useState(null);
     const [showMenu, setShowMenu] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [showApplyModal, setShowApplyModal] = useState(false);
+    const [user, setUser] = useState(null);
+
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const res = await axios.get("http://localhost:8080/user/profile", { withCredentials: true });
+                setUser(res.data);
+            } catch (err) {
+                console.error("로그인 사용자 정보 불러오기 실패", err);
+            }
+        };
+        fetchUser();
+    }, []);
 
     useEffect(() => {
         const fetchParty = async () => {
@@ -38,10 +53,10 @@ const PartyDetail = () => {
         if (party?.writerId) {
             const fetchWriter = async () => {
                 try {
-                    const response = await axios.get(`http://localhost:8080/user/profile`, {
+                    const response = await axios.post(`http://localhost:8080/user/api/writers`, [party.writerId], {
                         withCredentials: true
                     });
-                    setWriter(response.data);
+                    setWriter(response.data[0]);
                 } catch (error) {
                     console.error('작성자 정보 로드 실패:', error);
                 }
@@ -50,8 +65,32 @@ const PartyDetail = () => {
         }
     }, [party?.writerId]);
 
-    function applyParty() {
-        navigate("/Party/applyParty/partyid");
+    async function applyParty() {
+        console.log("✅ applyParty 함수 호출됨");
+
+        try {
+            console.log("✅ 현재 partyJoinMethod:", party?.partyJoinMethod);
+            if (party?.partyJoinMethod === "선착순") {
+                const res = await axios.post(`http://localhost:8081/party/${partyId}/apply/fcfs`, {
+                    partyId: partyId
+                }, {
+                    withCredentials: true
+                });
+
+                console.log("✅ 신청 결과:", res.data);
+                if (res.data && typeof res.data.partyJoinRequestStatus !== "undefined") {
+                    console.log("✅ party_join_request_status:", res.data.partyJoinRequestStatus);
+                }
+
+                setShowApplyModal(true);
+                console.log("✅ 모달 상태 변경됨 (showApplyModal=true)");
+            } else {
+                console.log("✅ 승인제 파티입니다. 승인 요청 페이지로 이동");
+                navigate(`/party/applyParty/${partyId}`);
+            }
+        } catch (error) {
+            console.error('❌ 신청 실패:', error.response?.data || error);
+        }
     }
 
     return (
@@ -61,7 +100,7 @@ const PartyDetail = () => {
                     <TabNav tabs={tabLabels} onTabChange={setActiveTab} onBack={() => navigate("/party/matchid")}/>
                     {party && (
                         <div className={styles.partyCard}>
-                            {writer?.id === party.writerId && (
+                            {user?.id === party.writerId && (
                                 <div className={styles.menuWrapper}>
                                     <button
                                         onClick={() => setShowMenu((prev) => !prev)}
@@ -98,32 +137,25 @@ const PartyDetail = () => {
                                 <div className={styles.tags}>
                                     {/* 현재 신청방식, 신청나이, 신청성별은 null로 지정됨 -> 백엔드 수정 필요 */}
                                     <span className={styles.tag}>
-                                        {party.partyJoinMethod === 'FIRST_COME'
-                                            ? '선착순'
-                                            : party.partyJoinMethod === 'RESERVATION'
-                                                ? '승인제'
-                                                : '기타'}
+                                        {party.partyJoinMethod || '기타'}
                                     </span>
                                     {/*{party.partyAges && party.partyAges.map(age => (*/}
                                     {/*    <span key={age} className={styles.tag}>{age}20대</span>*/}
                                     {/*))}*/}
-                                    <span className={styles.tag}>20대</span>
+                                    {party.partyAges && party.partyAges.map((age, idx) => (
+                                      <span key={idx} className={styles.tag}>{age}</span>
+                                    ))}
                                     <span className={styles.tagHighlight}>
-                                        {party.partyGender === 'MALE'
-                                            ? '남성만'
-                                            : party.partyGender === 'FEMALE'
-                                                ? '여성만'
-                                                : party.partyGender === 'NO_MATTER'
-                                                    ? '상관없음'
-                                                    : '기타'}
+                                        {party.availableGender || '기타'}
                                     </span>
                                 </div>
                                 <div className={styles.partyTitle}>{party.title}</div>
                                 <div className={styles.meta}>
-                                    <span>{writer?.nickname || '작성자'}</span>
-                                    <span>{writer?.gender === 'MALE' ? '남성' : writer?.gender === 'FEMALE' ? '여성' : '기타'}</span>
-                                    {/* match table 백엔드 연결 필요 */}
-                                    <span>· {party.matchDate}3.22(토) 오후 2:00</span>
+                                    <span>{writer?.writerName || '작성자'}</span>
+                                    {/*<span>{writer?.age || '연령'}</span>*/}
+                                    <span>{writer?.writerGender === 'MALE' ? '남성' : writer?.writerGender === 'FEMALE' ? '여성' : '기타'}</span>
+                                    {/* match table 백엔드 연결 필요 - match_date 표시 예정 */}
+                                    <span>· 3.22(토) 오후 2:00</span>
                                 </div>
                                 <div className={styles.status}>
                                     {/* user-service 백엔드 단에서 presigned image 로직 적용 필요 */}
@@ -140,7 +172,18 @@ const PartyDetail = () => {
                     <div className={styles.description}>
                         <p>{party?.text}</p>
                     </div>
-                    <button className={styles.applyButton} onClick={applyParty}>파티 신청하기</button>
+                    {user?.id === party?.writerId ? (
+                        <button
+                            className={styles.applyButton}
+                            onClick={() => navigate("/party/matchid", { state: { tabIndex: 2 } })}
+                        >
+                            신청자 관리
+                        </button>
+                    ) : (
+                        <button className={styles.applyButton} onClick={applyParty}>
+                            파티 신청하기
+                        </button>
+                    )}
                     {showModal && (
                         <Modal
                             title="알림"
@@ -168,6 +211,21 @@ const PartyDetail = () => {
                     )}
                 </div>
             </div>
+            {showApplyModal && (
+                <Modal
+                    title="알림"
+                    message="가입이 완료되었습니다."
+                    buttons={[
+                        {
+                            label: '확인',
+                            onClick: () => {
+                                setShowApplyModal(false);
+                                navigate(`/chat/party/${partyId}`);
+                            }
+                        }
+                    ]}
+                />
+            )}
             <CasterbotButton onClick={() => setShowCasterbot(true)} />
             {showCasterbot && (
                 <CasterbotModal onClose={() => setShowCasterbot(false)}/>
