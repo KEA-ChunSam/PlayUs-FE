@@ -101,7 +101,7 @@ const PartyMake = () => {
             ageGroup: partyForm.ageGroup,
             minimumParticipants: parseInt(partyForm.minimumParticipants),
             maximumParticipants: parseInt(partyForm.maximumParticipants),
-            thumbnailImageNameList: [], // This field is still named thumbnailUrl in payload
+            thumbnailImageNameList: uploadedFileNames, // This field is still named thumbnailUrl in payload
             message: partyForm.message,
             matchId: partyForm.matchId,
         };
