@@ -57,7 +57,7 @@ jobs:
           cache: 'npm'
 
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -163,31 +163,33 @@ jobs:
       - name: Notify deployment status
         if: always()
         run: |
-          if [ "${{ job.status }}" == "success" ]; then
-            COLOR="#36a64f"
-            EMOJI="✅"
-            STATUS="성공"
-          else
-            COLOR="#ff0000"
-            EMOJI="❌"
-            STATUS="실패"
-          fi
-
           COMMIT_MESSAGE=$(git log -1 --pretty=%B | tr '\n' ' ' | sed 's/"/\\"/g')
           COMMIT_AUTHOR=$(git log -1 --pretty=%an)
           COMMIT_SHA_SHORT=$(git rev-parse --short HEAD)
           DEPLOY_TIME=$(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S %Z')
+          STATUS=$([ "${{ job.status }}" == "success" ] && echo "성공" || echo "실패")
+          COLOR=$([ "${{ job.status }}" == "success" ] && echo "#36a64f" || echo "#ff0000")
+          EMOJI=$([ "${{ job.status }}" == "success" ] && echo "✅" || echo "❌")
 
-          PAYLOAD='{
-            "attachments": [
-              {
-                "color": "'"${COLOR}"'",
+          jq -n \
+            --arg color "$COLOR" \
+            --arg emoji "$EMOJI" \
+            --arg status "$STATUS" \
+            --arg version "$COMMIT_SHA_SHORT" \
+            --arg deployTime "$DEPLOY_TIME" \
+            --arg commitMsg "$COMMIT_MESSAGE" \
+            --arg author "$COMMIT_AUTHOR" \
+            --arg env "$NODE_ENV" \
+            --arg url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            '{
+              "attachments": [{
+                "color": $color,
                 "blocks": [
                   {
                     "type": "header",
                     "text": {
                       "type": "plain_text",
-                      "text": "'"${EMOJI}"' PlayUs 배포 '"${STATUS}"'",
+                      "text": $emoji + " PlayUs 배포 " + $status,
                       "emoji": true
                     }
                   },
@@ -196,11 +198,11 @@ jobs:
                     "fields": [
                       {
                         "type": "mrkdwn",
-                        "text": "*버전:*\n'"${COMMIT_SHA_SHORT}"'"
+                        "text": "*버전:*\n" + $version
                       },
                       {
                         "type": "mrkdwn",
-                        "text": "*배포 시간:*\n'"${DEPLOY_TIME}"'"
+                        "text": "*배포 시간:*\n" + $deployTime
                       }
                     ]
                   },
@@ -209,11 +211,11 @@ jobs:
                     "fields": [
                       {
                         "type": "mrkdwn",
-                        "text": "*커밋 메시지:*\n'"${COMMIT_MESSAGE}"'"
+                        "text": "*커밋 메시지:*\n" + $commitMsg
                       },
                       {
                         "type": "mrkdwn",
-                        "text": "*작성자:*\n'"${COMMIT_AUTHOR}"'"
+                        "text": "*작성자:*\n" + $author
                       }
                     ]
                   },
@@ -221,7 +223,7 @@ jobs:
                     "type": "section",
                     "text": {
                       "type": "mrkdwn",
-                      "text": "*배포 환경:*\n'"${NODE_ENV}"'"
+                      "text": "*배포 환경:*\n" + $env
                     }
                   },
                   {
@@ -229,15 +231,10 @@ jobs:
                     "elements": [
                       {
                         "type": "mrkdwn",
-                        "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|배포 상세 정보 보기>"
+                        "text": "<" + $url + "|배포 상세 정보 보기>"
                       }
                     ]
                   }
                 ]
-              }
-            ]
-          }'
-
-          curl -X POST -H 'Content-type: application/json' \
-            --data "${PAYLOAD}" \
-            ${{ secrets.SLACK_WEBHOOK_URL }}
+              }]
+            }' | curl -X POST -H 'Content-type: application/json' --data @- ${{ secrets.SLACK_WEBHOOK_URL }}
