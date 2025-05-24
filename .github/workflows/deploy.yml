@@ -97,11 +97,11 @@ jobs:
       - name: Deploy to Web Server via Bastion
         run: |
           ssh -i private_key -o ProxyJump=${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} ${{ env.WEB_SERVER }} '
-            mkdir -p /home/ubuntu/deploy
-            mkdir -p $WEB_BACKUP_DIR
+            sudo mkdir -p /home/ubuntu/deploy
+            sudo mkdir -p $WEB_BACKUP_DIR
             BACKUP_DIR=$WEB_BACKUP_DIR/backup_$(date +%Y%m%d_%H%M%S)
-            mkdir -p $BACKUP_DIR
-            cp -r $WEB_DIR/* $BACKUP_DIR/ 2>/dev/null || true
+            sudo mkdir -p $BACKUP_DIR
+            sudo cp -r $WEB_DIR/* $BACKUP_DIR/ 2>/dev/null || true
             echo $BACKUP_DIR > /tmp/latest_backup
           '
 
@@ -109,8 +109,8 @@ jobs:
             $APP_DIR/ ${{ env.WEB_SERVER }}:/home/ubuntu/deploy/
 
           ssh -i private_key -o ProxyJump=${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} ${{ env.WEB_SERVER }} '
-            mv /home/ubuntu/deploy/* $WEB_DIR/
-            rm -rf /home/ubuntu/deploy
+            sudo mv /home/ubuntu/deploy/* $WEB_DIR/
+            sudo rm -rf /home/ubuntu/deploy
             sudo systemctl restart nginx
           '
 
@@ -141,7 +141,7 @@ jobs:
           ${{ env.WEB_SERVER }} '
             LATEST_BACKUP=$(ls -t $WEB_BACKUP_DIR/backup_* 2>/dev/null | head -n1)
             if [ ! -z "$LATEST_BACKUP" ]; then
-              cp -r $LATEST_BACKUP/* $WEB_DIR/
+              sudo cp -r $LATEST_BACKUP/* $WEB_DIR/
               sudo systemctl restart nginx
               echo "Rollback completed to backup: $LATEST_BACKUP"
             else
@@ -154,7 +154,7 @@ jobs:
         if: success()
         run: |
           ssh -i private_key -o ProxyJump=${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} \
-          ${{ env.WEB_SERVER }} "find $WEB_BACKUP_DIR/backup_* -maxdepth 0 -mtime +7 -exec rm -rf {} \; 2>/dev/null || true"
+          ${{ env.WEB_SERVER }} "sudo find $WEB_BACKUP_DIR/backup_* -maxdepth 0 -mtime +7 -exec rm -rf {} \; 2>/dev/null || true"
 
       - name: Clean up
         if: always()
@@ -176,7 +176,7 @@ jobs:
           COMMIT_MESSAGE=$(git log -1 --pretty=%B | tr '\n' ' ' | sed 's/"/\\"/g')
           COMMIT_AUTHOR=$(git log -1 --pretty=%an)
           COMMIT_SHA_SHORT=$(git rev-parse --short HEAD)
-          DEPLOY_TIME=$(date '+%Y-%m-%d %H:%M:%S KST')
+          DEPLOY_TIME=$(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S %Z')
 
           PAYLOAD='{
             "attachments": [
