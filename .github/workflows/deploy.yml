@@ -33,7 +33,7 @@ jobs:
   build-and-deploy:
     needs: validate
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
 
     env:
       APP_DIR: build
@@ -96,23 +96,23 @@ jobs:
 
       - name: Deploy to Web Server via Bastion
         run: |
-          ssh -i private_key -o ProxyJump=${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} ${{ env.WEB_SERVER }} "
+          ssh -i private_key -o ProxyJump=${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} ${{ env.WEB_SERVER }} '
             mkdir -p /home/ubuntu/deploy
             mkdir -p $WEB_BACKUP_DIR
             BACKUP_DIR=$WEB_BACKUP_DIR/backup_$(date +%Y%m%d_%H%M%S)
-            mkdir -p \$BACKUP_DIR
-            cp -r $WEB_DIR/* \$BACKUP_DIR/ 2>/dev/null || true
-            echo \$BACKUP_DIR > /tmp/latest_backup
-          "
+            mkdir -p $BACKUP_DIR
+            cp -r $WEB_DIR/* $BACKUP_DIR/ 2>/dev/null || true
+            echo $BACKUP_DIR > /tmp/latest_backup
+          '
 
           rsync -avz --delete -e "ssh -i private_key -o ProxyJump=${{ env.BASTION_USER }}@${{ env.BASTION_HOST }}" \
-          $APP_DIR/ ${{ env.WEB_SERVER }}:/home/ubuntu/deploy/
+            $APP_DIR/ ${{ env.WEB_SERVER }}:/home/ubuntu/deploy/
 
-          ssh -i private_key -o ProxyJump=${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} ${{ env.WEB_SERVER }} "
+          ssh -i private_key -o ProxyJump=${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} ${{ env.WEB_SERVER }} '
             mv /home/ubuntu/deploy/* $WEB_DIR/
             rm -rf /home/ubuntu/deploy
             sudo systemctl restart nginx
-          "
+          '
 
       - name: Verify Nginx status
         run: |
@@ -138,17 +138,17 @@ jobs:
         if: failure()
         run: |
           ssh -i private_key -o ProxyJump=${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} \
-          ${{ env.WEB_SERVER }} "
-            LATEST_BACKUP=\$(ls -t $WEB_BACKUP_DIR/backup_* 2>/dev/null | head -n1)
-            if [ ! -z \"\$LATEST_BACKUP\" ]; then
-              cp -r \$LATEST_BACKUP/* $WEB_DIR/
+          ${{ env.WEB_SERVER }} '
+            LATEST_BACKUP=$(ls -t $WEB_BACKUP_DIR/backup_* 2>/dev/null | head -n1)
+            if [ ! -z "$LATEST_BACKUP" ]; then
+              cp -r $LATEST_BACKUP/* $WEB_DIR/
               sudo systemctl restart nginx
-              echo 'Rollback completed to backup: '\$LATEST_BACKUP
+              echo "Rollback completed to backup: $LATEST_BACKUP"
             else
-              echo 'No backup found for rollback'
+              echo "No backup found for rollback"
               exit 1
             fi
-          "
+          '
 
       - name: Clean old backups
         if: success()
@@ -178,17 +178,16 @@ jobs:
           COMMIT_SHA_SHORT=$(git rev-parse --short HEAD)
           DEPLOY_TIME=$(date '+%Y-%m-%d %H:%M:%S KST')
 
-          PAYLOAD=$(cat <<EOF
-          {
+          PAYLOAD='{
             "attachments": [
               {
-                "color": "${COLOR}",
+                "color": "'"${COLOR}"'",
                 "blocks": [
                   {
                     "type": "header",
                     "text": {
                       "type": "plain_text",
-                      "text": "${EMOJI} PlayUs 배포 ${STATUS}",
+                      "text": "'"${EMOJI}"' PlayUs 배포 '"${STATUS}"'",
                       "emoji": true
                     }
                   },
@@ -197,11 +196,11 @@ jobs:
                     "fields": [
                       {
                         "type": "mrkdwn",
-                        "text": "*버전:*\n${COMMIT_SHA_SHORT}"
+                        "text": "*버전:*\n'"${COMMIT_SHA_SHORT}"'"
                       },
                       {
                         "type": "mrkdwn",
-                        "text": "*배포 시간:*\n${DEPLOY_TIME}"
+                        "text": "*배포 시간:*\n'"${DEPLOY_TIME}"'"
                       }
                     ]
                   },
@@ -210,11 +209,11 @@ jobs:
                     "fields": [
                       {
                         "type": "mrkdwn",
-                        "text": "*커밋 메시지:*\n${COMMIT_MESSAGE}"
+                        "text": "*커밋 메시지:*\n'"${COMMIT_MESSAGE}"'"
                       },
                       {
                         "type": "mrkdwn",
-                        "text": "*작성자:*\n${COMMIT_AUTHOR}"
+                        "text": "*작성자:*\n'"${COMMIT_AUTHOR}"'"
                       }
                     ]
                   },
@@ -222,7 +221,7 @@ jobs:
                     "type": "section",
                     "text": {
                       "type": "mrkdwn",
-                      "text": "*배포 환경:*\n${NODE_ENV}"
+                      "text": "*배포 환경:*\n'"${NODE_ENV}"'"
                     }
                   },
                   {
@@ -237,9 +236,7 @@ jobs:
                 ]
               }
             ]
-          }
-EOF
-          )
+          }'
 
           curl -X POST -H 'Content-type: application/json' \
             --data "${PAYLOAD}" \
