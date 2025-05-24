@@ -23,3 +23,7 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Environment config files
+env-config/*.env.json
+!env-config/*.env.json.example
