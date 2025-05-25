@@ -67,7 +67,16 @@ const DiaryDetail = () => {
                                 <div
                                     className={styles.menuItem}
                                     onClick={() => {
-                                        navigate(`/diary/newdiary`, {state: diary});
+                                        navigate(`/diary/newdiary`, {
+                                            state: {
+                                                id: diary.postId,          // ✅ 이걸 명시적으로 넣어줘야 NewDiary.js에서 인식 가능
+                                                team: diary.team,
+                                                title: diary.title,
+                                                content: diary.content,
+                                                image: diary.image,
+                                                twpDate: diary.date
+                                            }
+                                        });
                                     }}
                                 >
                                     수정하기

@@ -4,6 +4,7 @@ import {useLocation, useNavigate} from 'react-router-dom';
 import styles from './NewDiary.module.css';
 import CasterbotModal from "../Chatbot/CasterbotModal";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
+import axios from 'axios';
 
 const teams = [
     '한화 이글스', '기아 타이거즈', '두산 베어스', 'LG 트윈스', '롯데 자이언츠',
@@ -21,6 +22,19 @@ const teamLogos = {
     'NC 다이노스': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_NC.png`,
     '키움 히어로즈': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`,
     'KT 위즈': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`
+};
+
+const teamMap = {
+    '한화 이글스': 'HANHWA_EAGLES',
+    '기아 타이거즈': 'KIA_TIGERS',
+    '두산 베어스': 'DOOSAN_BEARS',
+    'LG 트윈스': 'LG_TWINS',
+    '롯데 자이언츠': 'LOTTE_GIANTS',
+    '삼성 라이온즈': 'SAMSUNG_LIONS',
+    'SSG 랜더스': 'SSG_LANDERS',
+    'NC 다이노스': 'NC_DINOS',
+    '키움 히어로즈': 'KIWOOM_HEROES',
+    'KT 위즈': 'KT_WIZ'
 };
 
 const NewDiary = () => {
@@ -57,36 +71,34 @@ const NewDiary = () => {
         }
     };
 
-    // const handleSubmit = (e) => {
-    //     e.preventDefault();
-    //     // TODO: DB에 만든 직관일지 데이터 보내는 로직 구현
-    //     console.log({team, title, content, imageFile});
-    //
-    // };
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const diaryData = {
-            id: isEditing ? location.state.id : Date.now(),
-            team,
+        const postData = {
             title,
             content,
-            date: isEditing ? location.state.date : new Date().toISOString().slice(0, 10).replace(/-/g, '.'),
-            image: image ? image : null,
-            teamLogo: teamLogos[team] || null
+            image: image || null,
+            twpDate: isEditing ? location.state?.twpDate : new Date().toISOString().split('T')[0],
+            isSecret: true
         };
 
-        const existing = JSON.parse(localStorage.getItem('customDiaries')) || [];
-
-        if (isEditing) {
-            const updated = existing.map(d => d.id === diaryData.id ? diaryData : d);
-            localStorage.setItem('customDiaries', JSON.stringify(updated));
-        } else {
-            localStorage.setItem('customDiaries', JSON.stringify([...existing, diaryData]));
+        try {
+            const teamTag = teamMap[team];
+            if (isEditing) {
+                const postId = location.state?.id;
+                await axios.patch(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/live-match-diary/${teamTag}/${postId}`, postData, {
+                    withCredentials: true
+                });
+            } else {
+                await axios.post(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/live-match-diary/${teamTag}`, postData, {
+                    withCredentials: true
+                });
+            }
+            navigate('/diary/list');
+        } catch (error) {
+            console.error('직관일지 등록 실패:', error);
+            alert('직관일지 등록 중 오류가 발생했습니다.');
         }
-
-        navigate('/diary/list');
     };
 
     const handleCancel = () => {
