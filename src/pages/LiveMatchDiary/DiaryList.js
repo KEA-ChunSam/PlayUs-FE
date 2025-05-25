@@ -7,7 +7,7 @@ import TabNav from "../../components/TabNav/TabNav";
 import CasterbotModal from "../Chatbot/CasterbotModal";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import axios from 'axios';
-import {teamInfoMap} from "../../utils/teamInfoMap";
+import {teamInfoMap, teamInfoMapCommunity} from "../../utils/teamInfoMap";
 
 
 const DiaryList = () => {
@@ -20,9 +20,13 @@ const DiaryList = () => {
     const tabLabels = ["나의 직관일지"];
     const [showCasterbot, setShowCasterbot] = useState(false);
 
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchMyDiaries = async () => {
+            setLoading(true);
+            setError(null);
             try {
                 const response = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/live-match-diary/my`, {
                     params: {
@@ -33,7 +37,7 @@ const DiaryList = () => {
                 });
 
                 const data = response.data.map((entry) => {
-                    const teamData = teamInfoMap.find(team => team.teamId === entry.TeamName);
+                    const teamData = teamInfoMapCommunity.find(team => team.teamId === entry.TeamName);
                     return {
                         id: entry.postId,
                         title: entry.title,
@@ -41,7 +45,7 @@ const DiaryList = () => {
                         image: entry.thumbnail || null,
                         // image: `${process.env.PUBLIC_URL}/exImage.png` || null, // 임시 이미지
                         team: teamData?.name || '',
-                        teamLogo: teamData?.logo || '/Logo/TeamLogo/default_logo.png',
+                        teamLogo: teamData?.logo  || `${process.env.PUBLIC_URL}/exImage.png`,
                         content: '',
                     };
                 });
@@ -49,6 +53,9 @@ const DiaryList = () => {
 
             } catch (error) {
                 console.error('직관일지 목록 불러오기 실패:', error);
+                setError('직관일지를 불러오는 중 오류가 발생했습니다.');
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -87,7 +94,7 @@ const DiaryList = () => {
                             style={{cursor: 'pointer'}}
                         >
                             {entry.image ? (
-                                <img src={entry.image} alt="thumbnail" className={styles.thumbnail}/>
+                                <img src={entry.image || `${process.env.PUBLIC_URL}/exImage.png` } alt="thumbnail" className={styles.thumbnail}/>
                             ) : null}
                             <div className={styles.entryContent}>
                                 <span className={styles.entryTitle}>{entry.title}</span>

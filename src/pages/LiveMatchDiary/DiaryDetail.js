@@ -96,7 +96,7 @@ const DiaryDetail = () => {
                 </div>
 
                 <div className={styles.imageWrapper}>
-                    <img src={diary.image || '/default.png'} alt="diary" className={styles.image}/>
+                    <img src={diary.image || `${process.env.PUBLIC_URL}/exImage.png`} alt="diary" className={styles.image}/>
                 </div>
 
                 <div className={styles.content}>

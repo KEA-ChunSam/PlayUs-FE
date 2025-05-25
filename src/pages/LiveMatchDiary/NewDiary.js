@@ -1,5 +1,6 @@
 // 직관일지 작성 페이지
 import React, {useEffect, useState} from 'react';
+import Modal from '../../components/Modal/Modal';
 import {useLocation, useNavigate} from 'react-router-dom';
 import styles from './NewDiary.module.css';
 import CasterbotModal from "../Chatbot/CasterbotModal";
@@ -49,6 +50,10 @@ const NewDiary = () => {
     const [objectUrl, setObjectUrl] = useState(null);
     const [showCasterbot, setShowCasterbot] = useState(false);
 
+    const [showModal, setShowModal] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
+
 
     useEffect(() => {
         return () => {
@@ -77,7 +82,7 @@ const NewDiary = () => {
         const postData = {
             title,
             content,
-            image: image || null,
+            image: imageFile,
             twpDate: isEditing ? location.state?.twpDate : new Date().toISOString().split('T')[0],
             isSecret: true
         };
@@ -94,10 +99,14 @@ const NewDiary = () => {
                     withCredentials: true
                 });
             }
-            navigate('/diary/list');
+            setModalTitle('알림');
+            setModalMessage(isEditing ? '직관일지가 성공적으로 수정되었습니다!' : '직관일지가 성공적으로 작성되었습니다!');
+            setShowModal(true);
         } catch (error) {
             console.error('직관일지 등록 실패:', error);
-            alert('직관일지 등록 중 오류가 발생했습니다.');
+            setModalTitle('오류');
+            setModalMessage('직관일지 등록 중 오류가 발생했습니다.');
+            setShowModal(true);
         }
     };
 
@@ -178,6 +187,21 @@ const NewDiary = () => {
 
             {showCasterbot && (
                 <CasterbotModal onClose={() => setShowCasterbot(false)}/>
+            )}
+            {showModal && (
+                <Modal
+                    title={modalTitle}
+                    message={modalMessage}
+                    buttons={[
+                        {
+                            label: '확인',
+                            onClick: () => {
+                                setShowModal(false);
+                                navigate('/diary/list');
+                            }
+                        }
+                    ]}
+                />
             )}
         </>
     );
