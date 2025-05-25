@@ -6,37 +6,9 @@ import styles from './NewDiary.module.css';
 import CasterbotModal from "../Chatbot/CasterbotModal";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import axios from 'axios';
+import {kbo_teams, teamMap} from "../../utils/teamInfoMap";
 
-const teams = [
-    '한화 이글스', '기아 타이거즈', '두산 베어스', 'LG 트윈스', '롯데 자이언츠',
-    '삼성 라이온즈', 'SSG 랜더스', 'NC 다이노스', '키움 히어로즈', 'KT 위즈'
-];
 
-// const teamLogos = {
-//     '한화 이글스': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HH.png`,
-//     '기아 타이거즈': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HT.png`,
-//     '두산 베어스': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_OB.png`,
-//     'LG 트윈스': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LG.png`,
-//     '롯데 자이언츠': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LT.png`,
-//     '삼성 라이온즈': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SS.png`,
-//     'SSG 랜더스': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SK.png`,
-//     'NC 다이노스': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_NC.png`,
-//     '키움 히어로즈': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`,
-//     'KT 위즈': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`
-// };
-
-const teamMap = {
-    '한화 이글스': 'HANHWA_EAGLES',
-    '기아 타이거즈': 'KIA_TIGERS',
-    '두산 베어스': 'DOOSAN_BEARS',
-    'LG 트윈스': 'LG_TWINS',
-    '롯데 자이언츠': 'LOTTE_GIANTS',
-    '삼성 라이온즈': 'SAMSUNG_LIONS',
-    'SSG 랜더스': 'SSG_LANDERS',
-    'NC 다이노스': 'NC_DINOS',
-    '키움 히어로즈': 'KIWOOM_HEROES',
-    'KT 위즈': 'KT_WIZ'
-};
 
 const NewDiary = () => {
     const navigate = useNavigate();
@@ -141,7 +113,7 @@ const NewDiary = () => {
                             required
                         >
                             <option value="" disabled>팀을 선택해주세요</option>
-                            {teams.map((t, i) => (
+                            {kbo_teams.map((t, i) => (
                                 <option key={i} value={t}>{t}</option>
                             ))}
                         </select>
