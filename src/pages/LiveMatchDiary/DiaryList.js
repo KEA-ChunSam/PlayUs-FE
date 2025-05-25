@@ -3,10 +3,12 @@ import React, {useEffect, useState} from 'react';
 import {useNavigate, useSearchParams} from 'react-router-dom';
 import Pagination from '@mui/material/Pagination';
 import styles from './DiaryList.module.css';
-import dummyDiaries from '../../components/DummyData/dummyDiaries';
 import TabNav from "../../components/TabNav/TabNav";
 import CasterbotModal from "../Chatbot/CasterbotModal";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
+import axios from 'axios';
+import {teamInfoMap, teamInfoMapCommunity} from "../../utils/teamInfoMap";
+
 
 const DiaryList = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -18,12 +20,48 @@ const DiaryList = () => {
     const tabLabels = ["나의 직관일지"];
     const [showCasterbot, setShowCasterbot] = useState(false);
 
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        //setDiaries(dummyDiaries);
-        const customDiaries = JSON.parse(localStorage.getItem('customDiaries')) || [];
-        setDiaries([...customDiaries, ...dummyDiaries]);
-    }, []);
+        const fetchMyDiaries = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/live-match-diary/my`, {
+                    params: {
+                        page: page - 1,
+                        size: PER_PAGE,
+                    },
+                    withCredentials: true, // 필요시 쿠키 인증
+                });
+
+                const data = response.data.map((entry) => {
+                    const teamData = teamInfoMapCommunity.find(team => team.teamId === entry.TeamName);
+                    return {
+                        id: entry.postId,
+                        title: entry.title,
+                        date: entry.twpDate || entry.date,
+                        image: entry.thumbnail || null,
+                        // image: `${process.env.PUBLIC_URL}/exImage.png` || null, // 임시 이미지
+                        team: teamData?.name || '',
+                        teamLogo: teamData?.logo  || `${process.env.PUBLIC_URL}/exImage.png`,
+                        content: '',
+                    };
+                });
+                setDiaries(data);
+
+            } catch (error) {
+                console.error('직관일지 목록 불러오기 실패:', error);
+                setError('직관일지를 불러오는 중 오류가 발생했습니다.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchMyDiaries();
+        // setDiaries([...customDiaries, ...dummyDiaries]);
+    }, [page]);
 
     const handlePageChange = (_, value) => {
         setSearchParams({page: value});
@@ -46,16 +84,18 @@ const DiaryList = () => {
                 {/*<h2 className={styles.title}>나의 직관일지</h2>*/}
                 <TabNav tabs={tabLabels} onBack={handleBack}/>
                 <div className={styles.entryBox}>
-                    {pagedDiaries.map((entry) => (
+                    {pagedDiaries.length === 0 ? (
+                        <div className={styles.emptyMessage}>아직 작성한 직관일지가 없어요!</div>
+                    ) : pagedDiaries.map((entry) => (
                         <div
                             key={entry.id}
                             className={styles.entry}
                             onClick={() => handleClickDiary(entry.id)}
                             style={{cursor: 'pointer'}}
                         >
-                            {entry.image && (
-                                <img src={entry.image} alt="thumbnail" className={styles.thumbnail}/>
-                            )}
+                            {entry.image ? (
+                                <img src={entry.image || `${process.env.PUBLIC_URL}/exImage.png` } alt="thumbnail" className={styles.thumbnail}/>
+                            ) : null}
                             <div className={styles.entryContent}>
                                 <span className={styles.entryTitle}>{entry.title}</span>
                                 <span className={styles.entryDate}>{entry.date}</span>
@@ -63,35 +103,35 @@ const DiaryList = () => {
                             </div>
                         </div>
                     ))}
-                    <div className={styles.paginationWrapper}>
-                        <Pagination
-                            count={Math.ceil(diaries.length / PER_PAGE)}
-                            page={page}
-                            onChange={handlePageChange}
-                            variant="outlined"
-                            shape="rounded"
-                            sx={{
-                                '& .MuiPaginationItem-root': {
-                                    color: '#784af4',
-                                    border: '1px solid #784af4',
-                                    cursor: 'pointer',
-                                },
-                                '& .Mui-selected': {
-                                    backgroundColor: '#784af4',
-                                    color: '#fff',
-                                    borderColor: '#784af4',
-                                },
-                                '& .MuiPaginationItem-ellipsis': {
-                                    border: 'none',
-                                    color: '#784af4',
-                                    backgroundColor: 'transparent',
-                                },
-                            }}
-                        />
-                    </div>
+                </div>
+                <div className={styles.paginationWrapper}>
+                    <Pagination
+                        count={Math.ceil(diaries.length / PER_PAGE)}
+                        page={page}
+                        onChange={handlePageChange}
+                        variant="outlined"
+                        shape="rounded"
+                        sx={{
+                            '& .MuiPaginationItem-root': {
+                                color: '#784af4',
+                                border: '1px solid #784af4',
+                                cursor: 'pointer',
+                            },
+                            '& .Mui-selected': {
+                                backgroundColor: '#784af4',
+                                color: '#fff',
+                                borderColor: '#784af4',
+                            },
+                            '& .MuiPaginationItem-ellipsis': {
+                                border: 'none',
+                                color: '#784af4',
+                                backgroundColor: 'transparent',
+                            },
+                        }}
+                    />
                 </div>
             </div>
-            <CasterbotButton onClick={() => setShowCasterbot(true)} />
+            <CasterbotButton onClick={() => setShowCasterbot(true)}/>
 
             {showCasterbot && (
                 <CasterbotModal onClose={() => setShowCasterbot(false)}/>

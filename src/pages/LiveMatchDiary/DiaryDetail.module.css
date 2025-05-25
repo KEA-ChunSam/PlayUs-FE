@@ -57,6 +57,7 @@
 .menuPopup {
     position: absolute;
     top: 1.5rem;
+    min-width: 5.5rem;
     right: 0;
     background: #e4e4e4;
     border-radius: 4px;
@@ -66,6 +67,8 @@
 
 .menuItem {
     padding: 0.3rem 0.8rem;
+    display: flex;
+    justify-content: center;
     cursor: pointer;
 }
 

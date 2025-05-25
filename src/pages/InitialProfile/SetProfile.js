@@ -12,7 +12,12 @@ const SetProfile = () => {
     const [showModal, setShowModal] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
-    const [selectedTeam, setSelectedTeam] = useState(location.state?.selectedTeam || '');
+    const [selectedTeam, setSelectedTeam] = useState(() => {
+        const fromState = location.state?.selectedTeam;
+        if (fromState) return fromState;
+        const fromStorage = localStorage.getItem('selectedTeam');
+        return fromStorage ? Number(fromStorage) : '';
+    });
 
     // Profile image crop state
     const [profileImage, setProfileImage] = useState(null);
@@ -43,9 +48,38 @@ const SetProfile = () => {
             return;
         }
 
+        let thumbnailURL = 'default.png';
+
+        // 이미지가 있다면 presigned URL 요청 및 업로드 수행
+        if (profileImage) {
+            try {
+                const file = await fetch(profileImage).then(res => res.blob());
+
+                const fileName = `${Date.now()}.png`; // 또는 uuid 등 유니크한 이름
+                const presignedRes = await axios.post(
+                    `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/presigned-url`,
+                    { fileName },
+                    { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
+                );
+
+                await fetch(presignedRes.data.presignedUrl, {
+                    method: 'PUT',
+                    body: file,
+                    headers: { 'Content-Type': 'image/png' },
+                });
+
+                thumbnailURL = presignedRes.data.accessUrl; // 최종 접근 URL
+            } catch (err) {
+                console.error("이미지 업로드 실패:", err);
+                setShowModal(true);
+                return;
+            }
+        }
+
         const payload = {
             nickname,
             teamId: Number(selectedTeam),
+            thumbnailURL
         };
 
         try {
@@ -53,19 +87,13 @@ const SetProfile = () => {
                 `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/register`,
                 payload,
                 {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     withCredentials: true,
                 }
             );
-
-            console.log("✅ 요청 성공:", response.data);
-            console.log("📤 보낸 데이터:", payload);
             navigate('/login-complete');
         } catch (error) {
             console.error("❌ 요청 실패:", error.response ? error.response.data : error.message);
-            console.log("📤 보낸 데이터:", payload);
             setShowModal(true);
         }
     };
