@@ -11,18 +11,18 @@ const teams = [
     '삼성 라이온즈', 'SSG 랜더스', 'NC 다이노스', '키움 히어로즈', 'KT 위즈'
 ];
 
-const teamLogos = {
-    '한화 이글스': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HH.png`,
-    '기아 타이거즈': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HT.png`,
-    '두산 베어스': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_OB.png`,
-    'LG 트윈스': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LG.png`,
-    '롯데 자이언츠': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LT.png`,
-    '삼성 라이온즈': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SS.png`,
-    'SSG 랜더스': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SK.png`,
-    'NC 다이노스': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_NC.png`,
-    '키움 히어로즈': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`,
-    'KT 위즈': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`
-};
+// const teamLogos = {
+//     '한화 이글스': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HH.png`,
+//     '기아 타이거즈': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HT.png`,
+//     '두산 베어스': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_OB.png`,
+//     'LG 트윈스': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LG.png`,
+//     '롯데 자이언츠': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LT.png`,
+//     '삼성 라이온즈': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SS.png`,
+//     'SSG 랜더스': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SK.png`,
+//     'NC 다이노스': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_NC.png`,
+//     '키움 히어로즈': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`,
+//     'KT 위즈': `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`
+// };
 
 const teamMap = {
     '한화 이글스': 'HANHWA_EAGLES',
