@@ -1,5 +1,6 @@
 // 직관팟 메인(구하기) & 내 신청 현황 & 승인 요청을 한 코드에 적용.
 import React, {useEffect, useState} from 'react';
+import {useAuth} from '../../utils/AuthContext';
 import axios from 'axios';
 import CasterbotModal from '../../pages/Chatbot/CasterbotModal';
 import {useLocation, useNavigate} from 'react-router-dom';
@@ -9,6 +10,8 @@ import Modal from '../../components/Modal/Modal';
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 
 const Party = () => {
+    const {user} = useAuth();
+    const loginUserId = user?.id;
     const location = useLocation();
     const [activeTab, setActiveTab] = useState(location.state?.tabIndex || 0);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -21,6 +24,7 @@ const Party = () => {
     const [showDenyModal, setShowDenyModal] = useState(false);
     const [showCasterbot, setShowCasterbot] = useState(false);
     const [approvalList, setApprovalList] = useState([]);
+    const [myApprovalPartyDetail, setMyApprovalPartyDetail] = useState(null);
     const [myApplications, setMyApplications] = useState([]);
     const [partyList, setPartyList] = useState([]);
     const [originalPartyList, setOriginalPartyList] = useState([]);
@@ -54,13 +58,40 @@ const Party = () => {
     }, [partyList]);
 
     useEffect(() => {
-        if (activeTab === 2) {
-            axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/1/approved-applicants`, {withCredentials: true}) // Replace 1 with dynamic partyId if available
-                .then(res => setApprovalList(res.data))
-                .catch(err => console.error("신청자 목록 불러오기 실패:", err));
+        if (activeTab === 2 && partyList.length > 0) {
+            // Insert debug logs before finding myApprovalParty
+            // console.log("🔍 로그인한 유저 ID:", loginUserId);
+            // console.log("🔍 writerMap:", writerMap);
+            // console.log("🔍 partyList:", partyList);
+            const myApprovalParty = partyList.find(
+                p => {
+                    // console.log("🔎 검사 중인 팟:", p);
+                    // console.log("🔎 writerMap 매핑:", writerMap[p.writerId]?.id, "vs", loginUserId);
+                    return writerMap[p.writerId]?.id === loginUserId && p.partyJoinMethod === '승인제';
+                }
+            );
+            // console.log("✅ 찾은 승인제 팟:", myApprovalParty);
+
+            if (myApprovalParty) {
+                axios.get(
+                    `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${myApprovalParty.partyId}/approved-applicants`,
+                    {withCredentials: true}
+                )
+                    .then(res => setApprovalList(res.data))
+                    .catch(err => console.error("신청자 목록 불러오기 실패:", err));
+
+                axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${myApprovalParty.partyId}`, {
+                    withCredentials: true
+                })
+                    .then(res => setMyApprovalPartyDetail(res.data))
+                    .catch(err => console.error("직관팟 상세정보 불러오기 실패:", err));
+            } else {
+                console.warn("❗️ 승인제 팟을 찾을 수 없습니다.");
+                setMyApprovalPartyDetail(null);
+            }
         }
         if (activeTab === 1) {
-            axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/api/applications`, {withCredentials: true})
+            axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/applied-parties`, {withCredentials: true})
                 .then(res => setMyApplications(res.data))
                 .catch(err => console.error("내 신청 직관팟 불러오기 실패:", err));
         }
@@ -199,25 +230,24 @@ const Party = () => {
                         <div className={styles.approvalSection}>
                             <div className={styles.myStatusList}>
                                 {myApplications.map((party, idx) => {
-                                    const statusKey = mapStatusToKey(party.status);
+                                    const statusKey = mapStatusToKey(party.partyJoinRequestStatus);
                                     return (
                                         <div key={idx} className={styles.myStatusCard}>
                                             <div className={styles.myStatusCardContent}>
                                                 <div className={styles.myStatusTagRow}>
-                                                    {party.filters?.map((tag, index) => (
+                                                    {party.partyAgeGroup?.map((tag, index) => (
                                                         <span key={index}
                                                               className={`${styles.tag} ${index === 2 ? styles.tagHighlight : ''}`}>{tag}</span>
                                                     ))}
+                                                    <span className={styles.tagHighlight}>{party.partyGender}</span>
                                                 </div>
                                                 <div className={styles.myStatusTitle}>
                                                     <strong>{party.title}</strong>
                                                 </div>
                                                 <div className={styles.myStatusMeta}>
-                                                    <span>{party.writer}</span>
-                                                    <span>{new Date(party.date).toLocaleString('ko-KR', {
-                                                        dateStyle: 'short',
-                                                        timeStyle: 'short'
-                                                    })}</span>
+                                                    <span>{party.authorName}</span>
+                                                    <span>{party.authorAge}</span>
+                                                    <span>{party.authorGender === 'MALE' ? '남성' : party.authorGender === 'FEMALE' ? '여성' : '기타'}</span>
                                                 </div>
                                                 <div className={styles.myStatusButtons}>
                                                     {statusKey === 'pending' && (
@@ -246,14 +276,13 @@ const Party = () => {
                                                             <button className={styles.statusApproved}
                                                                     onClick={onEnterChat}>채팅방 입장!
                                                             </button>
-                                                            <span
-                                                                className={styles.newChatCount}>1</span> {/* Placeholder for newMessages */}
+                                                            <span className={styles.newChatCount}>1</span>
                                                         </div>
                                                     )}
                                                 </div>
                                             </div>
                                             <img
-                                                src={`${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
+                                                src={party.writerThumbnailUrl || `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
                                                 alt="썸네일"
                                                 className={styles.thumbnailImg}
                                             />
@@ -266,56 +295,72 @@ const Party = () => {
                     {/* 승인 요청 서브메뉴 */}
                     {activeTab === 2 && (
                         <div className={styles.approvalSection}>
-                            <div className={styles.myStatusList}>
-                                <div
-                                    className={styles.partyCard}
-                                    onClick={() => navigate(`/party/matchid/partyid`)}
-                                >
-                                    <img src={`${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`} alt="player"
-                                         className={styles.playerImg}/>
+                            {/* 상세 정보 카드 */}
+                            {myApprovalPartyDetail && (
+                                <div className={styles.partyCard}>
+                                    <img
+                                        src={myApprovalPartyDetail.partyThumbnailUrls?.[0] || `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
+                                        alt="직관팟 썸네일"
+                                        className={styles.playerImg}
+                                    />
                                     <div className={styles.partyContent}>
                                         <div className={styles.tags}>
-                                            <span className={styles.tag}>승인제</span>
-                                            <span className={styles.tag}>20대</span>
-                                            <span className={styles.tagHighlight}>여자만</span>
+                                            <span className={styles.tag}>{myApprovalPartyDetail.partyJoinMethod}</span>
+                                            {myApprovalPartyDetail.partyAges?.map((tag, index) => (
+                                                <span key={index}
+                                                      className={`${styles.tag} ${index === 2 ? styles.tagHighlight : ''}`}>{tag}</span>
+                                            ))}
+                                            <span
+                                                className={`${styles.tag} ${styles.tagHighlight}`}>{myApprovalPartyDetail.availableGender}</span>
                                         </div>
-                                        <div className={styles.partyTitle}>3/22(토) 한화 vs KT 개막전 직관🦁💙</div>
+                                        <div className={styles.partyTitle}>{myApprovalPartyDetail.title}</div>
                                         <div className={styles.partyMeta}>
-                                            <span>ZSJ</span>
-                                            <span>남성</span>
-                                            <span>· 3.22(토) 오후 2:00</span>
+                                            <span>{myApprovalPartyDetail.matchDate}</span>
                                         </div>
                                         <div className={styles.partyStatus}>
                                             <div className={styles.avatars}>
-                                                <img src={`${process.env.PUBLIC_URL}/Logo/profile.png`} alt="profile"/>
+                                                {myApprovalPartyDetail.userThumbnailUrls?.slice(0, 1).map((url, i) => (
+                                                    <img key={i}
+                                                         src={url || `${process.env.PUBLIC_URL}/Logo/profile.png`}
+                                                         alt="프로필"/>
+                                                ))}
                                             </div>
-                                            <div className={styles.slot}>10/14</div>
+                                            <div className={styles.slot}>
+                                                {myApprovalPartyDetail.currentParticipantsCount}/{myApprovalPartyDetail.maximumParticipantsCount}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            )}
                             <div className={styles.approvalList}>
-                                {approvalList.map((user, idx) => (
-                                    <div key={idx} className={styles.approvalCard}>
-                                        <img src={user.thumbnailUrl || `${process.env.PUBLIC_URL}/Logo/profile.png`}
-                                             alt="신청자" className={styles.userAvatar}/>
-                                        <div className={styles.userInfo}>
-                                            <div className={styles.nameRow}>
-                                                <span className={styles.userName}>{user.name}</span>
-                                                <span className={styles.ageBadge}>{`${user.age}대`}</span>
+                                {approvalList.length === 0 ? (
+                                    <div className={styles.noPartyMessage}>신청자가 없어요</div>
+                                ) : (
+                                    approvalList.map((user, idx) => (
+                                        <div key={idx} className={styles.approvalCard}>
+                                            <img
+                                                src={user.thumbnailUrl || `${process.env.PUBLIC_URL}/Logo/profile.png`}
+                                                alt="신청자"
+                                                className={styles.userAvatar}
+                                            />
+                                            <div className={styles.userInfo}>
+                                                <div className={styles.nameRow}>
+                                                    <span className={styles.userName}>{user.name}</span>
+                                                    <span className={styles.ageBadge}>{user.ageGroup}</span>
+                                                </div>
+                                                <p className={styles.userMessage}>{user.requireMessage}</p>
                                             </div>
-                                            <p className={styles.userMessage}>{user.requireMessage}</p>
+                                            <div className={styles.actionButtons}>
+                                                <button className={styles.approveButton}
+                                                        onClick={() => setShowApproveModal(true)}>승인하기
+                                                </button>
+                                                <button className={styles.rejectButton}
+                                                        onClick={() => setShowDenyModal(true)}>거부하기
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div className={styles.actionButtons}>
-                                            <button className={styles.approveButton}
-                                                    onClick={() => setShowApproveModal(true)}>승인하기
-                                            </button>
-                                            <button className={styles.rejectButton}
-                                                    onClick={() => setShowDenyModal(true)}>거부하기
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
+                                    ))
+                                )}
                             </div>
                         </div>
                     )}
