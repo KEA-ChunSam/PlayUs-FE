@@ -115,8 +115,7 @@ const DiaryDetail = () => {
                                 label: '확인',
                                 onClick: async () => {
                                     try {
-                                        const tag = getTeamTagFromKoreanName(diary.team);
-                                        await axios.delete(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/live-match-diary/${tag}/${id}`, {
+                                        await axios.delete(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/live-match-diary/${id}`, {
                                             withCredentials: true
                                         });
                                         setShowModal(false);
