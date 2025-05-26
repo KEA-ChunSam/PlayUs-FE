@@ -75,7 +75,11 @@ const DiaryList = () => {
 
     // Navigate to diary detail page
     const handleClickDiary = (id) => {
-        navigate(`/diary/${id}`);
+        const clickedDiary = diaries.find(d => d.id === id);
+        const teamTag = teamInfoMapCommunity.find(team => team.name === clickedDiary.team)?.teamId;
+        if (teamTag) {
+            navigate(`/diary/${teamTag}/${id}`);
+        }
     };
 
     return (

@@ -13,8 +13,18 @@ import {kbo_teams, teamMap} from "../../utils/teamInfoMap";
 const NewDiary = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    useEffect(() => {
+        console.log('🧭 location.state:', location.state);
+    }, []);
     const isEditing = !!location.state;
-    const [team, setTeam] = useState(location.state?.team || '');
+    const postId = isEditing ? location.state?.id : null;
+    // Enhanced team/tag initialization for editing mode
+    const teamTagFromState = location.state?.tag || null;
+    const teamNameFromTag = teamTagFromState
+        ? Object.entries(teamMap).find(([, tag]) => tag === teamTagFromState)?.[0]
+        : null;
+    const [team, setTeam] = useState(location.state?.team || teamNameFromTag || '');
+    const teamTag = team ? teamMap[team] : null;
     const [title, setTitle] = useState(location.state?.title || '');
     const [content, setContent] = useState(location.state?.content || '');
     const [image, setImage] = useState(location.state?.image || null);
@@ -60,9 +70,7 @@ const NewDiary = () => {
         };
 
         try {
-            const teamTag = teamMap[team];
-            if (isEditing) {
-                const postId = location.state?.id;
+            if (isEditing && postId && teamTag) {
                 await axios.patch(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/live-match-diary/${teamTag}/${postId}`, postData, {
                     withCredentials: true
                 });

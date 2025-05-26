@@ -24,6 +24,11 @@ export const teamInfoMapCommunity = [
     {id: 10, teamId: 'KIWOOM_HEROES', name: '키움', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`},
 ];
 
+export const getTeamTagFromKoreanName = (koreanName) => {
+    const team = teamInfoMapCommunity.find(t => koreanName.includes(t.name));
+    return team ? team.teamId : null;
+};
+
 export const teamMap = {
     '한화 이글스': 'HANHWA_EAGLES',
     '기아 타이거즈': 'KIA_TIGERS',
