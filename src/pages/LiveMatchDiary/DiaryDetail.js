@@ -7,9 +7,10 @@ import Modal from "../../components/Modal/Modal";
 import CasterbotModal from "../Chatbot/CasterbotModal";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import axios from 'axios';
+import { getTeamTagFromKoreanName } from "../../utils/teamInfoMap";
 
 const DiaryDetail = () => {
-    const {id} = useParams();
+    const {tag, id} = useParams();
     const [diary, setDiary] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showMenu, setShowMenu] = useState(false);
@@ -26,7 +27,7 @@ const DiaryDetail = () => {
     useEffect(() => {
         const fetchDiary = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/live-match-diary/${id}`, {
+                const response = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/live-match-diary/${tag}/${id}`, {
                     withCredentials: true,
                 });
                 setDiary(response.data);
@@ -38,7 +39,7 @@ const DiaryDetail = () => {
             }
         };
         fetchDiary();
-    }, [id]);
+    }, [tag, id]);
 
     if (loading) return <div>로딩 중...</div>;
     if (!diary) return <div>일지를 찾을 수 없습니다.</div>;
@@ -71,6 +72,7 @@ const DiaryDetail = () => {
                                             state: {
                                                 id: diary.postId,          // ✅ 이걸 명시적으로 넣어줘야 NewDiary.js에서 인식 가능
                                                 team: diary.team,
+                                                tag: tag,
                                                 title: diary.title,
                                                 content: diary.content,
                                                 image: diary.image,
@@ -111,9 +113,18 @@ const DiaryDetail = () => {
                             {label: '취소', onClick: () => setShowModal(false)},
                             {
                                 label: '확인',
-                                onClick: () => {
-                                    setShowModal(false);
-                                    navigate('/diary/list');
+                                onClick: async () => {
+                                    try {
+                                        await axios.delete(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/live-match-diary/${id}`, {
+                                            withCredentials: true
+                                        });
+                                        setShowModal(false);
+                                        navigate('/diary/list');
+                                    } catch (error) {
+                                        console.error('삭제 실패:', error);
+                                        setShowModal(false);
+                                        alert('삭제 중 오류가 발생했습니다.');
+                                    }
                                 }
                             }
                         ]}

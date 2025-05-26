@@ -7,7 +7,8 @@ import TabNav from "../../components/TabNav/TabNav";
 import CasterbotModal from "../Chatbot/CasterbotModal";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import axios from 'axios';
-import {teamInfoMap, teamInfoMapCommunity} from "../../utils/teamInfoMap";
+import {teamInfoMapCommunity} from "../../utils/teamInfoMap";
+import Modal from "../../components/Modal/Modal";
 
 
 const DiaryList = () => {
@@ -22,6 +23,7 @@ const DiaryList = () => {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         const fetchMyDiaries = async () => {
@@ -45,7 +47,7 @@ const DiaryList = () => {
                         image: entry.thumbnail || null,
                         // image: `${process.env.PUBLIC_URL}/exImage.png` || null, // 임시 이미지
                         team: teamData?.name || '',
-                        teamLogo: teamData?.logo  || `${process.env.PUBLIC_URL}/exImage.png`,
+                        teamLogo: teamData?.logo || `${process.env.PUBLIC_URL}/exImage.png`,
                         content: '',
                     };
                 });
@@ -75,7 +77,15 @@ const DiaryList = () => {
 
     // Navigate to diary detail page
     const handleClickDiary = (id) => {
-        navigate(`/diary/${id}`);
+        const clickedDiary = diaries.find(d => d.id === id);
+        if (!clickedDiary) {
+            setShowModal(true);
+            return;
+        }
+        const teamTag = teamInfoMapCommunity.find(team => team.name === clickedDiary.team)?.teamId;
+        if (teamTag) {
+            navigate(`/diary/${teamTag}/${id}`);
+        }
     };
 
     return (
@@ -94,7 +104,8 @@ const DiaryList = () => {
                             style={{cursor: 'pointer'}}
                         >
                             {entry.image ? (
-                                <img src={entry.image || `${process.env.PUBLIC_URL}/exImage.png` } alt="thumbnail" className={styles.thumbnail}/>
+                                <img src={entry.image || `${process.env.PUBLIC_URL}/exImage.png`} alt="thumbnail"
+                                     className={styles.thumbnail}/>
                             ) : null}
                             <div className={styles.entryContent}>
                                 <span className={styles.entryTitle}>{entry.title}</span>
@@ -135,6 +146,15 @@ const DiaryList = () => {
 
             {showCasterbot && (
                 <CasterbotModal onClose={() => setShowCasterbot(false)}/>
+            )}
+            {showModal && (
+                <Modal
+                    title="알림"
+                    message="직관일지를 찾을 수 없습니다!"
+                    buttons={[
+                        {label: '확인', onClick: () => setShowModal(false)},
+                    ]}
+                />
             )}
         </>
     );

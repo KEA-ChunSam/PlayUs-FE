@@ -112,7 +112,7 @@ function AppRouter() {
                     <Route index element={<NewDiary/>}/>
                 </Route>
                 {/* 직관일지 상세 */}
-                <Route path="/diary/:id" element={<MobileView/>}>
+                <Route path="/diary/:tag/:id" element={<MobileView/>}>
                     <Route index element={<DiaryDetail/>}/>
                 </Route>
             </Routes>

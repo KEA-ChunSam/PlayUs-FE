@@ -47,7 +47,7 @@ const TeamChoice = () => {
                         {id: 1, teamId: 'NC Dinos', name: 'NC', logo: 'emblem_NC.png'},
                         {id: 2, teamId: 'Samsung Lions', name: '삼성', logo: 'emblem_SS.png'},
                         {id: 3, teamId: 'Doosan Bears', name: '두산', logo: 'emblem_OB.png'},
-                        {id: 4, teamId: 'Hanhwa Eagles', name: '한화', logo: 'emblem_HH.png'},
+                        {id: 4, teamId: 'Hanwha Eagles', name: '한화', logo: 'emblem_HH.png'},
                         {id: 5, teamId: 'Kia Tigers', name: 'KIA', logo: 'emblem_HT.png'},
                         {id: 6, teamId: 'KT Wiz', name: 'KT', logo: 'emblem_KT.png'},
                         {id: 7, teamId: 'Lotte Giants', name: '롯데', logo: 'emblem_LT.png'},
