@@ -30,7 +30,7 @@ jobs:
     timeout-minutes: 30
 
     env:
-      APP_DIR: build
+      APP_DIR: dist
       BASTION_HOST: ${{ secrets.BASTION_HOST }}
       BASTION_USER: ${{ secrets.BASTION_USER }}
       BASTION_KEY: ${{ secrets.BASTION_KEY }}
@@ -61,11 +61,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate .env from REACT_DEVELOP_JSON
+      - name: Generate .env from VITE_DEVELOP_JSON
         run: |
-          echo '${{ secrets.REACT_DEVELOP_JSON }}' | jq -r 'to_entries[] | "\(.key)=\(.value)"' > .env
-          echo "REACT_APP_VERSION=${{ env.DEPLOY_VERSION }}" >> .env
-          echo "REACT_APP_BUILD_TIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> .env
+          echo '${{ secrets.VITE_DEVELOP_JSON }}' | jq -r 'to_entries[] | "\(.key)=\(.value)"' > .env
+          echo "VITE_VERSION=${{ env.DEPLOY_VERSION }}" >> .env
+          echo "VITE_BUILD_TIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> .env
           echo ".env 파일 생성 완료"
           echo "생성된 환경 변수 목록:"
           cat .env | sed 's/=.*/=***/' | sed 's/^/   - /'

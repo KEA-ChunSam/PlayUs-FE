@@ -1,12 +1,12 @@
 import * as Sentry from '@sentry/react';
 import {BrowserTracing} from '@sentry/tracing';
 
-if (['prod', 'dev'].includes(process.env.REACT_APP_ENVIRONMENT)) {
+if (['prod', 'dev'].includes(import.meta.env.VITE_ENVIRONMENT)) {
     Sentry.init({
-        dsn: process.env.REACT_APP_SENTRY_DSN,
+        dsn: import.meta.env.VITE_SENTRY_DSN,
         integrations: [new BrowserTracing()],
         tracesSampleRate: 1.0,
-        environment: process.env.REACT_APP_ENVIRONMENT,
+        environment: import.meta.env.VITE_ENVIRONMENT,
         beforeSend(event, hint) {
             const error = hint.originalException;
             if (error instanceof Error) {
@@ -18,9 +18,9 @@ if (['prod', 'dev'].includes(process.env.REACT_APP_ENVIRONMENT)) {
 }
 
 function sendToSlack(error) {
-    const ENVIRONMENT = process.env.REACT_APP_ENVIRONMENT
-    const SENTRY_REPOSITORY_URI = process.env.REACT_APP_SENTRY_REPOSITORY_URI
-    const SLACK_WEBHOOK_URL = process.env.REACT_APP_SLACK_WEBHOOK_URL
+    const ENVIRONMENT = import.meta.env.VITE_ENVIRONMENT;
+    const SENTRY_REPOSITORY_URI = import.meta.env.VITE_SENTRY_REPOSITORY_URI;
+    const SLACK_WEBHOOK_URL = import.meta.env.VITE_SLACK_WEBHOOK_URL;
 
     const now = new Date();
     const formattedTime = now.toISOString().replace('T', ' ').substring(0, 23);
