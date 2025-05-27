@@ -1,7 +1,7 @@
 // 경기 정보 및 AI 시뮬레이션 페이지
 import TabNav from '../../components/TabNav/TabNav';
 import styles from './MatchInfo.module.css';
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 // import {useNavigate} from "react-router-dom";
 import SubTabNav from "../../components/TabNav/SubTabNav";
 import LineupDraggableList from '../../components/DragNDrop/LineupDraggableList';
