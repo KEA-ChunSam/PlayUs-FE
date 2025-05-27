@@ -71,10 +71,10 @@ export default function PartyApply() {
                 <Modal
                     title="신청 완료!"
                     message="직관팟 신청이 완료되었어요!"
-                    onClose={() => {
-                        setShowApplyModal(false);
-                        navigate('/party/matchid/partyid');
-                    }}
+                    // onClose={() => {
+                    //     setShowApplyModal(false);
+                    //     navigate('/party/matchid');
+                    // }}
                     buttons={[
                         { label: '취소', onClick: () => setShowApplyModal(false) },
                         {
@@ -82,6 +82,7 @@ export default function PartyApply() {
                             onClick: () => {
                                 // 삭제 로직 실행
                                 setShowApplyModal(false);
+                                navigate('/party/matchid')
                             }
                         }
                     ]}

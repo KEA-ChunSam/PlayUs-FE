@@ -22,6 +22,7 @@ const Party = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showApproveModal, setShowApproveModal] = useState(false);
     const [showDenyModal, setShowDenyModal] = useState(false);
+    const [selectedApplicantUserId, setSelectedApplicantUserId] = useState(null);
     const [showCasterbot, setShowCasterbot] = useState(false);
     const [approvalList, setApprovalList] = useState([]);
     const [myApprovalPartyDetail, setMyApprovalPartyDetail] = useState(null);
@@ -108,11 +109,15 @@ const Party = () => {
     const mapStatusToKey = (status) => {
         switch (status) {
             case 'WAIT':
-                return 'pending';
+            case '신청중':
+                return '신청중';
             case 'ACCEPT':
-                return 'approved';
+            case '승인됨':
+                return '채팅방 입장!';
             case 'REFUSE':
-                return 'rejected';
+            case '거부됨':
+            case '승인 거부됨':
+                return '승인 거부됨';
             default:
                 return '';
         }
@@ -250,7 +255,7 @@ const Party = () => {
                                                     <span>{party.authorGender === 'MALE' ? '남성' : party.authorGender === 'FEMALE' ? '여성' : '기타'}</span>
                                                 </div>
                                                 <div className={styles.myStatusButtons}>
-                                                    {statusKey === 'pending' && (
+                                                    {statusKey === '신청중' && (
                                                         <>
                                                             <button className={styles.statusPending}>신청중</button>
                                                             <button
@@ -261,7 +266,7 @@ const Party = () => {
                                                             </button>
                                                         </>
                                                     )}
-                                                    {statusKey === 'rejected' && (
+                                                    {statusKey === '승인 거부됨' && (
                                                         <>
                                                             <button className={styles.statusRejected}>승인 거부됨</button>
                                                             <button className={styles.DeleteParty}
@@ -271,7 +276,7 @@ const Party = () => {
                                                             </button>
                                                         </>
                                                     )}
-                                                    {statusKey === 'approved' && (
+                                                    {statusKey === '채팅방 입장!' && (
                                                         <div className={styles.chatButtonWrapper}>
                                                             <button className={styles.statusApproved}
                                                                     onClick={onEnterChat}>채팅방 입장!
@@ -351,11 +356,23 @@ const Party = () => {
                                                 <p className={styles.userMessage}>{user.requireMessage}</p>
                                             </div>
                                             <div className={styles.actionButtons}>
-                                                <button className={styles.approveButton}
-                                                        onClick={() => setShowApproveModal(true)}>승인하기
+                                                <button
+                                                    className={styles.approveButton}
+                                                    onClick={() => {
+                                                        setSelectedApplicantUserId(user.userId);
+                                                        setShowApproveModal(true);
+                                                    }}
+                                                >
+                                                    승인하기
                                                 </button>
-                                                <button className={styles.rejectButton}
-                                                        onClick={() => setShowDenyModal(true)}>거부하기
+                                                <button
+                                                    className={styles.rejectButton}
+                                                    onClick={() => {
+                                                        setSelectedApplicantUserId(user.userId);
+                                                        setShowDenyModal(true);
+                                                    }}
+                                                >
+                                                    거부하기
                                                 </button>
                                             </div>
                                         </div>
@@ -454,17 +471,35 @@ const Party = () => {
                     show: showCancelModal,
                     title: '신청 취소',
                     message: '정말 취소하시겠습니까?',
-                    buttons:
-                        [
-                            {label: '취소', onClick: () => setShowCancelModal(false)},
-                            {
-                                label: '확인',
-                                onClick: () => {
-                                    // 삭제 로직 실행
+                    buttons: [
+                        { label: '취소', onClick: () => setShowCancelModal(false) },
+                        {
+                            label: '확인',
+                            onClick: async () => {
+                                try {
+                                    const partyId = myApplications.find(p => mapStatusToKey(p.partyJoinRequestStatus) === '신청중')?.partyId;
+                                    if (!partyId) {
+                                        console.warn("취소할 신청중인 파티가 없습니다.");
+                                        setShowCancelModal(false);
+                                        return;
+                                    }
+
+                                    await axios.patch(
+                                        `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}/cancel`,
+                                        {},
+                                        { withCredentials: true }
+                                    );
+
+                                    // 신청 목록에서 제거
+                                    setMyApplications(prev => prev.filter(p => p.partyId !== partyId));
+                                } catch (err) {
+                                    console.error("신청 취소 실패:", err);
+                                } finally {
                                     setShowCancelModal(false);
                                 }
                             }
-                        ]
+                        }
+                    ]
                 },
                 {
                     show: showDeleteModal, title: '삭제하기', message: '삭제되었습니다.', buttons:
@@ -483,38 +518,69 @@ const Party = () => {
                     show: showApproveModal,
                     title: '승인하기',
                     message: '참가 요청을 승인하시겠습니까?',
-                    buttons:
-                        [
-                            {label: '취소', onClick: () => setShowApproveModal(false)},
-                            {
-                                label: '확인',
-                                onClick: () => {
-                                    // 삭제 로직 실행
+                    buttons: [
+                        { label: '취소', onClick: () => setShowApproveModal(false) },
+                        {
+                            label: '확인',
+                            onClick: async () => {
+                                try {
+                                    await axios.patch(
+                                        `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${myApprovalPartyDetail.partyId}/approve`,
+                                        {
+                                            applicantUserId: selectedApplicantUserId,
+                                            isApproved: true
+                                        },
+                                        { withCredentials: true }
+                                    );
                                     setShowApproveModal(false);
+                                    setSelectedApplicantUserId(null);
+                                    // Reload approval list
+                                    const res = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${myApprovalPartyDetail.partyId}/approved-applicants`, {
+                                        withCredentials: true
+                                    });
+                                    setApprovalList(res.data);
+                                } catch (err) {
+                                    console.error("승인 요청 처리 실패:", err);
                                 }
                             }
-                        ]
+                        }
+                    ]
                 },
                 {
                     show: showDenyModal,
                     title: '삭제하기',
                     message: '참가 요청을 거부하시겠습니까?',
-                    buttons:
-                        [
-                            {label: '취소', onClick: () => setShowDenyModal(false)},
-                            {
-                                label: '확인',
-                                onClick: () => {
-                                    // 삭제 로직 실행
+                    buttons: [
+                        { label: '취소', onClick: () => setShowDenyModal(false) },
+                        {
+                            label: '확인',
+                            onClick: async () => {
+                                try {
+                                    await axios.patch(
+                                        `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${myApprovalPartyDetail.partyId}/approve`,
+                                        {
+                                            applicantUserId: selectedApplicantUserId,
+                                            isApproved: false
+                                        },
+                                        { withCredentials: true }
+                                    );
                                     setShowDenyModal(false);
+                                    setSelectedApplicantUserId(null);
+                                    // Reload approval list
+                                    const res = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${myApprovalPartyDetail.partyId}/approved-applicants`, {
+                                        withCredentials: true
+                                    });
+                                    setApprovalList(res.data);
+                                } catch (err) {
+                                    console.error("거부 요청 처리 실패:", err);
                                 }
                             }
-                        ]
+                        }
+                    ]
                 }
             ].map((modal, idx) => modal.show && (
-                    <Modal key={idx} title={modal.title} message={modal.message} buttons={modal.buttons}/>
-                )
-            )}
+                <Modal key={idx} title={modal.title} message={modal.message} buttons={modal.buttons}/>
+            ))}
             <CasterbotButton onClick={() => setShowCasterbot(true)}/>
 
             {showCasterbot && (
