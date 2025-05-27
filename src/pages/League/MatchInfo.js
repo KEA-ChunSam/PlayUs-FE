@@ -1,15 +1,15 @@
 // 경기 정보 및 AI 시뮬레이션 페이지
 import TabNav from '../../components/TabNav/TabNav';
 import styles from './MatchInfo.module.css';
-import React, {useState, useEffect} from "react";
+import React, {useState} from "react";
 // import {useNavigate} from "react-router-dom";
 import SubTabNav from "../../components/TabNav/SubTabNav";
 import LineupDraggableList from '../../components/DragNDrop/LineupDraggableList';
-import GameLogData from "../../components/GameLogData/GameLogData";
 import RecordsSection from "../../components/GameLogData/RecordsSection";
 import CasterbotModal from "../Chatbot/CasterbotModal";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import axios from 'axios';
+import Modal from "../../components/Modal/Modal";
 
 function MatchInfo() {
     const [activeTab, setActiveTab] = useState(0);
@@ -17,6 +17,7 @@ function MatchInfo() {
     const tabLabels = ["경기 정보", "AI 시뮬레이터"];
     const subTabLabels = ["라인업 설정", "경기 로그", "기록"];
     const [showCasterbot, setShowCasterbot] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     // const navigate = useNavigate();
 
     const [homeBatters, setHomeBatters] = useState([
@@ -58,35 +59,35 @@ function MatchInfo() {
                 // { id: 50662, position: "타자" },
                 // { id: 52605, position: "타자" },
                 // { id: 52641, position: "타자" }
-                { id: 50030, position: "투수" },
-                { id: 68050, position: "타자" },
-                { id: 67025, position: "타자" },
-                { id: 64004, position: "타자" },
-                { id: 78548, position: "타자" },
-                { id: 76313, position: "타자" },
-                { id: 64166, position: "타자" },
-                { id: 64007, position: "타자" },
-                { id: 51003, position: "타자" },
-                { id: 79402, position: "타자" },
+                {id: 50030, position: "투수"},
+                {id: 68050, position: "타자"},
+                {id: 67025, position: "타자"},
+                {id: 64004, position: "타자"},
+                {id: 78548, position: "타자"},
+                {id: 76313, position: "타자"},
+                {id: 64166, position: "타자"},
+                {id: 64007, position: "타자"},
+                {id: 51003, position: "타자"},
+                {id: 79402, position: "타자"},
             ],
             away_team_name: "한화",
             away_players: [
-                { id: 52701, position: "투수" },
-                { id: 50704, position: "타자" },
-                { id: 50707, position: "타자" },
-                { id: 55734, position: "타자" },
-                { id: 62700, position: "타자" },
-                { id: 64006, position: "타자" },
-                { id: 66657, position: "타자" },
-                { id: 66704, position: "타자" },
-                { id: 69737, position: "타자" },
-                { id: 78288, position: "타자" },
+                {id: 52701, position: "투수"},
+                {id: 50704, position: "타자"},
+                {id: 50707, position: "타자"},
+                {id: 55734, position: "타자"},
+                {id: 62700, position: "타자"},
+                {id: 64006, position: "타자"},
+                {id: 66657, position: "타자"},
+                {id: 66704, position: "타자"},
+                {id: 69737, position: "타자"},
+                {id: 78288, position: "타자"},
             ]
         };
 
         try {
             const response = await axios.post(`${process.env.REACT_APP_AI_API_BASE}/simulate`, requestData, {
-                headers: { 'Content-Type': 'application/json' }
+                headers: {'Content-Type': 'application/json'}
             });
 
             const parsed = JSON.parse(response.data.result);
@@ -94,6 +95,7 @@ function MatchInfo() {
             setActiveSubTab(1); // 시뮬레이션 끝나면 경기 로그로 이동
         } catch (error) {
             console.error("시뮬레이션 요청 실패:", error);
+            setShowModal(true);
         }
     }
 
@@ -271,10 +273,23 @@ function MatchInfo() {
                     )}
                 </div>
             )}
-            <CasterbotButton onClick={() => setShowCasterbot(true)} />
+            <CasterbotButton onClick={() => setShowCasterbot(true)}/>
 
             {showCasterbot && (
                 <CasterbotModal onClose={() => setShowCasterbot(false)}/>
+            )}
+            {showModal && (
+                <Modal
+                    title="알림"
+                    message="시뮬레이션 요청에 실패했습니다. 나중에 다시 시도해 주세요."
+                    buttons={[
+                        {
+                            label: '확인', onClick: () => {
+                                setShowModal(false)
+                            }
+                        }
+                    ]}
+                />
             )}
         </div>
     );
