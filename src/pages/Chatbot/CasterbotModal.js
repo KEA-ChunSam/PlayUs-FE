@@ -37,7 +37,7 @@ const CasterbotModal = ({onClose}) => {
         setChatInput('');
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_PROFANITY_DETECT_API_BASE}/chat`, {
+            const response = await axios.post(`${process.env.REACT_APP_AI_API_BASE}/chat`, {
                 question: userMessage,
             }, {
                 headers: { 'Content-Type': 'application/json' }
