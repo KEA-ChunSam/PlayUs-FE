@@ -1,7 +1,7 @@
 // 경기 정보 및 AI 시뮬레이션 페이지
 import TabNav from '../../components/TabNav/TabNav';
 import styles from './MatchInfo.module.css';
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 // import {useNavigate} from "react-router-dom";
 import SubTabNav from "../../components/TabNav/SubTabNav";
 import LineupDraggableList from '../../components/DragNDrop/LineupDraggableList';
@@ -9,6 +9,7 @@ import GameLogData from "../../components/GameLogData/GameLogData";
 import RecordsSection from "../../components/GameLogData/RecordsSection";
 import CasterbotModal from "../Chatbot/CasterbotModal";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
+import axios from 'axios';
 
 function MatchInfo() {
     const [activeTab, setActiveTab] = useState(0);
@@ -46,9 +47,54 @@ function MatchInfo() {
         {id: '11', name: '배정대', position: '중견수', hand: '우타'},
         {id: '12', name: '김병준', position: '좌익수', hand: '좌타'}
     ]);
+    const [simulationResult, setSimulationResult] = useState([]);
 
-    function startSimulate() {
+    async function startSimulate() {
+        const requestData = {
+            home_team_name: "KT",
+            home_players: [
+                // { id: 50641, position: "투수" },
+                // { id: 50600, position: "타자" },
+                // { id: 50662, position: "타자" },
+                // { id: 52605, position: "타자" },
+                // { id: 52641, position: "타자" }
+                { id: 50030, position: "투수" },
+                { id: 68050, position: "타자" },
+                { id: 67025, position: "타자" },
+                { id: 64004, position: "타자" },
+                { id: 78548, position: "타자" },
+                { id: 76313, position: "타자" },
+                { id: 64166, position: "타자" },
+                { id: 64007, position: "타자" },
+                { id: 51003, position: "타자" },
+                { id: 79402, position: "타자" },
+            ],
+            away_team_name: "한화",
+            away_players: [
+                { id: 52701, position: "투수" },
+                { id: 50704, position: "타자" },
+                { id: 50707, position: "타자" },
+                { id: 55734, position: "타자" },
+                { id: 62700, position: "타자" },
+                { id: 64006, position: "타자" },
+                { id: 66657, position: "타자" },
+                { id: 66704, position: "타자" },
+                { id: 69737, position: "타자" },
+                { id: 78288, position: "타자" },
+            ]
+        };
 
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_PROFANITY_DETECT_API_BASE}/simulate`, requestData, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const parsed = JSON.parse(response.data.result);
+            setSimulationResult(parsed);
+            setActiveSubTab(1); // 시뮬레이션 끝나면 경기 로그로 이동
+        } catch (error) {
+            console.error("시뮬레이션 요청 실패:", error);
+        }
     }
 
     return (
@@ -194,19 +240,24 @@ function MatchInfo() {
                                 </tr>
                                 </thead>
                                 <tbody className={styles.gamelog}>
-                                {GameLogData.flatMap((inningData, i) =>
-                                    inningData.logs.map((log, j) => ({
-                                        ...log,
-                                        id: `${i}-${j}`,
-                                        isFirstInInning: j === 0,
-                                        inning: inningData.inning
-                                    }))
+                                {simulationResult.flatMap((inningData, i) =>
+                                    inningData.plays.map((play, j) => {
+                                        const [batter, result] = play.split(":").map(s => s.trim());
+                                        return {
+                                            id: `${i}-${j}`,
+                                            isFirstInInning: j === 0,
+                                            inning: inningData.title,
+                                            pitcher: '-', // 투수 정보 없음
+                                            batter,
+                                            result
+                                        };
+                                    })
                                 ).map((log) => (
                                     <tr key={log.id}>
                                         <td>{log.isFirstInInning ? <strong>{log.inning}</strong> : ""}</td>
                                         <td>{log.pitcher}</td>
                                         <td>{log.batter}</td>
-                                        <td>{log.p}</td>
+                                        <td>-</td>
                                         <td>{log.result}</td>
                                     </tr>
                                 ))}
