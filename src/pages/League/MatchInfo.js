@@ -90,8 +90,14 @@ function MatchInfo() {
                 headers: {'Content-Type': 'application/json'}
             });
 
-            const parsed = JSON.parse(response.data.result);
-            setSimulationResult(parsed);
+            try {
+                const parsed = JSON.parse(response.data.result);
+                setSimulationResult(parsed);
+            } catch (parseError) {
+                console.error('시뮬레이션 결과 파싱 실패:', parseError);
+                setSimulationResult([]);
+                return;
+            }
             setActiveSubTab(1); // 시뮬레이션 끝나면 경기 로그로 이동
         } catch (error) {
             console.error("시뮬레이션 요청 실패:", error);
