@@ -43,7 +43,7 @@ const PostDetail = () => {
   const checkProfanity = async (text) => {
     try {
       const response = await axios.post(
-          `${process.env.REACT_APP_PROFANITY_DETECT_API_BASE}/detect`,
+          `${process.env.REACT_APP_AI_API_BASE}/detect`,
         { sentence: text },
         { headers: { 'Content-Type': 'application/json' } }
       );
