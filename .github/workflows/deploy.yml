@@ -1,11 +1,10 @@
----
 name: Deploy React App
 
 on:
   push:
     branches:
       - develop
-  workflow_dispatch: {}
+  workflow_dispatch:
 
 jobs:
   validate:
@@ -77,13 +76,17 @@ jobs:
         run: npm run build
 
       - name: Create version file
-        run: echo '{"version": "${{ env.DEPLOY_VERSION }}", "deployedAt": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"}' > $APP_DIR/version.json
+        run: |
+          cat <<EOF > $APP_DIR/version.json
+          {
+            "version": "${{ env.DEPLOY_VERSION }}",
+            "deployedAt": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          }
+          EOF
 
       - name: Save SSH private key
         run: |
-          cat <<EOF > private_key
-${{ secrets.BASTION_KEY }}
-EOF
+          echo "${{ env.BASTION_KEY }}" > private_key
           chmod 600 private_key
 
       - name: Add known hosts
@@ -104,7 +107,7 @@ EOF
           sudo chown ubuntu:ubuntu ${{ env.DEPLOY_DIR }}
           sudo chmod 755 ${{ env.DEPLOY_DIR }}
           rm -rf ${{ env.DEPLOY_DIR }}/*
-        '
+          '
 
       - name: Deploy to Web Server via Bastion
         run: |
@@ -131,7 +134,7 @@ EOF
               echo "배포할 파일이 없습니다"
               exit 1
             fi
-          '
+            '
 
       - name: Restart Nginx
         run: ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} 'sudo systemctl restart nginx'
@@ -195,7 +198,7 @@ EOF
             else
               echo "백업 정보를 찾을 수 없습니다"
             fi
-          '
+            '
 
       - name: Clean old backups
         if: success()
