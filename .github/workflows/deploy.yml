@@ -1,10 +1,11 @@
+---
 name: Deploy React App
 
 on:
   push:
     branches:
       - develop
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 jobs:
   validate:
@@ -76,12 +77,13 @@ jobs:
         run: npm run build
 
       - name: Create version file
-        run: |
-          echo "{\"version\": \"${{ env.DEPLOY_VERSION }}\", \"deployedAt\": \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\"}" > $APP_DIR/version.json
+        run: echo '{"version": "${{ env.DEPLOY_VERSION }}", "deployedAt": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"}' > $APP_DIR/version.json
 
-      - name: Create SSH key
+      - name: Save SSH private key
         run: |
-          echo "${{ env.BASTION_KEY }}" > private_key
+          cat <<EOF > private_key
+${{ secrets.BASTION_KEY }}
+EOF
           chmod 600 private_key
 
       - name: Add known hosts
@@ -91,34 +93,27 @@ jobs:
           ssh-keyscan -H -p 10000 ${{ env.BASTION_HOST }} >> ~/.ssh/known_hosts
 
       - name: Test SSH connection to Bastion
-        run: |
-          ssh -i private_key -o ConnectTimeout=10 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} 'echo "Bastion SSH connection successful"'
+        run: ssh -i private_key -o ConnectTimeout=10 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} 'echo "Bastion SSH connection successful"'
 
       - name: Test SSH connection to Web Server via Bastion
-        run: |
-          ssh -i private_key -o ConnectTimeout=10 -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} 'echo "Web Server SSH connection successful"'
+        run: ssh -i private_key -o ConnectTimeout=10 -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} 'echo "Web Server SSH connection successful"'
 
       - name: Prepare deployment directory
-        run: |
-          ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} '
-            sudo mkdir -p ${{ env.DEPLOY_DIR }}
-            sudo chown ubuntu:ubuntu ${{ env.DEPLOY_DIR }}
-            sudo chmod 755 ${{ env.DEPLOY_DIR }}
-            rm -rf ${{ env.DEPLOY_DIR }}/*
-          '
+        run: ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} '
+          sudo mkdir -p ${{ env.DEPLOY_DIR }}
+          sudo chown ubuntu:ubuntu ${{ env.DEPLOY_DIR }}
+          sudo chmod 755 ${{ env.DEPLOY_DIR }}
+          rm -rf ${{ env.DEPLOY_DIR }}/*
+        '
 
       - name: Deploy to Web Server via Bastion
         run: |
-          # 빌드된 파일을 웹 서버로 전송 (포트 10000 사용)
           rsync -avz --delete --progress \
             -e "ssh -i private_key -p 10000" \
             $APP_DIR/ ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }}:${{ env.DEPLOY_DIR }}/
 
-          # 배포 실행 (GitHub Actions에서 직접 처리)
           ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} '
             echo "배포 시작..."
-
-            # 백업 생성
             sudo mkdir -p ${{ env.WEB_BACKUP_DIR }}
             BACKUP_DIR=${{ env.WEB_BACKUP_DIR }}/backup_$(date +%Y%m%d_%H%M%S)
             sudo mkdir -p $BACKUP_DIR
@@ -126,7 +121,6 @@ jobs:
             echo $BACKUP_DIR > /tmp/latest_backup
             echo "백업 완료: $BACKUP_DIR"
 
-            # 새 배포 적용
             if [ -d "${{ env.DEPLOY_DIR }}" ] && [ "$(ls -A ${{ env.DEPLOY_DIR }})" ]; then
               sudo rm -rf ${{ env.WEB_DIR }}/*
               sudo cp -r ${{ env.DEPLOY_DIR }}/* ${{ env.WEB_DIR }}/
@@ -140,23 +134,17 @@ jobs:
           '
 
       - name: Restart Nginx
-        run: |
-          ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} \
-          'sudo systemctl restart nginx'
+        run: ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} 'sudo systemctl restart nginx'
 
       - name: Verify Nginx status
         run: |
-          ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} \
-          'sudo systemctl is-active nginx || (echo "Nginx is not running" && exit 1)'
-
-          ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} \
-          'sudo nginx -t || (echo "Nginx configuration test failed" && exit 1)'
+          ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} 'sudo systemctl is-active nginx || (echo "Nginx is not running" && exit 1)'
+          ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} 'sudo nginx -t || (echo "Nginx configuration test failed" && exit 1)'
 
       - name: Health check
         run: |
           for i in {1..10}; do
-            if ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} \
-               'curl -f http://localhost/'; then
+            if ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} 'curl -f http://localhost/'; then
               echo "Health check passed"
               break
             fi
@@ -211,9 +199,7 @@ jobs:
 
       - name: Clean old backups
         if: success()
-        run: |
-          ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} \
-          "sudo find ${{ env.WEB_BACKUP_DIR }}/backup_* -maxdepth 0 -mtime +7 -exec rm -rf {} \; 2>/dev/null || true"
+        run: ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} "sudo find ${{ env.WEB_BACKUP_DIR }}/backup_* -maxdepth 0 -mtime +7 -exec rm -rf {} \; 2>/dev/null || true"
 
       - name: Clean up
         if: always()
@@ -298,9 +284,7 @@ jobs:
               ]
             }'
 
-            curl -X POST -H 'Content-type: application/json' \
-              --data "${PAYLOAD}" \
-              ${{ secrets.SLACK_WEBHOOK_URL }}
+            curl -X POST -H 'Content-type: application/json' --data "${PAYLOAD}" ${{ secrets.SLACK_WEBHOOK_URL }}
           else
             echo "Slack webhook URL not configured"
           fi
