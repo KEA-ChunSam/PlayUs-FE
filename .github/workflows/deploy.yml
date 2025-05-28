@@ -109,9 +109,9 @@ jobs:
 
       - name: Prepare deployment directory
         run: ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} '
-          sudo mkdir -p ${{ env.DEPLOY_DIR }}
-          sudo chown ubuntu:ubuntu ${{ env.DEPLOY_DIR }}
-          sudo chmod 755 ${{ env.DEPLOY_DIR }}
+          sudo mkdir -p ${{ env.DEPLOY_DIR }} &&
+          sudo chown ubuntu:ubuntu ${{ env.DEPLOY_DIR }} &&
+          sudo chmod 755 ${{ env.DEPLOY_DIR }} &&
           rm -rf ${{ env.DEPLOY_DIR }}/*
           '
 
