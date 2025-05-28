@@ -24,6 +24,9 @@ jobs:
 
       - name: Run tests
         run: npm run test
+        env:
+          DISABLE_ESLINT_PLUGIN: true
+          CI: true
 
   build-and-deploy:
     needs: validate
