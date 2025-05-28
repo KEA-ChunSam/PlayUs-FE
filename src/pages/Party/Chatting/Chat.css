@@ -1,0 +1,101 @@
+.chat-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+.error-message {
+    background-color: #FFEBEE;
+    color: #C62828;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+.connection-message {
+    background-color: #E3F2FD;
+    color: #1565C0;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+.messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: #F5F5F5;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+.message {
+    background-color: white;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.message strong {
+    color: #2196F3;
+    margin-right: 8px;
+}
+.message small {
+    display: block;
+    color: #666;
+    font-size: 0.8em;
+    margin-top: 4px;
+}
+.message-form {
+    display: flex;
+    gap: 10px;
+}
+.message-form input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+.message-form input:disabled {
+    background-color: #F5F5F5;
+    cursor: not-allowed;
+}
+.message-form button {
+    padding: 10px 20px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+.message-form button:hover:not(:disabled) {
+    background-color: #1976D2;
+}
+.message-form button:disabled {
+    background-color: #BDBDBD;
+    cursor: not-allowed;
+}
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+.button-group button {
+    flex: 1;
+    padding: 10px 20px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+.button-group button:hover:not(:disabled) {
+    background-color: #1976D2;
+}
+.button-group button:disabled {
+    background-color: #BDBDBD;
+    cursor: not-allowed;
+}

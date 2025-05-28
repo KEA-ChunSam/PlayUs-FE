@@ -11,6 +11,8 @@ export const AuthProvider = ({ children }) => {
     // ✅ 여기에 fetchMyInfo 함수 넣기
     const fetchMyInfo = async () => {
         const res = await axios.get(`${baseUrl}/user/profile`, { withCredentials: true });
+        console.log(res.data);
+        console.log(document.cookie);
         return res.data; // { id, nickname, ... }
     };
 

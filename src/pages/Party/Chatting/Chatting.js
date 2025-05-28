@@ -1,10 +1,12 @@
 // 직관팟 채팅 페이지
-import React, {useState} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import styles from './Chatting.module.css';
 import {useNavigate} from "react-router-dom";
 import Modal from "../../../components/Modal/Modal";
 import CasterbotModal from "../../Chatbot/CasterbotModal";
 import CasterbotButton from "../../../components/CasterbotButton/CasterbotButton";
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
 const Chatting = () => {
     const navigate = useNavigate();
@@ -34,25 +36,74 @@ const Chatting = () => {
         },
     ]);
 
+    const [roomId] = useState(3); // 임시 고정값, 실제 값으로 대체 필요
+    const [myUserId] = useState(123); // 실제 로그인된 사용자 ID로 대체
+    const stompClientRef = useRef(null);
+
+    const onMessageReceived = (payload) => {
+        const message = JSON.parse(payload.body);
+        setMessages(prev => [...prev, {
+            sender: message.senderName,
+            content: message.message,
+            time: new Date(message.lastReadAt).toLocaleTimeString(),
+            mine: message.senderId === myUserId,
+        }]);
+    };
+
+    useEffect(() => {
+        const socketUrl = 'http://localhost:8081/ws'; // 실제 서버 URL로 변경
+
+        // Access 쿠키에서 토큰을 읽어와 재설정
+        const token = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('Access='))
+          ?.split('=')[1];
+
+        if (token) {
+          document.cookie = `Access=${token}; path=/; secure; samesite=None`;
+        }
+
+        const client = new Client({
+            webSocketFactory: () => new SockJS(socketUrl),
+            reconnectDelay: 5000,
+            onConnect: () => {
+                client.subscribe(`/sub/chat/room/${roomId}`, onMessageReceived);
+                client.publish({
+                    destination: '/pub/chat/enter',
+                    body: JSON.stringify({ roomId })
+                });
+            },
+        });
+        client.activate();
+        stompClientRef.current = client;
+
+        return () => {
+            if (client.connected) {
+                client.publish({
+                    destination: '/pub/chat/exit',
+                    body: JSON.stringify({ roomId })
+                });
+            }
+            client.deactivate();
+        };
+    }, [roomId]);
+
     const toggleSidebar = () => setSidebarOpen(prev => !prev);
 
     function leaveChatRoom() {
         setShowLeaveRoomModal(true);
     }
 
-    const handleSendMessage = () => { // 임시 채팅 로직임
+    const handleSendMessage = () => {
         if (chatInput.trim() === '') return;
         const messageContent = chatInput.trim().slice(0, 500);
-        const now = new Date();
-        const newMessage = {
-            id: Date.now(),
-            sender: '',
-            content: messageContent,
-            time: now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
-            date: now.toISOString().split('T')[0],
-            mine: true,
-        };
-        setMessages(prev => [...prev, newMessage]);
+        stompClientRef.current?.publish({
+            destination: '/pub/chat/message',
+            body: JSON.stringify({
+                roomId,
+                message: messageContent
+            })
+        });
         setChatInput('');
     };
 
