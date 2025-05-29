@@ -25,7 +25,6 @@ import MatchInfo from "../pages/League/MatchInfo";
 import DiaryList from "../pages/LiveMatchDiary/DiaryList";
 import DiaryDetail from "../pages/LiveMatchDiary/DiaryDetail";
 import NewDiary from "../pages/LiveMatchDiary/NewDiary";
-import Chat from "../pages/Party/Chatting/Chat";
 
 function AppRouter() {
     return (
@@ -90,7 +89,7 @@ function AppRouter() {
                 </Route>
                 {/* 직관팟 입장 시 채팅방 */}
                 <Route path="/chat/party/:chatId" element={<MobileView/>}>
-                    <Route index element={<Chat/>}/>
+                    <Route index element={<Chatting/>}/>
                 </Route>
                 {/* 직관팟 후기 페이지 */}
                 <Route path="/review/party/partyid" element={<MobileView/>}>
