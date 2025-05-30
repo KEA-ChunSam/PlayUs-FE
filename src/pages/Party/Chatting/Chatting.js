@@ -30,18 +30,28 @@ const Chatting = () => {
             });
 
             if (response.data && typeof response.data === 'object') {
-                setParticipantCount(response.data.totalParticipantCount);
+                const rawParticipants = Array.isArray(response.data.participants) ? response.data.participants : [];
 
-                const formattedUsers = Array.isArray(response.data.participants)
-                    ? response.data.participants.map((user) => ({
-                        name: user.nickName || '이름없음',
-                        avatar: user.profileImageUrl
-                            ? `${process.env.PUBLIC_URL}/images/${user.profileImageUrl}`
-                            : `${process.env.PUBLIC_URL}/Logo/default.png`
-                    }))
-                    : [];
+                // 중복 제거: userId 기준
+                const uniqueMap = new Map();
+                rawParticipants.forEach(user => {
+                    if (!uniqueMap.has(user.userId)) {
+                        uniqueMap.set(user.userId, user);
+                    }
+                });
+
+                const uniqueParticipants = Array.from(uniqueMap.values());
+
+                // 사용자 정보 매핑
+                const formattedUsers = uniqueParticipants.map(user => ({
+                    name: user.nickName || '이름없음',
+                    avatar: user.profileImageUrl
+                        ? `${process.env.PUBLIC_URL}/images/${user.profileImageUrl}`
+                        : `${process.env.PUBLIC_URL}/Logo/default.png`
+                }));
 
                 setUsers(formattedUsers);
+                setParticipantCount(formattedUsers.length);
 
                 if (response.data.roomMaster) {
                     setRoomMaster({
@@ -287,7 +297,11 @@ const Chatting = () => {
                     }
                     // ENTER/EXIT messages update participant count
                     const messageType = parsedMessage.messageType;
-                    if (messageType === 'ENTER' || messageType === 'EXIT') {
+                    // New logic: on ENTER, fetch participants and chat number
+                    if (messageType === 'ENTER') {
+                        fetchParticipants();
+                        fetchChatNumber();
+                    } else if (messageType === 'EXIT') {
                         fetchChatNumber();
                     }
                     queryClient.setQueryData(['chatMessages', roomId], oldData => {
@@ -313,13 +327,6 @@ const Chatting = () => {
                             pages
                         };
                     });
-                    // setMessages(prev => {
-                    //     const prevMessages = Array.isArray(prev.chattingMessage) ? prev.chattingMessage : [];
-                    //     return {
-                    //         ...prev,
-                    //         chattingMessage: [...prevMessages, parsedMessage]
-                    //     };
-                    // });
                 } catch (err) {
                     console.error('메시지 처리 오류:', err);
                 }
@@ -336,7 +343,11 @@ const Chatting = () => {
                 }));
                 hasEnteredRef.current = true;
             }
-            fetchChatNumber();
+            // The following setTimeout block is no longer needed, as participant fetching is now handled on ENTER message
+            // setTimeout(() => {
+            //     fetchParticipants();
+            //     fetchChatNumber();
+            // }, 300);
         } catch (err) {
             console.error('채팅방 구독 오류:', err);
             setError('채팅방 구독에 실패했습니다.');
@@ -460,9 +471,8 @@ const Chatting = () => {
         }
     };
 
-    // ---- On mount: fetch participants and connect ----
+    // ---- On mount: connect ----
     useEffect(() => {
-        fetchParticipants();
         // Guard: skip re-initialization if already connected and subscribed
         if (
             stompClientRef.current &&
@@ -639,7 +649,7 @@ const Chatting = () => {
                           <div>
                             {!isMine && <div className={styles.sender}>{msg.senderName}</div>}
                             <div
-                              className={isMine ? styles.messageBubbleMineBlue : styles.messageBubble}>
+                              className={isMine ? styles.messageBubbleMine : styles.messageBubble}>
                               {typeof msg.message === 'string' ? msg.message : ''}
                             </div>
                             <div className={styles.timestamp}>
@@ -675,16 +685,16 @@ const Chatting = () => {
                                 >
                                     ✕
                                 </button>
-                                <span>채팅 알림</span>
-                                <input
-                                    type="checkbox"
-                                    checked={true}
-                                    onChange={() => {
-                                        // TODO: 알림 설정 변경 기능 구현
-                                        console.log('알림 설정 변경');
-                                    }}
-                                    aria-label="채팅 알림 설정"
-                                />
+                                {/*<span>채팅 알림</span>*/}
+                                {/*<input*/}
+                                {/*    type="checkbox"*/}
+                                {/*    checked={true}*/}
+                                {/*    onChange={() => {*/}
+                                {/*        // TODO: 알림 설정 변경 기능 구현*/}
+                                {/*        console.log('알림 설정 변경');*/}
+                                {/*    }}*/}
+                                {/*    aria-label="채팅 알림 설정"*/}
+                                {/*/>*/}
                             </div>
                             <div className={styles.memberList}>
                                 <div className={styles.memberCount}>
