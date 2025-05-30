@@ -222,7 +222,7 @@ const Chatting = () => {
         fetchMyInfo();
     }, [myUserId]);
 
-    // Infinite query for chat messages
+    // Infinite query for chat messages (refactored)
     const {
         data,
         fetchNextPage,
@@ -231,28 +231,27 @@ const Chatting = () => {
         status
     } = useInfiniteQuery({
         queryKey: ['chatMessages', roomId],
-        queryFn: async ({ pageParam = null, meta }) => {
-            const pageNumber = meta?.pageNumber ?? 0;
+        queryFn: async ({ pageParam = 0 }) => {
             const params = {
-                pageNumber,
-                pageSize: DEFAULT_PAGE_SIZE
+                pageSize: DEFAULT_PAGE_SIZE,
+                pageNumber: pageParam
             };
-            if (pageParam) {
-                params.lastMessageTimeStamp = pageParam;
-            }
+
+            console.log('Fetching chat with params:', params); // 실제 쿼리 파라미터 확인용
+
             const response = await axios.get(ENDPOINTS.CHAT_MESSAGES, {
                 params,
                 withCredentials: true
             });
+
             const sanitizedData = deepSanitize(response.data);
             return processChatData(sanitizedData);
         },
-        getNextPageParam: (lastPage) => {
-            if (lastPage?.pageable?.isLast) return undefined;
-            const messages = lastPage.chattingMessage;
-            if (!messages || messages.length === 0) return undefined;
-            return messages[0].lastReadAt; // 가장 오래된 메시지의 timestamp 사용
-        }
+        getNextPageParam: (lastPage, allPages) => {
+            if (lastPage?.chattingMessage?.length < DEFAULT_PAGE_SIZE) return undefined;
+            return allPages.length; // pageParam으로 넘길 다음 page 번호
+        },
+        initialPageParam: 0
     });
 
     // Intersection observer for infinite scroll
@@ -555,12 +554,8 @@ const Chatting = () => {
         };
     }, [isConnected, isSubscribed]);
 
-    // 스크롤 자동 이동 (맨 아래로)
-    useEffect(() => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({behavior: "smooth"});
-        }
-    }, [data]);
+    // Scroll to bottom logic (only on initial load or after sending a new message by self)
+    const [initialScrollDone, setInitialScrollDone] = useState(false);
 
     // 메시지 전송 함수
     // 메시지 전송 함수 (Chat.js의 stompClientRef.current.publish() 사용, ENDPOINTS.WS_PUBLISH 사용)
@@ -605,12 +600,24 @@ const Chatting = () => {
         }
     };
 
-    // Render messages from infiniteQuery (flatten pages, sorted by ascending timestamp)
+    // Render messages from infiniteQuery (flatten pages, sorted by ascending timestamp, prepended for upward scroll)
     const allMessages = data?.pages
         ? data.pages
-            .flatMap(page => Array.isArray(page.chattingMessage) ? page.chattingMessage : [])
+            .reduceRight((acc, page) => {
+                // Prepend each page's messages (older at top)
+                const msgs = Array.isArray(page.chattingMessage) ? page.chattingMessage : [];
+                return [...msgs, ...acc];
+            }, [])
             .sort((a, b) => new Date(a.lastReadAt) - new Date(b.lastReadAt))
         : [];
+
+    // Only scroll to bottom on initial load or when new message is sent by self
+    useEffect(() => {
+        if (!initialScrollDone && messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'auto' });
+            setInitialScrollDone(true);
+        }
+    }, [data]);
 
     return (
         <>
