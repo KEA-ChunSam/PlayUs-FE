@@ -1,5 +1,7 @@
 // 직관팟 채팅 페이지
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { useInView } from 'react-intersection-observer';
 import styles from './Chatting.module.css';
 import {useLocation, useNavigate} from "react-router-dom";
 import Modal from "../../../components/Modal/Modal";
@@ -10,17 +12,60 @@ import {Stomp} from '@stomp/stompjs';
 import axios from 'axios';
 
 const Chatting = () => {
+    const queryClient = useQueryClient();
     const navigate = useNavigate();
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [showLeaveRoomModal, setShowLeaveRoomModal] = useState(false);
     const [showCasterbot, setShowCasterbot] = useState(false);
 
-    const users = [
-        {name: 'ZSJ', avatar: `${process.env.PUBLIC_URL}/Logo/profile.png`},
-        {name: '네모', avatar: `${process.env.PUBLIC_URL}/Logo/default.png`},
-        {name: '세모', avatar: `${process.env.PUBLIC_URL}/Logo/profile.png`},
-    ];
+    const [users, setUsers] = useState([]);
+    const [roomMaster, setRoomMaster] = useState(null);
+    const [myNickname, setMyNickname] = useState('');
+
+    const fetchParticipants = async () => {
+        try {
+            const response = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/chat/count/${roomId}`, {
+                withCredentials: true
+            });
+
+            if (response.data && typeof response.data === 'object') {
+                setParticipantCount(response.data.totalParticipantCount);
+
+                const formattedUsers = Array.isArray(response.data.participants)
+                    ? response.data.participants.map((user) => ({
+                        name: user.nickName || '이름없음',
+                        avatar: user.profileImageUrl
+                            ? `${process.env.PUBLIC_URL}/images/${user.profileImageUrl}`
+                            : `${process.env.PUBLIC_URL}/Logo/default.png`
+                    }))
+                    : [];
+
+                setUsers(formattedUsers);
+
+                if (response.data.roomMaster) {
+                    setRoomMaster({
+                        name: response.data.roomMaster.nickName || '방장',
+                        avatar: response.data.roomMaster.profileImageUrl
+                            ? `${process.env.PUBLIC_URL}/images/${response.data.roomMaster.profileImageUrl}`
+                            : `${process.env.PUBLIC_URL}/Logo/default.png`
+                    });
+                } else {
+                    setRoomMaster(null);
+                }
+            }
+        } catch (error) {
+            if (error.response?.status === 404) {
+                console.warn('채팅 참여자 정보 없음');
+                setUsers([]);
+                setRoomMaster(null);
+                return;
+            }
+            console.error('참여자 목록 불러오기 실패:', error);
+            setUsers([]);
+            setRoomMaster(null);
+        }
+    };
 
     const [messages, setMessages] = useState({chattingMessage: []});
     const [stompClient, setStompClient] = useState(null);
@@ -28,19 +73,22 @@ const Chatting = () => {
     const [error, setError] = useState(null);
     const [chatInput, setChatInput] = useState('');
     const [participantCount, setParticipantCount] = useState(0);
-    const [currentPage, setCurrentPage] = useState(0);
-    const [hasMore, setHasMore] = useState(true);
-    const [isLoading, setIsLoading] = useState(false);
+    // const [currentPage, setCurrentPage] = useState(0);
+    // const [hasMore, setHasMore] = useState(true);
+    // const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef(null);
     const stompClientRef = useRef(null);
     const [isSubscribed, setIsSubscribed] = useState(false);
     const subscriptionRef = useRef(null);
+    const chatContainerRef = useRef(null);
+    const hasEnteredRef = useRef(false);
+    const stompInitializedRef = useRef(false);
 
     // API 경로 상수
     const API_BASE_URL = 'http://localhost:8081';
     const WS_URL = `${API_BASE_URL}/ws`;
     const roomId = 9; // 실제 채팅방 ID로 수정 필요
-    const myUserId = 123; // 실제 로그인된 사용자 ID로 대체
+    const myUserId = location.state?.userId; // 로그인된 사용자 ID로 실제값 대체
 
     // API 엔드포인트
     const ENDPOINTS = {
@@ -149,56 +197,85 @@ const Chatting = () => {
         }
     };
 
-    const getChatMessages = async (pageNumber = 0, lastMessageTimeStamp = null) => {
-        const params = {
-            pageNumber,
-            pageSize: DEFAULT_PAGE_SIZE
+    useEffect(() => {
+        const fetchMyInfo = async () => {
+            try {
+                const res = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile`, { withCredentials: true });
+                console.log(res.data);
+                console.log(document.cookie);
+                setMyNickname(res.data.nickname);
+            } catch (err) {
+                console.error('닉네임 불러오기 실패:', err);
+            }
         };
-        if (lastMessageTimeStamp) {
-            params.lastMessageTimeStamp = lastMessageTimeStamp.toISOString();
-        }
 
-        try {
+        fetchMyInfo();
+    }, [myUserId]);
+
+    // Infinite query for chat messages
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        status
+    } = useInfiniteQuery({
+        queryKey: ['chatMessages', roomId],
+        queryFn: async ({ pageParam = null, meta }) => {
+            const pageNumber = meta?.pageNumber ?? 0;
+            const params = {
+                pageNumber,
+                pageSize: DEFAULT_PAGE_SIZE
+            };
+            if (pageParam) {
+                params.lastMessageTimeStamp = pageParam;
+            }
             const response = await axios.get(ENDPOINTS.CHAT_MESSAGES, {
                 params,
                 withCredentials: true
             });
-
-            // 원시 응답 데이터를 로깅
-            console.log('서버 원본 응답:', JSON.stringify(response.data));
-
-            // 응답 데이터의 깊은 복사본 생성하고 안전하게 처리
             const sanitizedData = deepSanitize(response.data);
-            const processedData = processChatData(sanitizedData);
-
-            return processedData;
-        } catch (error) {
-            console.error('채팅 메시지 가져오기 실패:', error);
-            return {chattingMessage: []};
+            return processChatData(sanitizedData);
+        },
+        getNextPageParam: (lastPage) => {
+            if (lastPage?.pageable?.isLast) return undefined;
+            const messages = lastPage.chattingMessage;
+            if (!messages || messages.length === 0) return undefined;
+            return messages[0].lastReadAt; // 가장 오래된 메시지의 timestamp 사용
         }
-    };
+    });
+
+    // Intersection observer for infinite scroll
+    const { ref: topRef, inView } = useInView();
+    useEffect(() => {
+        if (inView && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+        }
+    }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     const fetchChatNumber = async () => {
         try {
             const response = await axios.get(ENDPOINTS.CHAT_COUNT, {
                 withCredentials: true
             });
-            setParticipantCount(response.data);
+            // 응답이 객체인 경우 totalParticipantCount 필드 사용
+            if (response.data && typeof response.data === 'object' && 'totalParticipantCount' in response.data) {
+                setParticipantCount(response.data.totalParticipantCount);
+            } else {
+                // 응답이 단순한 숫자인 경우도 처리
+                setParticipantCount(Number(response.data) || 0);
+            }
         } catch (error) {
             console.error('채팅방 인원 수 가져오기 실패:', error);
+            setParticipantCount(0); // 오류 발생 시 0으로 설정
         }
     };
 
     // ---- WebSocket logic from Chat.js ----
     // Subscribe to chat room messages
     const subscribeToChat = (client) => {
-        if (!client || !client.connected) {
-            console.error('구독 실패: 클라이언트가 없거나 연결되지 않음');
-            return;
-        }
-        if (isSubscribed && subscriptionRef.current) {
-            return;
-        }
+        if (!client || !client.connected) return;
+        if (isSubscribed || subscriptionRef.current) return;
         try {
             const subscription = client.subscribe(ENDPOINTS.WS_SUBSCRIBE, (message) => {
                 try {
@@ -213,26 +290,52 @@ const Chatting = () => {
                     if (messageType === 'ENTER' || messageType === 'EXIT') {
                         fetchChatNumber();
                     }
-                    setMessages(prev => {
-                        const prevMessages = Array.isArray(prev.chattingMessage) ? prev.chattingMessage : [];
+                    queryClient.setQueryData(['chatMessages', roomId], oldData => {
+                        if (!oldData) return oldData;
+                        const pages = [...oldData.pages];
+                        const lastPageIndex = pages.length - 1;
+
+                        // Ensure the last page is valid
+                        if (!Array.isArray(pages[lastPageIndex]?.chattingMessage)) {
+                            pages[lastPageIndex] = {
+                                ...(pages[lastPageIndex] || {}),
+                                chattingMessage: []
+                            };
+                        }
+
+                        pages[lastPageIndex] = {
+                            ...pages[lastPageIndex],
+                            chattingMessage: [...pages[lastPageIndex].chattingMessage, parsedMessage]
+                        };
+
                         return {
-                            ...prev,
-                            chattingMessage: [...prevMessages, parsedMessage]
+                            ...oldData,
+                            pages
                         };
                     });
+                    // setMessages(prev => {
+                    //     const prevMessages = Array.isArray(prev.chattingMessage) ? prev.chattingMessage : [];
+                    //     return {
+                    //         ...prev,
+                    //         chattingMessage: [...prevMessages, parsedMessage]
+                    //     };
+                    // });
                 } catch (err) {
                     console.error('메시지 처리 오류:', err);
                 }
             });
             subscriptionRef.current = subscription;
             setIsSubscribed(true);
-            // Send enter message
-            client.send('/pub/chat/message', {}, JSON.stringify({
-                roomId,
-                senderId: myUserId,
-                message: '',
-                messageType: 'ENTER'
-            }));
+            // Prevent duplicate ENTER messages
+            if (!hasEnteredRef.current) {
+                client.send('/pub/chat/message', {}, JSON.stringify({
+                    roomId,
+                    senderId: myUserId,
+                    message: '',
+                    messageType: 'ENTER'
+                }));
+                hasEnteredRef.current = true;
+            }
             fetchChatNumber();
         } catch (err) {
             console.error('채팅방 구독 오류:', err);
@@ -262,12 +365,14 @@ const Chatting = () => {
     // Initialize WebSocket connection
     const initializeWebSocketConnection = () => {
         if (
-            stompClientRef.current &&
-            stompClientRef.current.connected &&
-            subscriptionRef.current
+            stompInitializedRef.current ||
+            (stompClientRef.current && stompClientRef.current.connected && subscriptionRef.current)
         ) {
-            return; // Prevent duplicate connection and subscription
+            return;
         }
+
+        stompInitializedRef.current = true;
+
         if (stompClientRef.current && stompClientRef.current.connected) {
             if (!isSubscribed) {
                 subscribeToChat(stompClientRef.current);
@@ -290,6 +395,7 @@ const Chatting = () => {
                 setError('서버와의 연결에 실패했습니다.');
                 setIsConnected(false);
                 setIsSubscribed(false);
+                stompInitializedRef.current = false; // Reset on failure
             }
         );
         client.onStompError = (frame) => {
@@ -326,12 +432,16 @@ const Chatting = () => {
                     stompClientRef.current = null;
                     setIsConnected(false);
                     setIsSubscribed(false);
+                    hasEnteredRef.current = false;
                 });
             } else {
                 stompClientRef.current = null;
                 setIsConnected(false);
                 setIsSubscribed(false);
+                hasEnteredRef.current = false;
             }
+
+            stompInitializedRef.current = false; // Reset on clean exit
 
             // API call to mark participant exit
             await axios.delete(ENDPOINTS.CHAT_EXIT, {
@@ -350,35 +460,22 @@ const Chatting = () => {
         }
     };
 
-    // ---- On mount: fetch chat history and connect ----
-    const initializeChat = async () => {
-        try {
-            setIsLoading(true);
-            const data = await getChatMessages(0);
-            setMessages(data);
-            setHasMore(data.chattingMessage && data.chattingMessage.length === DEFAULT_PAGE_SIZE);
-            setCurrentPage(0);
-        } catch (error) {
-            setError('채팅 기록을 불러오지 못했습니다.');
-        } finally {
-            setIsLoading(false);
-            // Guard: skip re-initialization if already connected and subscribed
-            if (
-                stompClientRef.current &&
-                stompClientRef.current.connected &&
-                subscriptionRef.current
-            ) {
-                return;
-            }
-            initializeWebSocketConnection();
-        }
-    };
-
+    // ---- On mount: fetch participants and connect ----
     useEffect(() => {
-        initializeChat();
+        fetchParticipants();
+        // Guard: skip re-initialization if already connected and subscribed
+        if (
+            stompClientRef.current &&
+            stompClientRef.current.connected &&
+            subscriptionRef.current
+        ) {
+            return;
+        }
+        initializeWebSocketConnection();
         return () => {
-            handleExitChat(); // now used for both button and navigation exit
+            handleExitChat();
         };
+        // eslint-disable-next-line
     }, []);
 
     useEffect(() => {
@@ -448,46 +545,12 @@ const Chatting = () => {
         };
     }, [isConnected, isSubscribed]);
 
-    // 안전하게 처리된 메시지 목록을 계산
-    const safeMessages = useMemo(() => {
-        if (!messages || !Array.isArray(messages.chattingMessage)) {
-            return {chattingMessage: []};
-        }
-
-        try {
-            return {
-                ...messages,
-                chattingMessage: messages.chattingMessage.map(msg => {
-                    if (!msg) return {message: '', senderName: '알 수 없음'};
-
-                    // 완전한 안전 검사
-                    const safeMsg = {...msg};
-
-                    // 메시지가 객체인 경우 강제 문자열화
-                    if (safeMsg.message && typeof safeMsg.message === 'object') {
-                        safeMsg.message = safeStringify(safeMsg.message);
-                    }
-
-                    // undefined인 경우 빈 문자열로 대체
-                    if (safeMsg.message === undefined || safeMsg.message === null) {
-                        safeMsg.message = '';
-                    }
-
-                    return safeMsg;
-                })
-            };
-        } catch (error) {
-            console.error('메시지 안전 처리 중 오류:', error);
-            return {chattingMessage: []};
-        }
-    }, [messages]);
-
-    // 스크롤 자동 이동
+    // 스크롤 자동 이동 (맨 아래로)
     useEffect(() => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({behavior: "smooth"});
         }
-    }, [safeMessages]); // 안전하게 처리된 메시지를 기준으로 스크롤
+    }, [data]);
 
     // 메시지 전송 함수
     // 메시지 전송 함수 (Chat.js의 stompClientRef.current.publish() 사용, ENDPOINTS.WS_PUBLISH 사용)
@@ -496,13 +559,15 @@ const Chatting = () => {
             return;
         }
 
-        try {
-            const messageData = {
-                roomId,
-                message: chatInput.trim(),
-                messageType: 'TALK'
-            };
+        const messageData = {
+            roomId,
+            senderId: myUserId,
+            senderName: myNickname,
+            message: chatInput.trim(),
+            messageType: 'TALK'
+        };
 
+        try {
             stompClientRef.current.publish({
                 destination: ENDPOINTS.WS_PUBLISH,
                 body: JSON.stringify(messageData)
@@ -530,6 +595,13 @@ const Chatting = () => {
         }
     };
 
+    // Render messages from infiniteQuery (flatten pages, sorted by ascending timestamp)
+    const allMessages = data?.pages
+        ? data.pages
+            .flatMap(page => Array.isArray(page.chattingMessage) ? page.chattingMessage : [])
+            .sort((a, b) => new Date(a.lastReadAt) - new Date(b.lastReadAt))
+        : [];
+
     return (
         <>
             <div className={styles.chatWrapper}>
@@ -537,7 +609,6 @@ const Chatting = () => {
                     <button
                         className={styles.backBtn}
                         onClick={() => {
-                            // 뒤로가기 시 채팅방 나가기 처리 후 이동
                             handleExitChat(() => navigate(-1));
                         }}
                         aria-label="뒤로 가기"
@@ -548,32 +619,37 @@ const Chatting = () => {
                     <button className={styles.menuBtn} onClick={toggleSidebar}>☰</button>
                 </header>
 
-                <main className={styles.chatBody}>
+                <main
+                    className={styles.chatBody}
+                    ref={chatContainerRef}
+                >
+                    {/* Sentinel for infinite scroll at the top */}
+                    <div ref={topRef}></div>
                     <div className={styles.dateLabel}>2025년 3월 30일</div>
-                    {safeMessages.chattingMessage.map((msg, idx) => (
+                    {allMessages.map((msg, idx) => {
+                      const isMine = msg.senderName === myNickname;
+                      return (
                         <div
-                            key={idx}
-                            className={msg.senderId === myUserId ? styles.messageRowReverse : styles.messageRow}
+                          key={idx}
+                          className={isMine ? styles.messageRowReverse : styles.messageRow}
                         >
-                            {msg.senderId !== myUserId &&
-                                <img src={`${process.env.PUBLIC_URL}/Logo/profile.png`} className={styles.avatar}
-                                     alt="user"/>}
-                            <div>
-                                {msg.senderId !== myUserId && <div className={styles.sender}>{msg.senderName}</div>}
-                                <div
-                                    className={msg.senderId === myUserId ? styles.messageBubbleMine : styles.messageBubble}>
-                                    {typeof msg.message === 'string' ? msg.message : ''}
-                                </div>
-                                <div className={styles.timestamp}>
-                                    {msg.lastReadAt ? new Date(msg.lastReadAt).toLocaleTimeString() : ''}
-                                </div>
+                          {!isMine &&
+                            <img src={`${process.env.PUBLIC_URL}/Logo/profile.png`} className={styles.avatar}
+                                 alt="user"/>}
+                          <div>
+                            {!isMine && <div className={styles.sender}>{msg.senderName}</div>}
+                            <div
+                              className={isMine ? styles.messageBubbleMineBlue : styles.messageBubble}>
+                              {typeof msg.message === 'string' ? msg.message : ''}
                             </div>
+                            <div className={styles.timestamp}>
+                              {msg.lastReadAt ? new Date(msg.lastReadAt).toLocaleTimeString() : ''}
+                            </div>
+                          </div>
                         </div>
-                    ))}
+                      );
+                    })}
                     <div ref={messagesEndRef}/>
-                    {/*<button onClick={handleExitChat} disabled={!isConnected} className="exit-button">*/}
-                    {/*    소켓 나가기*/}
-                    {/*</button>*/}
                 </main>
 
                 <div className={styles.chatInputWrapper}>
@@ -611,13 +687,31 @@ const Chatting = () => {
                                 />
                             </div>
                             <div className={styles.memberList}>
-                                <div className={styles.memberCount}>대화멤버 {participantCount || users.length}</div>
-                                {users.map((u, i) => (
-                                    <div key={i} className={styles.memberItem}>
-                                        <img src={u.avatar} className={styles.avatar} alt={u.name}/>
-                                        <span>{u.name}</span>
+                                <div className={styles.memberCount}>
+                                    대화멤버 {typeof participantCount === 'number' ? participantCount : users.length}
+                                </div>
+                                {roomMaster && (
+                                    <div className={styles.memberItem}>
+                                        <img src={roomMaster.avatar} className={styles.avatar} alt={roomMaster.name} />
+                                        <span>{roomMaster.name} <strong>(방장)</strong></span>
                                     </div>
-                                ))}
+                                )}
+                                {users.map((u, i) => {
+                                    if (typeof u !== 'object' || u === null || typeof u.name !== 'string' || typeof u.avatar !== 'string') {
+                                        return (
+                                            <div key={i} className={styles.memberItem}>
+                                                <span>[유효하지 않은 사용자 데이터]</span>
+                                            </div>
+                                        );
+                                    }
+
+                                    return (
+                                        <div key={i} className={styles.memberItem}>
+                                            <img src={u.avatar} className={styles.avatar} alt={u.name}/>
+                                            <span>{u.name}</span>
+                                        </div>
+                                    );
+                                })}
                             </div>
                             <button className={styles.leaveBtn} onClick={leaveChatRoom}>나가기</button>
                         </aside>
