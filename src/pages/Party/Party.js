@@ -125,6 +125,7 @@ const Party = () => {
     };
     const tabLabels = ["직관팟 구하기", "내 신청 현황", "승인 요청"];
     const navigate = useNavigate();
+    const [loadingChatId, setLoadingChatId] = useState(null);
 
     function newPartyButtonClick() {
         navigate('/party/newparty');
@@ -132,6 +133,7 @@ const Party = () => {
 
     async function onEnterChat(partyId) {
         try {
+            setLoadingChatId(partyId);
             const res = await axios.get(
                 `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}`,
                 { withCredentials: true }
@@ -140,6 +142,7 @@ const Party = () => {
 
             if (!chatRoomId) {
                 console.warn("⚠️ 이 직관팟에 연결된 채팅방 ID가 존재하지 않습니다.");
+                setLoadingChatId(null);
                 return;
             }
 
@@ -149,6 +152,7 @@ const Party = () => {
             );
         } catch (err) {
             console.error("채팅방 ID 조회 실패:", err);
+            setLoadingChatId(null);
         }
     }
 
@@ -297,13 +301,19 @@ const Party = () => {
                                                     )}
                                                     {statusKey === '채팅방 입장!' && (
                                                         <div className={styles.chatButtonWrapper}>
-                                                            <button
-                                                                className={styles.statusApproved}
-                                                                onClick={() => onEnterChat(party.partyId)}
-                                                            >
-                                                                채팅방 입장!
-                                                            </button>
-                                                            <span className={styles.newChatCount}>1</span>
+                                                            {loadingChatId === party.partyId ? (
+                                                                <div className={styles.skeletonChatButton} />
+                                                            ) : (
+                                                                <>
+                                                                    <button
+                                                                        className={styles.statusApproved}
+                                                                        onClick={() => onEnterChat(party.partyId)}
+                                                                    >
+                                                                        채팅방 입장!
+                                                                    </button>
+                                                                    <span className={styles.newChatCount}>1</span>
+                                                                </>
+                                                            )}
                                                         </div>
                                                     )}
                                                 </div>
