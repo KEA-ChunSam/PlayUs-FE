@@ -1,7 +1,7 @@
 // 직관일지 작성 페이지
 import React, {useEffect, useState} from 'react';
 import Modal from '../../components/Modal/Modal';
-import {useLocation, useNavigate} from 'react-router-dom';
+import {useLocation, useNavigate, useParams} from 'react-router-dom';
 import styles from './NewDiary.module.css';
 import CasterbotModal from "../Chatbot/CasterbotModal";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
@@ -13,6 +13,7 @@ import {kbo_teams, teamMap} from "../../utils/teamInfoMap";
 const NewDiary = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { userId } = useParams();
     useEffect(() => {
         console.log('🧭 location.state:', location.state);
     }, []);
@@ -177,7 +178,7 @@ const NewDiary = () => {
                             label: '확인',
                             onClick: () => {
                                 setShowModal(false);
-                                navigate('/diary/list');
+                                navigate(`/diary/list/${userId}`);
                             }
                         }
                     ]}
