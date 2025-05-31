@@ -347,7 +347,7 @@ const Chatting = () => {
                 >
                     {/* Sentinel for infinite scroll at the top */}
                     <div ref={topRef}></div>
-                    <div className={styles.dateLabel}>2025년 3월 30일</div>
+                    <div className={styles.dateLabel}>{new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
                     {allMessages.map((msg, idx) => {
                         const isMine = msg.senderName === myNickname;
                         return (
