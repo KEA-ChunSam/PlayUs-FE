@@ -201,8 +201,6 @@ const Chatting = () => {
         const fetchMyInfo = async () => {
             try {
                 const res = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile`, { withCredentials: true });
-                console.log(res.data);
-                console.log(document.cookie);
                 setMyNickname(res.data.nickname);
             } catch (err) {
                 console.error('닉네임 불러오기 실패:', err);
