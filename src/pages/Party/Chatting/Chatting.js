@@ -3,7 +3,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
 import styles from './Chatting.module.css';
-import {useLocation, useNavigate} from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Modal from "../../../components/Modal/Modal";
 import CasterbotModal from "../../Chatbot/CasterbotModal";
 import CasterbotButton from "../../../components/CasterbotButton/CasterbotButton";
@@ -15,6 +15,7 @@ const Chatting = () => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const location = useLocation();
+    const { chatRoomId } = useParams();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [showLeaveRoomModal, setShowLeaveRoomModal] = useState(false);
     const [showCasterbot, setShowCasterbot] = useState(false);
@@ -93,11 +94,12 @@ const Chatting = () => {
     const chatContainerRef = useRef(null);
     const hasEnteredRef = useRef(false);
     const stompInitializedRef = useRef(false);
+    const partyId = location.state?.partyId;
 
     // API 경로 상수
     const API_BASE_URL = 'http://localhost:8081';
     const WS_URL = `${API_BASE_URL}/ws`;
-    const roomId = 9; // 실제 채팅방 ID로 수정 필요
+    const roomId = chatRoomId; // 실제 채팅방 ID로 수정 필요
     const myUserId = location.state?.userId; // 로그인된 사용자 ID로 실제값 대체
 
     // API 엔드포인트
@@ -588,9 +590,31 @@ const Chatting = () => {
     const toggleSidebar = () => setSidebarOpen(prev => !prev);
 
     // 사용자가 명시적으로 나가기 버튼을 클릭한 경우
-    function leaveChatRoom() {
-        setShowLeaveRoomModal(true);
-    }
+    const leaveChatRoom = async () => {
+        try {
+            // 1) location.state에서 partyId 꺼내기
+            const partyId = location.state?.partyId;
+            if (!partyId) {
+                console.error("partyId가 존재하지 않습니다. location.state에서 확인해주세요.");
+                return;
+            }
+
+            // 2) 백엔드 API 호출: 직관팟 탈퇴
+            await axios.post(
+                `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}/leave`,
+                null,
+                { withCredentials: true }
+            );
+
+            // 3) 웹소켓 구독 해제 및 연결 끊기
+            await handleExitChat();
+
+            // 4) 성공 시 홈으로 이동
+            navigate('/home');
+        } catch (error) {
+            console.error('Failed to leave party:', error);
+        }
+    };
 
     // 엔터키로 메시지 전송 (Chat.js와 동일)
     const handleKeyDown = (e) => {
@@ -618,6 +642,11 @@ const Chatting = () => {
             setInitialScrollDone(true);
         }
     }, [data]);
+
+    // 채팅방 ID가 유효하지 않은 경우 안내 메시지 렌더링
+    if (!chatRoomId) {
+        return <div>유효하지 않은 채팅방입니다.</div>;
+    }
 
     return (
         <>

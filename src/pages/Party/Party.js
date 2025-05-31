@@ -130,10 +130,26 @@ const Party = () => {
         navigate('/party/newparty');
     }
 
-    function onEnterChat(partyId) {
-        navigate(`/chat/party/${partyId}`, {
-            state: { partyId }
-        });
+    async function onEnterChat(partyId) {
+        try {
+            const res = await axios.get(
+                `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}`,
+                { withCredentials: true }
+            );
+            const chatRoomId = res.data.chatRoomId;
+
+            if (!chatRoomId) {
+                console.warn("⚠️ 이 직관팟에 연결된 채팅방 ID가 존재하지 않습니다.");
+                return;
+            }
+
+            navigate(
+                `/chat/party/${chatRoomId}`,
+                { state: { partyId } }
+            );
+        } catch (err) {
+            console.error("채팅방 ID 조회 실패:", err);
+        }
     }
 
 
