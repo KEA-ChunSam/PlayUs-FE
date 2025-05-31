@@ -7,8 +7,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Modal from "../../../components/Modal/Modal";
 import CasterbotModal from "../../Chatbot/CasterbotModal";
 import CasterbotButton from "../../../components/CasterbotButton/CasterbotButton";
-import SockJS from 'sockjs-client';
-import {Stomp} from '@stomp/stompjs';
+import { useChatSocket } from '../../../utils/webSocket';
 import axios from 'axios';
 
 const Chatting = () => {
@@ -78,22 +77,11 @@ const Chatting = () => {
         }
     };
 
-    const [messages, setMessages] = useState({chattingMessage: []});
-    const [stompClient, setStompClient] = useState(null);
-    const [isConnected, setIsConnected] = useState(false);
-    const [error, setError] = useState(null);
+    // messages will be provided by useChatSocket hook
     const [chatInput, setChatInput] = useState('');
     const [participantCount, setParticipantCount] = useState(0);
-    // const [currentPage, setCurrentPage] = useState(0);
-    // const [hasMore, setHasMore] = useState(true);
-    // const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef(null);
-    const stompClientRef = useRef(null);
-    const [isSubscribed, setIsSubscribed] = useState(false);
-    const subscriptionRef = useRef(null);
     const chatContainerRef = useRef(null);
-    const hasEnteredRef = useRef(false);
-    const stompInitializedRef = useRef(false);
     const partyId = location.state?.partyId;
 
     // API 경로 상수
@@ -282,339 +270,25 @@ const Chatting = () => {
         }
     };
 
-    // ---- WebSocket logic from Chat.js ----
-    // Subscribe to chat room messages
-    const subscribeToChat = (client) => {
-        if (!client || !client.connected) return;
-        if (isSubscribed || subscriptionRef.current) return;
-        try {
-            const subscription = client.subscribe(ENDPOINTS.WS_SUBSCRIBE, (message) => {
-                try {
-                    // Parse and sanitize
-                    const rawParsedMessage = JSON.parse(message.body);
-                    const parsedMessage = deepSanitize(rawParsedMessage);
-                    if (parsedMessage.message && typeof parsedMessage.message === 'object') {
-                        parsedMessage.message = safeStringify(parsedMessage.message);
-                    }
-                    // ENTER/EXIT messages update participant count
-                    const messageType = parsedMessage.messageType;
-                    // New logic: on ENTER, fetch participants and chat number
-                    if (messageType === 'ENTER') {
-                        fetchParticipants();
-                        fetchChatNumber();
-                    } else if (messageType === 'EXIT') {
-                        fetchChatNumber();
-                    }
-                    queryClient.setQueryData(['chatMessages', roomId], oldData => {
-                        if (!oldData) return oldData;
-                        const pages = [...oldData.pages];
-                        const lastPageIndex = pages.length - 1;
 
-                        // Ensure the last page is valid
-                        if (!Array.isArray(pages[lastPageIndex]?.chattingMessage)) {
-                            pages[lastPageIndex] = {
-                                ...(pages[lastPageIndex] || {}),
-                                chattingMessage: []
-                            };
-                        }
 
-                        pages[lastPageIndex] = {
-                            ...pages[lastPageIndex],
-                            chattingMessage: [...pages[lastPageIndex].chattingMessage, parsedMessage]
-                        };
+    // ---- WebSocket hook integration ----
+    const {
+        isConnected,
+        messages: liveMessages,
+        sendMessage: sendLiveMessage,
+        leaveChatRoom: leaveLiveChat,
+        error: wsError
+    } = useChatSocket(roomId, myUserId);
 
-                        return {
-                            ...oldData,
-                            pages
-                        };
-                    });
-                } catch (err) {
-                    console.error('메시지 처리 오류:', err);
-                }
-            });
-            subscriptionRef.current = subscription;
-            setIsSubscribed(true);
-            // Prevent duplicate ENTER messages
-            if (!hasEnteredRef.current) {
-                client.send('/pub/chat/message', {}, JSON.stringify({
-                    roomId,
-                    senderId: myUserId,
-                    message: '',
-                    messageType: 'ENTER'
-                }));
-                hasEnteredRef.current = true;
-            }
-            // The following setTimeout block is no longer needed, as participant fetching is now handled on ENTER message
-            // setTimeout(() => {
-            //     fetchParticipants();
-            //     fetchChatNumber();
-            // }, 300);
-        } catch (err) {
-            console.error('채팅방 구독 오류:', err);
-            setError('채팅방 구독에 실패했습니다.');
-            setTimeout(() => {
-                if (client && client.connected && !isSubscribed) {
-                    subscribeToChat(client);
-                } else if (!client || !client.connected) {
-                    initializeWebSocketConnection();
-                }
-            }, 5000);
-        }
-    };
-
-    // Unsubscribe from chat room
-    const unsubscribeFromChat = () => {
-        if (!isSubscribed || !subscriptionRef.current) return;
-        try {
-            subscriptionRef.current.unsubscribe();
-            subscriptionRef.current = null;
-            setIsSubscribed(false);
-        } catch (err) {
-            console.error('채팅방 구독 취소 오류:', err);
-        }
-    };
-
-    // Initialize WebSocket connection
-    const initializeWebSocketConnection = () => {
-        if (
-            stompInitializedRef.current ||
-            (stompClientRef.current && stompClientRef.current.connected && subscriptionRef.current)
-        ) {
-            return;
-        }
-
-        stompInitializedRef.current = true;
-
-        if (stompClientRef.current && stompClientRef.current.connected) {
-            if (!isSubscribed) {
-                subscribeToChat(stompClientRef.current);
-            }
-            return;
-        }
-        const socket = new SockJS(WS_URL);
-        const client = Stomp.over(socket);
-        stompClientRef.current = client;
-        client.debug = () => {
-        };
-        client.configure({reconnectDelay: 5000});
-        client.connect(
-            {Cookie: document.cookie},
-            () => {
-                setIsConnected(true);
-                subscribeToChat(client);
-            },
-            (error) => {
-                setError('서버와의 연결에 실패했습니다.');
-                setIsConnected(false);
-                setIsSubscribed(false);
-                stompInitializedRef.current = false; // Reset on failure
-            }
-        );
-        client.onStompError = (frame) => {
-            setError('메시지 전송 중 오류가 발생했습니다.');
-        };
-        client.onWebSocketError = (event) => {
-            setError('서버와의 연결이 끊어졌습니다.');
-            setIsConnected(false);
-            setIsSubscribed(false);
-        };
-        client.onDisconnect = () => {
-            setIsConnected(false);
-            setIsSubscribed(false);
-            setError('서버와의 연결이 끊어졌습니다.');
-        };
-        setStompClient(client);
-    };
-
-    // Leave chat room: always clean up subscription first, then disconnect and mark exit
-    const handleExitChat = async (navigateTo = null) => {
-        try {
-            // Unsubscribe first to guarantee clean state
-            unsubscribeFromChat();
-
-            // Send EXIT if connected
-            if (stompClientRef.current && stompClientRef.current.connected) {
-                stompClientRef.current.send('/pub/chat/message', {}, JSON.stringify({
-                    roomId,
-                    senderId: myUserId,
-                    message: '',
-                    messageType: 'EXIT'
-                }));
-                stompClientRef.current.disconnect(() => {
-                    stompClientRef.current = null;
-                    setIsConnected(false);
-                    setIsSubscribed(false);
-                    hasEnteredRef.current = false;
-                });
-            } else {
-                stompClientRef.current = null;
-                setIsConnected(false);
-                setIsSubscribed(false);
-                hasEnteredRef.current = false;
-            }
-
-            stompInitializedRef.current = false; // Reset on clean exit
-
-            // API call to mark participant exit
-            await axios.delete(ENDPOINTS.CHAT_EXIT, {
-                withCredentials: true
-            });
-
-            if (navigateTo) {
-                typeof navigateTo === 'function' ? navigateTo() : navigate(navigateTo);
-            }
-        } catch (error) {
-            console.error('채팅방 나가기 오류:', error);
-            setError('채팅방을 나가는데 실패했습니다.');
-            if (navigateTo) {
-                typeof navigateTo === 'function' ? navigateTo() : navigate(navigateTo);
-            }
-        }
-    };
-
-    // ---- On mount: connect ----
-    useEffect(() => {
-        // Guard: skip re-initialization if already connected and subscribed
-        if (
-            stompClientRef.current &&
-            stompClientRef.current.connected &&
-            subscriptionRef.current
-        ) {
-            return;
-        }
-        initializeWebSocketConnection();
-        return () => {
-            handleExitChat();
-        };
-        // eslint-disable-next-line
-    }, []);
-
-    useEffect(() => {
-        const handleBeforeUnload = () => {
-            if (stompClientRef.current && stompClientRef.current.connected) {
-                try {
-                    stompClientRef.current.send('/pub/chat/message', {}, JSON.stringify({
-                        roomId,
-                        senderId: myUserId,
-                        message: '',
-                        messageType: 'EXIT'
-                    }));
-                } catch (e) {
-                    console.error("beforeunload 종료 메시지 실패:", e);
-                }
-            }
-        };
-
-        window.addEventListener('beforeunload', handleBeforeUnload);
-        return () => {
-            window.removeEventListener('beforeunload', handleBeforeUnload);
-        };
-    }, []);
-
-    // Reconnect/disconnect WebSocket on navigation to/from chat room
-    useEffect(() => {
-        const isChatRoom = location.pathname.includes('/chat/party/');
-
-        if (isChatRoom) {
-            if (!stompClientRef.current || !stompClientRef.current.connected) {
-                initializeWebSocketConnection();
-            } else if (!isSubscribed) {
-                subscribeToChat(stompClientRef.current);
-            }
-        } else {
-            handleExitChat(); // ensures socket clean-up on navigation out
-        }
-    }, [location.pathname]);
-
-    // Page focus: reconnect if needed
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible') {
-                if (!isConnected || !isSubscribed) {
-                    initializeWebSocketConnection();
-                }
-            }
-        };
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
-    }, [isConnected, isSubscribed]);
-
-    // Periodic connection check
-    useEffect(() => {
-        const checkConnection = () => {
-            if (!isConnected || !stompClientRef.current || !stompClientRef.current.connected) {
-                initializeWebSocketConnection();
-            } else if (isConnected && !isSubscribed) {
-                subscribeToChat(stompClientRef.current);
-            }
-        };
-        const intervalId = setInterval(checkConnection, 30000);
-        return () => {
-            clearInterval(intervalId);
-        };
-    }, [isConnected, isSubscribed]);
-
-    // Scroll to bottom logic (only on initial load or after sending a new message by self)
-    const [initialScrollDone, setInitialScrollDone] = useState(false);
-
-    // 메시지 전송 함수
-    // 메시지 전송 함수 (Chat.js의 stompClientRef.current.publish() 사용, ENDPOINTS.WS_PUBLISH 사용)
     const sendMessage = () => {
-        if (chatInput.trim() === '' || !isConnected || !stompClientRef.current) {
-            return;
-        }
-
-        const messageData = {
-            roomId,
-            senderId: myUserId,
-            senderName: myNickname,
-            message: chatInput.trim(),
-            messageType: 'TALK'
-        };
-
-        try {
-            stompClientRef.current.publish({
-                destination: ENDPOINTS.WS_PUBLISH,
-                body: JSON.stringify(messageData)
-            });
-
-            setChatInput('');
-        } catch (error) {
-            console.error('메시지 전송 오류:', error);
-            setError('메시지를 전송하지 못했습니다.');
-        }
+        if (chatInput.trim() === '') return;
+        sendLiveMessage(chatInput.trim());
+        setChatInput('');
     };
 
     const toggleSidebar = () => setSidebarOpen(prev => !prev);
 
-    // 사용자가 명시적으로 나가기 버튼을 클릭한 경우
-    const leaveChatRoom = async () => {
-        try {
-            // 1) location.state에서 partyId 꺼내기
-            const partyId = location.state?.partyId;
-            if (!partyId) {
-                console.error("partyId가 존재하지 않습니다. location.state에서 확인해주세요.");
-                return;
-            }
-
-            // 2) 백엔드 API 호출: 직관팟 탈퇴
-            await axios.post(
-                `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}/leave`,
-                null,
-                { withCredentials: true }
-            );
-
-            // 3) 웹소켓 구독 해제 및 연결 끊기
-            await handleExitChat();
-
-            // 4) 성공 시 홈으로 이동
-            navigate('/home');
-        } catch (error) {
-            console.error('Failed to leave party:', error);
-        }
-    };
 
     // 엔터키로 메시지 전송 (Chat.js와 동일)
     const handleKeyDown = (e) => {
@@ -624,18 +298,22 @@ const Chatting = () => {
         }
     };
 
-    // Render messages from infiniteQuery (flatten pages, sorted by ascending timestamp, prepended for upward scroll)
-    const allMessages = data?.pages
-        ? data.pages
-            .reduceRight((acc, page) => {
-                // Prepend each page's messages (older at top)
-                const msgs = Array.isArray(page.chattingMessage) ? page.chattingMessage : [];
-                return [...msgs, ...acc];
-            }, [])
-            .sort((a, b) => new Date(a.lastReadAt) - new Date(b.lastReadAt))
-        : [];
+    // Render messages from infiniteQuery and liveMessages (sorted by ascending timestamp)
+    const allMessages = [
+        ...(data?.pages
+            ? data.pages
+                .reduceRight((acc, page) => {
+                    const msgs = Array.isArray(page.chattingMessage) ? page.chattingMessage : [];
+                    return [...msgs, ...acc];
+                }, [])
+                .sort((a, b) => new Date(a.lastReadAt) - new Date(b.lastReadAt))
+            : []
+        ),
+        ...liveMessages
+    ].sort((a, b) => new Date(a.lastReadAt) - new Date(b.lastReadAt));
 
     // Only scroll to bottom on initial load or when new message is sent by self
+    const [initialScrollDone, setInitialScrollDone] = useState(false);
     useEffect(() => {
         if (!initialScrollDone && messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'auto' });
@@ -655,7 +333,7 @@ const Chatting = () => {
                     <button
                         className={styles.backBtn}
                         onClick={() => {
-                            handleExitChat(() => navigate(-1));
+                            leaveLiveChat().then(() => navigate(-1));
                         }}
                         aria-label="뒤로 가기"
                     >
@@ -759,7 +437,7 @@ const Chatting = () => {
                                     );
                                 })}
                             </div>
-                            <button className={styles.leaveBtn} onClick={leaveChatRoom}>나가기</button>
+                            <button className={styles.leaveBtn} onClick={() => { leaveLiveChat().then(() => navigate('/home')); }}>나가기</button>
                         </aside>
                     </div>
                 )}
@@ -773,7 +451,7 @@ const Chatting = () => {
                                 label: '확인',
                                 onClick: () => {
                                     setShowLeaveRoomModal(false);
-                                    setTimeout(() => handleExitChat('/schedule'), 0);
+                                    setTimeout(() => leaveLiveChat().then(() => navigate('/schedule')), 0);
                                 }
                             }
                         ]}
@@ -785,6 +463,7 @@ const Chatting = () => {
             {showCasterbot && (
                 <CasterbotModal onClose={() => setShowCasterbot(false)}/>
             )}
+            {wsError && <div className={styles.errorBanner}>{wsError}</div>}
         </>
     );
 };
