@@ -177,7 +177,7 @@ const NewDiary = () => {
                             label: '확인',
                             onClick: () => {
                                 setShowModal(false);
-                                navigate('/diary/list');
+                                navigate(`/diary/list/${id}`);
                             }
                         }
                     ]}

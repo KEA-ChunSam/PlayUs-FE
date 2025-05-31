@@ -177,7 +177,8 @@ useEffect(() => {
         if (userId) {
             navigate(`/diary/list/${userId}`);
         } else {
-            navigate('/diary/list');
+            navigate(`/diary/list/${userId}`);
+            alert('직관일지 목록은 본인만 확인할 수 있습니다.');
         }
     };
 

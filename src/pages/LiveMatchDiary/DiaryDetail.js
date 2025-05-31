@@ -119,7 +119,7 @@ const DiaryDetail = () => {
                                             withCredentials: true
                                         });
                                         setShowModal(false);
-                                        navigate('/diary/list');
+                                        navigate(`/diary/list/${id}`);
                                     } catch (error) {
                                         console.error('삭제 실패:', error);
                                         setShowModal(false);
