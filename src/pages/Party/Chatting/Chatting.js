@@ -85,7 +85,7 @@ const Chatting = () => {
     const partyId = location.state?.partyId;
 
     // API 경로 상수
-    const API_BASE_URL = 'http://localhost:8081';
+    const API_BASE_URL = process.env.REACT_APP_LOCAL_BACKEND_TWP_URI;
     const WS_URL = `${API_BASE_URL}/ws`;
     const roomId = chatRoomId; // 실제 채팅방 ID로 수정 필요
     const myUserId = location.state?.userId; // 로그인된 사용자 ID로 실제값 대체
