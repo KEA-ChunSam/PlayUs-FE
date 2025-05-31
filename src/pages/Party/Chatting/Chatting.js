@@ -23,59 +23,59 @@ const Chatting = () => {
     const [roomMaster, setRoomMaster] = useState(null);
     const [myNickname, setMyNickname] = useState('');
 
-    const fetchParticipants = async () => {
-        try {
-            const response = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/chat/count/${roomId}`, {
-                withCredentials: true
-            });
-
-            if (response.data && typeof response.data === 'object') {
-                const rawParticipants = Array.isArray(response.data.participants) ? response.data.participants : [];
-
-                // 중복 제거: userId 기준
-                const uniqueMap = new Map();
-                rawParticipants.forEach(user => {
-                    if (!uniqueMap.has(user.userId)) {
-                        uniqueMap.set(user.userId, user);
-                    }
-                });
-
-                const uniqueParticipants = Array.from(uniqueMap.values());
-
-                // 사용자 정보 매핑
-                const formattedUsers = uniqueParticipants.map(user => ({
-                    name: user.nickName || '이름없음',
-                    avatar: user.profileImageUrl
-                        ? `${process.env.PUBLIC_URL}/images/${user.profileImageUrl}`
-                        : `${process.env.PUBLIC_URL}/Logo/default.png`
-                }));
-
-                setUsers(formattedUsers);
-                setParticipantCount(formattedUsers.length);
-
-                if (response.data.roomMaster) {
-                    setRoomMaster({
-                        name: response.data.roomMaster.nickName || '방장',
-                        avatar: response.data.roomMaster.profileImageUrl
-                            ? `${process.env.PUBLIC_URL}/images/${response.data.roomMaster.profileImageUrl}`
-                            : `${process.env.PUBLIC_URL}/Logo/default.png`
-                    });
-                } else {
-                    setRoomMaster(null);
-                }
-            }
-        } catch (error) {
-            if (error.response?.status === 404) {
-                console.warn('채팅 참여자 정보 없음');
-                setUsers([]);
-                setRoomMaster(null);
-                return;
-            }
-            console.error('참여자 목록 불러오기 실패:', error);
-            setUsers([]);
-            setRoomMaster(null);
-        }
-    };
+    // const fetchParticipants = async () => {
+    //     try {
+    //         const response = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/chat/count/${roomId}`, {
+    //             withCredentials: true
+    //         });
+    //
+    //         if (response.data && typeof response.data === 'object') {
+    //             const rawParticipants = Array.isArray(response.data.participants) ? response.data.participants : [];
+    //
+    //             // 중복 제거: userId 기준
+    //             const uniqueMap = new Map();
+    //             rawParticipants.forEach(user => {
+    //                 if (!uniqueMap.has(user.userId)) {
+    //                     uniqueMap.set(user.userId, user);
+    //                 }
+    //             });
+    //
+    //             const uniqueParticipants = Array.from(uniqueMap.values());
+    //
+    //             // 사용자 정보 매핑
+    //             const formattedUsers = uniqueParticipants.map(user => ({
+    //                 name: user.nickName || '이름없음',
+    //                 avatar: user.profileImageUrl
+    //                     ? `${process.env.PUBLIC_URL}/images/${user.profileImageUrl}`
+    //                     : `${process.env.PUBLIC_URL}/Logo/default.png`
+    //             }));
+    //
+    //             setUsers(formattedUsers);
+    //             setParticipantCount(formattedUsers.length);
+    //
+    //             if (response.data.roomMaster) {
+    //                 setRoomMaster({
+    //                     name: response.data.roomMaster.nickName || '방장',
+    //                     avatar: response.data.roomMaster.profileImageUrl
+    //                         ? `${process.env.PUBLIC_URL}/images/${response.data.roomMaster.profileImageUrl}`
+    //                         : `${process.env.PUBLIC_URL}/Logo/default.png`
+    //                 });
+    //             } else {
+    //                 setRoomMaster(null);
+    //             }
+    //         }
+    //     } catch (error) {
+    //         if (error.response?.status === 404) {
+    //             console.warn('채팅 참여자 정보 없음');
+    //             setUsers([]);
+    //             setRoomMaster(null);
+    //             return;
+    //         }
+    //         console.error('참여자 목록 불러오기 실패:', error);
+    //         setUsers([]);
+    //         setRoomMaster(null);
+    //     }
+    // };
 
     // messages will be provided by useChatSocket hook
     const [chatInput, setChatInput] = useState('');
