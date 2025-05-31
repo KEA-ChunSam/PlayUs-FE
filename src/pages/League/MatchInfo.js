@@ -20,6 +20,8 @@ function MatchInfo() {
     const [showModal, setShowModal] = useState(false);
     // const navigate = useNavigate();
 
+    const [isLoading, setIsLoading] = useState(false);
+
     const [homeBatters, setHomeBatters] = useState([
         {id: '1', name: '김태연', position: '좌익수', hand: '우타'},
         {id: '2', name: '문현빈', position: '지명타자', hand: '좌타'},
@@ -54,11 +56,6 @@ function MatchInfo() {
         const requestData = {
             home_team_name: "KT",
             home_players: [
-                // { id: 50641, position: "투수" },
-                // { id: 50600, position: "타자" },
-                // { id: 50662, position: "타자" },
-                // { id: 52605, position: "타자" },
-                // { id: 52641, position: "타자" }
                 {id: 50030, position: "투수"},
                 {id: 68050, position: "타자"},
                 {id: 67025, position: "타자"},
@@ -86,6 +83,8 @@ function MatchInfo() {
         };
 
         try {
+            setActiveTab(1);
+            setIsLoading(true); // 시작 시 로딩 ON
             const response = await axios.post(`${process.env.REACT_APP_AI_API_BASE}/simulate`, requestData, {
                 headers: {'Content-Type': 'application/json'}
             });
@@ -102,6 +101,8 @@ function MatchInfo() {
         } catch (error) {
             console.error("시뮬레이션 요청 실패:", error);
             setShowModal(true);
+        } finally {
+            setIsLoading(false); // 종료 시 로딩 OFF
         }
     }
 
@@ -237,40 +238,48 @@ function MatchInfo() {
                     {/* 경기 로그 서브메뉴 */}
                     {activeSubTab === 1 && (
                         <div className={styles.contents}>
-                            <table className={styles.gamelogbox}>
-                                <thead className={styles.gamelogHeader}>
-                                <tr>
-                                    <th>이닝</th>
-                                    <th>투수</th>
-                                    <th>타자</th>
-                                    <th>P</th>
-                                    <th>결과</th>
-                                </tr>
-                                </thead>
-                                <tbody className={styles.gamelog}>
-                                {simulationResult.flatMap((inningData, i) =>
-                                    inningData.plays.map((play, j) => {
-                                        const [batter, result] = play.split(":").map(s => s.trim());
-                                        return {
-                                            id: `${i}-${j}`,
-                                            isFirstInInning: j === 0,
-                                            inning: inningData.title,
-                                            pitcher: '-', // 투수 정보 없음
-                                            batter,
-                                            result
-                                        };
-                                    })
-                                ).map((log) => (
-                                    <tr key={log.id}>
-                                        <td>{log.isFirstInInning ? <strong>{log.inning}</strong> : ""}</td>
-                                        <td>{log.pitcher}</td>
-                                        <td>{log.batter}</td>
-                                        <td>-</td>
-                                        <td>{log.result}</td>
+                            {isLoading ? (
+                                <div className={styles.skeletonWrapper}>
+                                    {[...Array(6)].map((_, i) => (
+                                        <div key={i} className={styles.skeletonRow}></div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <table className={styles.gamelogbox}>
+                                    <thead className={styles.gamelogHeader}>
+                                    <tr>
+                                        <th>이닝</th>
+                                        <th>투수</th>
+                                        <th>타자</th>
+                                        <th>P</th>
+                                        <th>결과</th>
                                     </tr>
-                                ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody className={styles.gamelog}>
+                                    {simulationResult.flatMap((inningData, i) =>
+                                        inningData.plays.map((play, j) => {
+                                            const [batter, result] = play.split(":").map(s => s.trim());
+                                            return {
+                                                id: `${i}-${j}`,
+                                                isFirstInInning: j === 0,
+                                                inning: inningData.title,
+                                                pitcher: '-', // 투수 정보 없음
+                                                batter,
+                                                result
+                                            };
+                                        })
+                                    ).map((log) => (
+                                        <tr key={log.id}>
+                                            <td>{log.isFirstInInning ? <strong>{log.inning}</strong> : ""}</td>
+                                            <td>{log.pitcher}</td>
+                                            <td>{log.batter}</td>
+                                            <td>-</td>
+                                            <td>{log.result}</td>
+                                        </tr>
+                                    ))}
+                                    </tbody>
+                                </table>
+                            )}
                         </div>
                     )}
                     {/* 기록 서브메뉴 */}

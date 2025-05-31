@@ -113,6 +113,7 @@ const Party = () => {
                 return '신청중';
             case 'ACCEPT':
             case '승인됨':
+            case '채팅방 입장!': // add this case here to handle the exact string from backend
                 return '채팅방 입장!';
             case 'REFUSE':
             case '거부됨':
@@ -129,8 +130,10 @@ const Party = () => {
         navigate('/party/newparty');
     }
 
-    function onEnterChat() {
-        navigate('/chat/party/partyId'); // 차후 직관팟별로 route 분리
+    function onEnterChat(partyId) {
+        navigate(`/chat/party/${partyId}`, {
+            state: { partyId }
+        });
     }
 
 
@@ -278,8 +281,11 @@ const Party = () => {
                                                     )}
                                                     {statusKey === '채팅방 입장!' && (
                                                         <div className={styles.chatButtonWrapper}>
-                                                            <button className={styles.statusApproved}
-                                                                    onClick={onEnterChat}>채팅방 입장!
+                                                            <button
+                                                                className={styles.statusApproved}
+                                                                onClick={() => onEnterChat(party.partyId)}
+                                                            >
+                                                                채팅방 입장!
                                                             </button>
                                                             <span className={styles.newChatCount}>1</span>
                                                         </div>
