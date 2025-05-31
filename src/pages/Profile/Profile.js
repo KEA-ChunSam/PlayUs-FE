@@ -14,6 +14,20 @@ import CasterbotModal from "../Chatbot/CasterbotModal";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import axios from "axios";
 
+// 팀 정보 맵 (예시, 실제 데이터는 프로젝트에서 적절히 import/정의 필요)
+const teamInfoMapCommunity = [
+    { teamId: 1, name: 'NC 다이노스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_NC.png` },
+    { teamId: 2, name: '삼성 라이온즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SS.png` },
+    { teamId: 3, name: '두산 베어스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_OB.png` },
+    { teamId: 4, name: '한화 이글스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HH.png` },
+    { teamId: 5, name: 'KIA 타이거즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HT.png` },
+    { teamId: 6, name: 'KT 위즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png` },
+    { teamId: 7, name: '롯데 자이언츠', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LT.png` },
+    { teamId: 8, name: 'LG 트윈스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LG.png` },
+    { teamId: 9, name: 'SSG 랜더스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SK.png` },
+    { teamId: 10, name: '키움 히어로즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png` }
+];
+
 ChartJS.register(ArcElement, Tooltip, Legend);
 const storedDiaries = JSON.parse(localStorage.getItem('customDiaries')) || [];
 const allDiaries = [...storedDiaries, ...dummyDiaries];
@@ -35,6 +49,10 @@ const journalEntries = [
 ];
 
 const Profile = () => {
+    // 최근 직관일지 state
+    const [recentDiaries, setRecentDiaries] = useState([]);
+    // 최근 직관일지 fetch
+
     // const [searchParams] = useSearchParams();
     // const userId = searchParams.get('userId');
     const { userId } = useParams();
@@ -44,6 +62,40 @@ const Profile = () => {
     const [isMine, setIsMine] = useState(false);
     const [error, setError] = useState(null);
     const [loggedInUserId, setLoggedInUserId] = useState(null);
+    useEffect(() => {
+        const fetchRecentDiaries = async () => {
+            try {
+                const response = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/live-match-diary/my`, {
+                    params: {
+                        page: 0,
+                        size: 2,
+                    },
+                    withCredentials: true,
+                });
+                // Log the full result to verify backend response
+                console.log('diary response:', response.data);
+
+                const data = response.data.map(entry => {
+                    const teamData = teamInfoMapCommunity.find(team => team.teamId === entry.TeamName);
+                    return {
+                        id: entry.postId,
+                        title: entry.title,
+                        date: entry.twpDate || entry.date,
+                        image: entry.thumbnail || null,
+                        team: teamData?.name || '',
+                        teamLogo: teamData?.logo || `${process.env.PUBLIC_URL}/exImage.png`,
+                    };
+                });
+                setRecentDiaries(data);
+            } catch (error) {
+                console.error('최근 직관일지 불러오기 실패:', error);
+            }
+        };
+
+        if (isMine) {
+            fetchRecentDiaries();
+        }
+    }, [isMine]);
 
 useEffect(() => {
     const fetchProfile = async () => {
@@ -122,7 +174,11 @@ useEffect(() => {
     };
 
     const handleDiaryList = () => {
-        navigate('/diary/list')
+        if (userId) {
+            navigate(`/diary/list/${userId}`);
+        } else {
+            navigate('/diary/list');
+        }
     };
 
     const handleNewDiary = () => {
@@ -217,10 +273,11 @@ useEffect(() => {
                                         <div className={styles.logout} onClick={handleDiaryList}>더보기</div>
                                     </div>
                                     <ul className={styles.journalList}>
-                                        {journalEntries.map((entry, idx) => (
+                                        {recentDiaries.slice(0, 2).map((entry, idx) => (
                                             <li key={idx} className={styles.journalItem}>
-                                                {entry.image &&
-                                                    <img src={entry.image} alt="entry" className={styles.entryImg}/>}
+                                                {entry.image && (
+                                                    <img src={entry.image} alt="entry" className={styles.entryImg} />
+                                                )}
                                                 <span className={styles.entryTitle}>{entry.title}</span>
                                                 <span className={styles.entryDate}>{entry.date}</span>
                                             </li>

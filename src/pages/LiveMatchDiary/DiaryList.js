@@ -1,6 +1,6 @@
 // 직관일지 목록 페이지
 import React, {useEffect, useState} from 'react';
-import {useNavigate, useSearchParams} from 'react-router-dom';
+import {useNavigate, useSearchParams, useParams} from 'react-router-dom';
 import Pagination from '@mui/material/Pagination';
 import styles from './DiaryList.module.css';
 import TabNav from "../../components/TabNav/TabNav";
@@ -24,6 +24,8 @@ const DiaryList = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
+
+    const { id: userId } = useParams();
 
     useEffect(() => {
         const fetchMyDiaries = async () => {
@@ -70,7 +72,7 @@ const DiaryList = () => {
     };
 
     function handleBack() {
-        navigate('/profile');
+        navigate(`/profile/${userId}`);
     }
 
     const pagedDiaries = diaries.slice((page - 1) * PER_PAGE, page * PER_PAGE);
