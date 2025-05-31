@@ -1,20 +1,20 @@
 // 직관팟 채팅 페이지
 import React, {useEffect, useRef, useState} from 'react';
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
-import { useInView } from 'react-intersection-observer';
+import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query';
+import {useInView} from 'react-intersection-observer';
 import styles from './Chatting.module.css';
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
 import Modal from "../../../components/Modal/Modal";
 import CasterbotModal from "../../Chatbot/CasterbotModal";
 import CasterbotButton from "../../../components/CasterbotButton/CasterbotButton";
-import { useChatSocket } from '../../../utils/webSocket';
+import {useChatSocket} from '../../../utils/webSocket';
 import axios from 'axios';
 
 const Chatting = () => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const location = useLocation();
-    const { chatRoomId } = useParams();
+    const {chatRoomId} = useParams();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [showLeaveRoomModal, setShowLeaveRoomModal] = useState(false);
     const [showCasterbot, setShowCasterbot] = useState(false);
@@ -200,7 +200,7 @@ const Chatting = () => {
     useEffect(() => {
         const fetchMyInfo = async () => {
             try {
-                const res = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile`, { withCredentials: true });
+                const res = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile`, {withCredentials: true});
                 setMyNickname(res.data.nickname);
             } catch (err) {
                 console.error('닉네임 불러오기 실패:', err);
@@ -219,7 +219,7 @@ const Chatting = () => {
         status
     } = useInfiniteQuery({
         queryKey: ['chatMessages', roomId],
-        queryFn: async ({ pageParam = 0 }) => {
+        queryFn: async ({pageParam = 0}) => {
             const params = {
                 pageSize: DEFAULT_PAGE_SIZE,
                 pageNumber: pageParam
@@ -243,7 +243,7 @@ const Chatting = () => {
     });
 
     // Intersection observer for infinite scroll
-    const { ref: topRef, inView } = useInView();
+    const {ref: topRef, inView} = useInView();
     useEffect(() => {
         if (inView && hasNextPage && !isFetchingNextPage) {
             fetchNextPage();
@@ -267,7 +267,6 @@ const Chatting = () => {
             setParticipantCount(0); // 오류 발생 시 0으로 설정
         }
     };
-
 
 
     // ---- WebSocket hook integration ----
@@ -299,13 +298,14 @@ const Chatting = () => {
     // Render messages from infiniteQuery and liveMessages (sorted by ascending timestamp)
     const allMessages = [
         ...(data?.pages
-            ? data.pages
-                .reduceRight((acc, page) => {
-                    const msgs = Array.isArray(page.chattingMessage) ? page.chattingMessage : [];
-                    return [...msgs, ...acc];
-                }, [])
-                .sort((a, b) => new Date(a.lastReadAt) - new Date(b.lastReadAt))
-            : []
+                ? data.pages
+                    .flatMap(page => {
+                        const msgs = Array.isArray(page.chattingMessage) ? page.chattingMessage : [];
+                        return msgs;
+                    })
+                    .reverse()
+                    .sort((a, b) => new Date(a.lastReadAt) - new Date(b.lastReadAt))
+                : []
         ),
         ...liveMessages
     ].sort((a, b) => new Date(a.lastReadAt) - new Date(b.lastReadAt));
@@ -314,7 +314,7 @@ const Chatting = () => {
     const [initialScrollDone, setInitialScrollDone] = useState(false);
     useEffect(() => {
         if (!initialScrollDone && messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'auto' });
+            messagesEndRef.current.scrollIntoView({behavior: 'auto'});
             setInitialScrollDone(true);
         }
     }, [data]);
@@ -349,27 +349,27 @@ const Chatting = () => {
                     <div ref={topRef}></div>
                     <div className={styles.dateLabel}>2025년 3월 30일</div>
                     {allMessages.map((msg, idx) => {
-                      const isMine = msg.senderName === myNickname;
-                      return (
-                        <div
-                          key={idx}
-                          className={isMine ? styles.messageRowReverse : styles.messageRow}
-                        >
-                          {!isMine &&
-                            <img src={`${process.env.PUBLIC_URL}/Logo/profile.png`} className={styles.avatar}
-                                 alt="user"/>}
-                          <div>
-                            {!isMine && <div className={styles.sender}>{msg.senderName}</div>}
+                        const isMine = msg.senderName === myNickname;
+                        return (
                             <div
-                              className={isMine ? styles.messageBubbleMine : styles.messageBubble}>
-                              {typeof msg.message === 'string' ? msg.message : ''}
+                                key={idx}
+                                className={isMine ? styles.messageRowReverse : styles.messageRow}
+                            >
+                                {!isMine &&
+                                    <img src={`${process.env.PUBLIC_URL}/Logo/profile.png`} className={styles.avatar}
+                                         alt="user"/>}
+                                <div>
+                                    {!isMine && <div className={styles.sender}>{msg.senderName}</div>}
+                                    <div
+                                        className={isMine ? styles.messageBubbleMine : styles.messageBubble}>
+                                        {typeof msg.message === 'string' ? msg.message : ''}
+                                    </div>
+                                    <div className={styles.timestamp}>
+                                        {msg.lastReadAt ? new Date(msg.lastReadAt).toLocaleTimeString() : ''}
+                                    </div>
+                                </div>
                             </div>
-                            <div className={styles.timestamp}>
-                              {msg.lastReadAt ? new Date(msg.lastReadAt).toLocaleTimeString() : ''}
-                            </div>
-                          </div>
-                        </div>
-                      );
+                        );
                     })}
                     <div ref={messagesEndRef}/>
                 </main>
@@ -414,7 +414,7 @@ const Chatting = () => {
                                 </div>
                                 {roomMaster && (
                                     <div className={styles.memberItem}>
-                                        <img src={roomMaster.avatar} className={styles.avatar} alt={roomMaster.name} />
+                                        <img src={roomMaster.avatar} className={styles.avatar} alt={roomMaster.name}/>
                                         <span>{roomMaster.name} <strong>(방장)</strong></span>
                                     </div>
                                 )}
@@ -435,7 +435,10 @@ const Chatting = () => {
                                     );
                                 })}
                             </div>
-                            <button className={styles.leaveBtn} onClick={() => { leaveLiveChat().then(() => navigate('/home')); }}>나가기</button>
+                            <button className={styles.leaveBtn} onClick={() => {
+                                leaveLiveChat().then(() => navigate('/home'));
+                            }}>나가기
+                            </button>
                         </aside>
                     </div>
                 )}
