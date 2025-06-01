@@ -1,82 +1,127 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
+import axios from "axios";
 import styles from "./NotificationModal.module.css";
 
 const tabs = ["전체", "직관팟", "커뮤니티"];
 
-const dummyData = {
-    전체: [
-        {
-            id: 1,
-            category: "직관팟",
-            type: "참가요청",
-            user: "Ashwin Bose",
-            date: "3/22(토)",
-            message: "한화 vs KT 개막전 직관 파티 참가를 요청했어요.",
-            content: "“안녕하세요! 저도 이 경기 같이 직관하고 싶어요!”",
-            new: true,
-            status: null
-        },
-        {
-            id: 2,
-            category: "직관팟",
-            type: "승인",
-            user: "ZSJ",
-            date: "3/27(토)",
-            message: "한화 vs 삼성 직관 함께보기 가 승인되었어요!",
-            content: "가입이 승인되었어요!",
-            new: false
-        },
-    ],
-    직관팟: [
-        {
-            id: 1,
-            category: "직관팟",
-            type: "참가요청",
-            user: "Ashwin Bose",
-            date: "3/22(토)",
-            message: "한화 vs KT 개막전 직관 파티 참가 요청",
-            content: "“안녕하세요! 저도 이 경기 같이 직관하고 싶어요!”",
-            new: true,
-            status: null
-        },
-        {
-            id: 2,
-            category: "직관팟",
-            type: "승인",
-            user: "ZSJ",
-            date: "3/27(토)",
-            message: "한화 vs 삼성 직관 함께보기 승인",
-            content: "가입이 승인되었어요!",
-            new: false
-        },
-    ],
-    커뮤니티: [],
+
+const TYPE_TO_TAB = {
+  COMMENT: "커뮤니티",
+  PARTY_REQUEST: "직관팟",
+  PARTY_JOINED: "직관팟",
+  PARTY_APPROVED: "직관팟",
+  PARTY_REFUSED: "직관팟",
 };
 
 const NotificationModal = ({onClose}) => {
+    const [groupedNotifications, setGroupedNotifications] = useState({
+      전체: [],
+      직관팟: [],
+      커뮤니티: [],
+    });
     const [activeTab, setActiveTab] = useState("전체");
-    const [notifications, setNotifications] = useState(dummyData);
 
-    const filtered = notifications[activeTab];
+    useEffect(() => {
+      const fetchInitialNotifications = async () => {
+        try {
+          const response = await axios.get(
+            `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/notifications`,
+            { withCredentials: true }
+          );
+          const raw = Array.isArray(response.data)
+            ? response.data
+            : response.data.notifications || response.data.data || [];
+          const normalizedList = raw.map(n => ({
+            id: n.id,
+            title: n.title,
+            content: n.content,
+            commentId: n.commentId !== undefined ? n.commentId : n.comment_id,
+            partyId: n.partyId !== undefined ? n.partyId : n.party_id,
+            actorId: n.actorId !== undefined ? n.actorId : n.actor_id,
+            type: n.type,
+            createdAt: n.createdAt !== undefined ? n.createdAt : n.created_at,
+            isRead: n.isRead !== undefined ? n.isRead : n.is_read,
+            actorAvatarUrl: (n.actorAvatarUrl) ? n.actorAvatarUrl : ( (n.actorId || n.actor_id) ? `/avatars/${n.actorId || n.actor_id}.png` : `${process.env.PUBLIC_URL}/profile/user2.jpg` )
+          }));
+          const topTen = normalizedList
+            .sort((a, b) => b.id - a.id)
+            .slice(0, 6);
+
+          const newGrouped = {
+            전체: [],
+            직관팟: [],
+            커뮤니티: [],
+          };
+
+          topTen.forEach((notif) => {
+            newGrouped["전체"].push(notif);
+            const tabName = TYPE_TO_TAB[notif.type];
+            if (tabName) {
+              newGrouped[tabName].push(notif);
+            }
+          });
+
+          setGroupedNotifications(newGrouped);
+        } catch (err) {
+          console.error("초기 알림 조회 실패:", err);
+        }
+      };
+
+      fetchInitialNotifications();
+    }, []);
 
     const handleClearAll = () => {
-        const cleared = {};
-        for (const key in notifications) {
-            cleared[key] = notifications[key].filter(
-                (item) => item.type === "참가요청" && item.status === null
-            );
-        }
-        setNotifications(cleared);
+        // Logic to clear all notifications would go here (not implemented)
     };
 
     const handleRespond = (id, decision) => {
-        const updated = {};
-        for (const key in notifications) {
-            updated[key] = notifications[key].map((n) =>
-                n.id === id ? { ...n, status: decision } : n
-            );
-        }
-        setNotifications(updated);
+        // This function is left in place but not used until SSE or other logic is added
+    };
+
+    const handleApprove = async (item) => {
+      try {
+        await axios.patch(
+          `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${item.partyId}/approve`,
+          { applicantUserId: item.actorId, isApproved: true },
+          { withCredentials: true }
+        );
+        await axios.patch(
+          `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/notifications/read/${item.id}`,
+          {},
+          { withCredentials: true }
+        );
+        setGroupedNotifications(prev => {
+          const updated = { ...prev };
+          updated["전체"] = updated["전체"].filter(n => n.id !== item.id);
+          updated["직관팟"] = updated["직관팟"].filter(n => n.id !== item.id);
+          return updated;
+        });
+      } catch (err) {
+        console.error("승인 요청 처리 실패:", err);
+      }
+    };
+
+    const handleReject = async (item) => {
+      try {
+        await axios.patch(
+          `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${item.partyId}/approve`,
+          { applicantUserId: item.actorId, isApproved: false },
+          { withCredentials: true }
+        );
+        await axios.patch(
+          `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/notifications/read/${item.id}`,
+          {},
+          { withCredentials: true }
+        );
+        setGroupedNotifications(prev => {
+          const updated = { ...prev };
+          updated["전체"] = updated["전체"].filter(n => n.id !== item.id);
+          updated["직관팟"] = updated["직관팟"].filter(n => n.id !== item.id);
+          return updated;
+        });
+      } catch (err) {
+        console.error("거부 요청 처리 실패:", err);
+      }
     };
 
     return (
@@ -85,6 +130,7 @@ const NotificationModal = ({onClose}) => {
                 <div className={styles.header}>
                     <h3>전체 알림</h3>
                     <button onClick={handleClearAll}>전체 알림 삭제하기</button>
+                    {/*<button onClick={onClose} className={styles.closeBtn}>닫기</button>*/}
                 </div>
                 <div className={styles.tabs}>
                     {tabs.map((tab) => (
@@ -98,25 +144,82 @@ const NotificationModal = ({onClose}) => {
                     ))}
                 </div>
                 <div className={styles.notifications}>
-                    {filtered.length === 0 ? (
+                    {groupedNotifications[activeTab].filter((item) => !item.isRead).length === 0 ? (
                         <div className={styles.empty}>알림이 없습니다.</div>
                     ) : (
-                        filtered.map((item) => (
-                            <div key={item.id} className={`${styles.notificationItem} ${item.new ? styles.newAlert : ""}`}>
-                                {item.new && <span className={styles.newDot}/>}
-                                <div className={styles.notificationText}>
-                                    <strong>{item.user}</strong>님이 {item.date} {item.message}
-                                    <div className={styles.subText}>{item.content}</div>
-                                    {item.type === "참가요청" && item.status == null && (
-                                      <div className={styles.actionButtons}>
-                                        <button className={styles.approve} onClick={() => handleRespond(item.id, "승인")}>승인하기</button>
-                                        <button className={styles.reject} onClick={() => handleRespond(item.id, "거부")}>거부하기</button>
+                        groupedNotifications[activeTab]
+                          .filter((item) => !item.isRead)
+                          .map((item) => (
+                            <div key={item.id} className={`${styles.notificationItem} ${!item.isRead ? styles.newAlert : ""}`}>
+                                {!item.isRead && <span className={styles.newDot}/>}
+                                {item.type === "PARTY_REQUEST" ? (
+                                  <div className={styles.partyRequestItem}>
+                                    <img
+                                      src={item.actorAvatarUrl || "/default-avatar.png"}
+                                      alt="프로필"
+                                      className={styles.avatar}
+                                    />
+                                    <div className={styles.requestText}>
+                                      <strong>{item.title}</strong>
+                                      <div className={styles.subText}>{item.content}</div>
+                                      <div className={styles.timestamp}>
+                                        {item.createdAt
+                                          ? (() => {
+                                              const dateObj = new Date(
+                                                item.createdAt
+                                                  .replace(/\./g, "-")
+                                                  .replace(" ", "T")
+                                              );
+                                              return dateObj.toLocaleString("ko-KR", {
+                                                year: "numeric",
+                                                month: "numeric",
+                                                day: "numeric",
+                                                hour: "numeric",
+                                                minute: "numeric"
+                                              });
+                                            })()
+                                          : ""}
                                       </div>
-                                    )}
-                                    {item.type === "참가요청" && item.status !== null && (
-                                      <div className={styles.resultText}>{item.status}되었어요!</div>
-                                    )}
-                                </div>
+                                    </div>
+                                    <div className={styles.actionButtons}>
+                                      <button
+                                        className={styles.approve}
+                                        onClick={() => handleApprove(item)}
+                                      >
+                                        승인하기
+                                      </button>
+                                      <button
+                                        className={styles.reject}
+                                        onClick={() => handleReject(item)}
+                                      >
+                                        거부하기
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className={styles.notificationItemContent}>
+                                    <strong>{item.title}</strong>
+                                    <div className={styles.subText}>{item.content}</div>
+                                    <div className={styles.timestamp}>
+                                      {item.createdAt
+                                        ? (() => {
+                                            const dateObj = new Date(
+                                              item.createdAt
+                                                .replace(/\./g, "-")
+                                                .replace(" ", "T") + (item.createdAt.includes(":") ? ":00" : "")
+                                            );
+                                            return dateObj.toLocaleString("ko-KR", {
+                                              year: "numeric",
+                                              month: "numeric",
+                                              day: "numeric",
+                                              hour: "numeric",
+                                              minute: "numeric"
+                                            });
+                                          })()
+                                        : ""}
+                                    </div>
+                                  </div>
+                                )}
                             </div>
                         ))
                     )}

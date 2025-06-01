@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import styles from "./MainPage.module.css";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import CasterbotModal from "../Chatbot/CasterbotModal";
@@ -50,6 +50,46 @@ export default function MainPage() {
         };
 
         fetchUserProfileAndFavorites();
+    }, []);
+
+    // Reference to hold EventSource instance
+    const eventSourceRef = useRef(null);
+
+    // SSE 구독: 로그인 후 "/home"에 도착할 때 바로 실행
+    useEffect(() => {
+      const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
+      // 브라우저 기본 EventSource는 쿠키에 들어있는 JWT를 자동으로 포함
+      const sseUrl = `${baseUrl}/user/notifications/connect`;
+      const es = new EventSource(sseUrl, { withCredentials: true });
+      eventSourceRef.current = es;
+
+      // 서버가 전송하는 이벤트를 받을 때 처리
+      es.onmessage = (e) => {
+        const text = e.data;
+        if (text.trim().startsWith("{")) {
+          try {
+            const notification = JSON.parse(text);
+            console.log("새 알림 도착:", notification);
+            // TODO: 받은 알림을 상태나 Context에 저장하여 화면에 반영
+          } catch (err) {
+            console.error("JSON 파싱 중 오류:", err);
+          }
+        } else {
+          console.log("SSE 비-JSON 메시지:", text);
+        }
+      };
+
+      es.onerror = (err) => {
+        console.error("SSE 연결 오류:", err);
+        // 필요 시 재연결 로직 추가 가능
+      };
+
+      // 컴포넌트 언마운트 시에는 EventSource 닫기
+      return () => {
+        if (eventSourceRef.current) {
+          eventSourceRef.current.close();
+        }
+      };
     }, []);
 
     const handleOpenModal = () => {
