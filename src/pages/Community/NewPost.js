@@ -4,26 +4,31 @@ import styles from './NewPost.module.css';
 import Modal from '../../components/Modal/Modal';
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import CasterbotModal from "../Chatbot/CasterbotModal";
+import axios from 'axios';
+import { teamInfoMapCommunity } from '../../utils/teamInfoMap';
 
 const NewPost = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    // console.log('NewPost location.state:', location.state);
+    const { team, teamName } = location.state || {};
     const isEditing = location.state?.isEditing;
     const post = location.state?.post;
+    const postId = post?.id || post?.postId;
     const [title, setTitle] = useState(post?.title || '');
     const [content, setContent] = useState(post?.content || '');
     const [image, setImage] = useState(post?.image || null);
     const [imageFile, setImageFile] = useState(null);
-    const [team] = useState(post?.team || 'hanwha');
-    const [teamName] = useState(post?.teamName || '한화 이글스');
-    const selectedTeam = location.state?.team || 'hanwha';
+    const selectedTeam = location.state?.team;
     const [showAbsModal, setShowAbsModal] = useState(false);
     const [profanityMessage, setProfanityMessage] = useState('');
     const [showCasterbot, setShowCasterbot] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
 
     useEffect(() => {
         if (post) {
+            console.log('전달받은 post 객체:', post);
             setTitle(post.title);
             setContent(post.content);
             setImage(post.image);
@@ -41,32 +46,8 @@ const NewPost = () => {
 
     // ABS봇 비속어 감지 함수 (API 호출)
     const checkProfanity = async (text) => {
-        if (!text) return false;
-        try {
-            const response = await fetch('https://xrnfbckpskycrstm.tunnel.elice.io/detect', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ sentence: text }),
-            });
-            if (!response.ok) {
-                console.error('Profanity API 호출 실패:', response.statusText);
-                return false;
-            }
-            const data = await response.json();
-            const resultString = data.result.replace(/```json\n|```/g, '');
-            const result = JSON.parse(resultString);
-            if (result.is_curse) {
-                setProfanityMessage(`감지된 비속어: ${result.words.join(', ')}`);
-                setShowAbsModal(true);
-                return true;
-            }
-            return false;
-        } catch (error) {
-            console.error('Profanity API 호출 중 오류 발생:', error);
-            return false;
-        }
+        // 비속어 감지 기능 일시적으로 비활성화
+        return false;
     };
 
     const handleSubmit = async (e) => {
@@ -136,31 +117,116 @@ const NewPost = () => {
         };
 
         try {
-            // 기존 게시글 목록 가져오기
-            const storedPosts = localStorage.getItem('communityPosts');
-            const prev = storedPosts ? JSON.parse(storedPosts) : [];
+            setIsSubmitting(true);
             
-            let updatedPosts;
-            if (isEditing) {
-                // 수정인 경우
-                updatedPosts = prev.map(p => String(p.id) === String(post.id) ? newPost : p);
-                localStorage.setItem('communityPosts', JSON.stringify(updatedPosts));
-                navigate(`/community/posts/${newPost.id}`);
+            // teamInfoMapCommunity에서 id(숫자)와 name을 찾아 team 객체 구성
+            const teamInfo = teamInfoMapCommunity.find(t => t.teamId === team);
+            if (!teamInfo) {
+                alert('팀 정보를 찾을 수 없습니다.');
+                return;
+            }
+
+            if (isEditing && postId) {
+                // 게시글 수정 시 필요한 정보만 전송
+                const postData = {
+                    postId: parseInt(postId),  // id 대신 postId 사용
+                    title,
+                    content,
+                    image: image || null,
+                    date: new Date().toISOString(),  // twpDate 대신 date 사용
+                    isSecret: false,
+                    writerNickname: post.writerNickname,  // 원래 작성자 정보 유지
+                    writerProfileImage: post.writerProfileImage  // 원래 작성자 정보 유지
+                };
+                console.log('최종 postData(수정):', postData);
+
+                try {
+                    const response = await axios.patch(
+                        `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/${team}/${postId}`,
+                        postData,
+                        {
+                            withCredentials: true,
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    );
+
+                    if (response.data) {
+                        alert('게시글이 수정되었습니다.');
+                        navigate(`/community/post/${team}/${postId}`);
+                    }
+                } catch (error) {
+                    console.error('게시글 수정 실패:', error.response?.data || error);
+                    if (error.response?.data?.message) {
+                        alert(error.response.data.message);
+                    } else {
+                        alert('게시글 수정 중 오류가 발생했습니다.');
+                    }
+                    return;
+                }
             } else {
-                // 새 게시글 작성인 경우
-                updatedPosts = [newPost, ...prev];
-                localStorage.setItem('communityPosts', JSON.stringify(updatedPosts));
-                navigate(`/community/posts/${newPost.id}`);
+                // 새 게시글 작성 시 필요한 정보만 전송
+                const postData = {
+                    title,
+                    content,
+                    image: image || null,
+                    date: new Date().toISOString(),  // twpDate 대신 date 사용
+                    isSecret: false,
+                    teamId: parseInt(teamInfo.id)  // teamId만 전송
+                };
+                console.log('최종 postData(작성):', postData);
+                const response = await axios.post(
+                    `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/${team}`,
+                    postData,
+                    {
+                        withCredentials: true,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+                
+                if (!response.data) {
+                    throw new Error('서버 응답이 없습니다.');
+                }
+
+                const newPostId = response.data.postId || response.data.id;
+                if (!newPostId) {
+                    throw new Error('게시글 ID를 받지 못했습니다.');
+                }
+
+                alert('게시글이 작성되었습니다.');
+                navigate(`/community/post/${team}/${newPostId}`);
             }
         } catch (error) {
-            console.error('게시물 저장 중 오류 발생:', error);
-            alert('게시물 저장 중 오류가 발생했습니다.');
+            console.error('Error saving post:', error.response?.data || error.message);
+            if (error.response) {
+                if (error.response.status === 403) {
+                    alert('게시글을 수정할 권한이 없습니다.');
+                } else if (error.response.status === 401) {
+                    alert('로그인이 필요합니다. 다시 로그인해주세요.');
+                    // 로그인 페이지로 리다이렉트
+                    navigate('/login');
+                } else {
+                    alert(`게시글 저장 중 오류가 발생했습니다: ${error.response.data?.message || error.message}`);
+                }
+            } else {
+                alert(`게시글 저장 중 오류가 발생했습니다: ${error.message}`);
+            }
+            navigate(`/community/post/${team}`);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     const handleClose = () => {
         navigate(-1);
     };
+
+    if (!team || !teamName) {
+        return <div>팀 정보가 없습니다. 메인으로 돌아가세요.</div>;
+    }
 
     return (
         <div className={styles.container}>

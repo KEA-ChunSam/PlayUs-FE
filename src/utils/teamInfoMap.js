@@ -13,7 +13,7 @@ export const teamInfoMap = [
 
 export const teamInfoMapCommunity = [
     {id: 1, teamId: 'NC_DINOS', name: 'NC', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_NC.png`},
-    {id: 2, teamId: 'Samsung_LIONS', name: '삼성', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SS.png`},
+    {id: 2, teamId: 'SAMSUNG_LIONS', name: '삼성', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SS.png`},
     {id: 3, teamId: 'DOOSAN_BEARS', name: '두산', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_OB.png`},
     {id: 4, teamId: 'HANWHA_EAGLES', name: '한화', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HH.png`},
     {id: 5, teamId: 'KIA_TIGERS', name: 'KIA', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HT.png`},
