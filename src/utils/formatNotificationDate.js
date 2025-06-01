@@ -5,8 +5,7 @@ export const formatNotificationDate = (dateString) => {
         // "2024.01.15 14:30" 형식을 ISO 형식으로 변환
         let isoString = dateString.replace(/\./g, "-").replace(" ", "T");
 
-        // 초가 없는 경우 추가
-        if (!isoString.includes(":", isoString.lastIndexOf(":")+1)) {
+        if (isoString.split("T")[1] && isoString.split("T")[1].split(":").length === 2) {
             isoString += ":00";
         }
 
