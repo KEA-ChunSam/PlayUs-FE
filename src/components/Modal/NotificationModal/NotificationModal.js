@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import axios from "axios";
+import {formatNotificationDate} from "../../../utils/formatNotificationDate";
 import styles from "./NotificationModal.module.css";
 
 const tabs = ["전체", "직관팟", "커뮤니티"];
@@ -74,7 +75,7 @@ const NotificationModal = ({onClose}) => {
         try {
             const allNotifications = groupedNotifications["전체"];
             // Mark each notification as read via API
-            await Promise.all(
+            const results = await Promise.allSettled(
                 allNotifications.map((item) =>
                     axios.patch(
                         `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/notifications/read/${item.id}`,
@@ -83,6 +84,11 @@ const NotificationModal = ({onClose}) => {
                     )
                 )
             );
+            results.forEach((result, index) => {
+                if (result.status === 'rejected') {
+                    console.error(`알림 ${allNotifications[index].id} 읽기 처리 실패:`, result.reason);
+                }
+            });
             // After marking all as read, clear state so none remain
             setGroupedNotifications({
                 전체: [],
@@ -184,22 +190,7 @@ const NotificationModal = ({onClose}) => {
                                                 <strong>{item.title}</strong>
                                                 <div className={styles.subText}>{item.content}</div>
                                                 <div className={styles.timestamp}>
-                                                    {item.createdAt
-                                                        ? (() => {
-                                                            const dateObj = new Date(
-                                                                item.createdAt
-                                                                    .replace(/\./g, "-")
-                                                                    .replace(" ", "T")
-                                                            );
-                                                            return dateObj.toLocaleString("ko-KR", {
-                                                                year: "numeric",
-                                                                month: "numeric",
-                                                                day: "numeric",
-                                                                hour: "numeric",
-                                                                minute: "numeric"
-                                                            });
-                                                        })()
-                                                        : ""}
+                                                    {formatNotificationDate(item.createdAt)}
                                                 </div>
                                             </div>
                                             <div className={styles.actionButtons}>
@@ -222,22 +213,7 @@ const NotificationModal = ({onClose}) => {
                                             <strong>{item.title}</strong>
                                             <div className={styles.subText}>{item.content}</div>
                                             <div className={styles.timestamp}>
-                                                {item.createdAt
-                                                    ? (() => {
-                                                        const dateObj = new Date(
-                                                            item.createdAt
-                                                                .replace(/\./g, "-")
-                                                                .replace(" ", "T") + (item.createdAt.includes(":") ? ":00" : "")
-                                                        );
-                                                        return dateObj.toLocaleString("ko-KR", {
-                                                            year: "numeric",
-                                                            month: "numeric",
-                                                            day: "numeric",
-                                                            hour: "numeric",
-                                                            minute: "numeric"
-                                                        });
-                                                    })()
-                                                    : ""}
+                                                {formatNotificationDate(item.createdAt)}
                                             </div>
                                         </div>
                                     )}
