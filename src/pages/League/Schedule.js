@@ -6,58 +6,47 @@ import styles from './Schedule.module.css';
 import CasterbotModal from "../Chatbot/CasterbotModal";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 
+import { teamInfoMap} from "../../utils/teamInfoMap";
+
 const Schedule = () => {
+    const getTeamLogoByName = (teamName) => {
+        const team = teamInfoMap.find(item => item.name === teamName);
+        return team ? team.logo : `${process.env.PUBLIC_URL}/Logo/TeamLogo/default.png`;
+    };
     const [showCasterbot, setShowCasterbot] = useState(false);
+    const [matches, setMatches] = useState([]);
 
     return (
         <>
             <div className={styles.wrapper}>
-                <ScheduleSlider/>
+                <ScheduleSlider onDateSelect={setMatches}/>
                 {/*<div className={styles.headerSpacer} />*/}
                 <div className={styles.content}>
-                    <GameCard
-                        homeTeam="키움"
-                        awayTeam="KT"
-                        stadium="고척"
-                        mainTime="18:30"
-                        homeLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
-                        awayLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`}
-                    />
-                    <GameCard
-                        homeTeam="키움"
-                        awayTeam="KT"
-                        stadium="고척"
-                        mainTime="18:30"
-                        homeLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
-                        awayLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`}
-                    />
-                    <GameCard
-                        homeTeam="키움"
-                        awayTeam="KT"
-                        stadium="고척"
-                        mainTime="18:30"
-                        homeLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
-                        awayLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`}
-                    />
-                    <GameCard
-                        homeTeam="키움"
-                        awayTeam="KT"
-                        stadium="고척"
-                        mainTime="18:30"
-                        homeLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
-                        awayLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`}
-                    />
-                    <GameCard
-                        homeTeam="키움"
-                        awayTeam="KT"
-                        stadium="고척"
-                        mainTime="18:30"
-                        homeLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
-                        awayLogo={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`}
-                    />
+                    {matches.length === 0 ? (
+                        <p>오늘은 경기가 없어요!</p>
+                    ) : (
+                        matches.map((match) => (
+                            <GameCard
+                                key={match.match_id}
+                                homeTeam={match.home_team_name}
+                                awayTeam={match.away_team_name}
+                                stadium={match.stadium}
+                                mainTime={new Date(match.game_date_time).toLocaleTimeString('ko-KR', {
+                                    timeZone: 'Asia/Seoul',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}
+                                homeLogo={getTeamLogoByName(match.home_team_name)}
+                                awayLogo={getTeamLogoByName(match.away_team_name)}
+                                homeTeamScore={match.home_team_score}
+                                awayTeamScore={match.away_team_score}
+                                statusCode={match.status_code}
+                            />
+                        ))
+                    )}
                 </div>
             </div>
-            <CasterbotButton onClick={() => setShowCasterbot(true)} />
+            <CasterbotButton onClick={() => setShowCasterbot(true)}/>
 
             {showCasterbot && (
                 <CasterbotModal onClose={() => setShowCasterbot(false)}/>

@@ -4,51 +4,70 @@ import {useNavigate} from 'react-router-dom';
 import styles from './GameCard.module.css';
 
 const GameCard = ({
-  time,
-  homeTeam,
-  awayTeam,
-  stadium,
-  mainTime,
-  homeLogo,
-  awayLogo,
-}) => {
-  const navigate = useNavigate();
-  const handlePartyClick = () => {
-    navigate('/party/matchid');
-  };
-  const handleInfoClick = () => {
-    navigate('/schedule/matchid');
-  };
+                      time,
+                      homeTeam,
+                      awayTeam,
+                      stadium,
+                      mainTime,
+                      homeLogo,
+                      awayLogo,
+                      homeTeamScore,
+                      awayTeamScore,
+                      statusCode
+                  }) => {
+    const navigate = useNavigate();
+    const handlePartyClick = () => {
+        navigate('/party/matchid');
+    };
+    const handleInfoClick = () => {
+        navigate('/schedule/matchid');
+    };
 
-  return (
-    <div className={styles.card}>
-      <div className={styles.timeBlock}>
-        <span className={styles.time}>{time}</span>
-        <div className={styles.teamRow}>
-          <img src={awayLogo} alt={awayTeam} className={styles.logo} />
-          <span className={styles.teamName}>{awayTeam}</span>
+    return (
+        <div className={styles.card}>
+            <div className={styles.timeBlock}>
+                <span className={styles.time}>{time}</span>
+                <div className={styles.teamRow}>
+                    <img src={awayLogo} alt={awayTeam} className={styles.logo}/>
+                    <span className={styles.teamName}>
+                        {awayTeam}
+                        {statusCode === "RESULT" && (
+                            <span className={styles.score}> {awayTeamScore}</span>
+                        )}
+                    </span>
+                </div>
+                <div className={styles.teamRow}>
+                    <img src={homeLogo} alt={homeTeam} className={styles.logo}/>
+                    <span className={styles.teamName}>
+                        {homeTeam}
+                        {statusCode === "RESULT" && (
+                            <span className={styles.score}> {homeTeamScore}</span>
+                        )}
+                    </span>
+                </div>
+            </div>
+
+            <div className={styles.infoBlock}>
+                <span className={styles.mainTime}>{mainTime}</span>
+                <span className={styles.stadium}>{stadium}</span>
+                <span className={styles.status}>
+                  {statusCode === "RESULT" ? "경기종료" :
+                   statusCode === "STARTED" ? "경기중" :
+                   statusCode === "BEFORE" ? "경기전" :
+                   ""}
+                </span>
+            </div>
+
+            <div className={styles.buttonBlock}>
+                <button onClick={handlePartyClick} className={styles.button}>
+                    직관팟
+                </button>
+                <button onClick={handleInfoClick} className={styles.button}>
+                    정보
+                </button>
+            </div>
         </div>
-        <div className={styles.teamRow}>
-          <img src={homeLogo} alt={homeTeam} className={styles.logo} />
-          <span className={styles.teamName}>{homeTeam}</span>
-        </div>
-      </div>
-
-      <div className={styles.infoBlock}>
-        <span className={styles.mainTime}>{mainTime}</span>
-        <span className={styles.stadium}>{stadium}</span>
-      </div>
-
-      <div className={styles.buttonBlock}>
-        <button onClick={handlePartyClick} className={styles.button}>
-          직관팟
-        </button>
-        <button onClick={handleInfoClick} className={styles.button}>
-          정보
-        </button>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default GameCard;
