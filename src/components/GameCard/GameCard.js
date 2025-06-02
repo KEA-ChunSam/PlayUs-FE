@@ -4,6 +4,7 @@ import {useNavigate} from 'react-router-dom';
 import styles from './GameCard.module.css';
 
 const GameCard = ({
+                      matchId,
                       time,
                       homeTeam,
                       awayTeam,
@@ -13,14 +14,22 @@ const GameCard = ({
                       awayLogo,
                       homeTeamScore,
                       awayTeamScore,
-                      statusCode
+                      statusCode,
+                      gameId
                   }) => {
     const navigate = useNavigate();
     const handlePartyClick = () => {
-        navigate('/party/matchid');
+        navigate(`/party/${gameId}`);
     };
     const handleInfoClick = () => {
-        navigate('/schedule/matchid');
+        navigate(`/schedule/${gameId}`, {
+            state: {
+                homeTeam,
+                awayTeam,
+                stadium,
+                mainTime,
+            },
+        });
     };
 
     return (

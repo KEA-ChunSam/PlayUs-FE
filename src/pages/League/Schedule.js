@@ -28,6 +28,8 @@ const Schedule = () => {
                         matches.map((match) => (
                             <GameCard
                                 key={match.match_id}
+                                gameId={match.game_id}
+                                matchId={match.match_id}
                                 homeTeam={match.home_team_name}
                                 awayTeam={match.away_team_name}
                                 stadium={match.stadium}

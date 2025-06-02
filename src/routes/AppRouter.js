@@ -63,11 +63,11 @@ function AppRouter() {
                 {/*    <Route index element={<TabNav/>}/>*/}
                 {/*</Route>*/}
                 {/* 경기 정보 */}
-                <Route path="/schedule/matchid" element={<MobileView/>}>
+                <Route path="/schedule/:gameId" element={<MobileView/>}>
                     <Route index element={<MatchInfo/>}/>
                 </Route>
                 {/* 직관팟 목록 */}
-                <Route path="/party/matchid" element={<MobileView/>}>
+                <Route path="/party/:gameId" element={<MobileView/>}>
                     {/*나중에 path를 /party/{partyid}로 수정 예정*/}
                     <Route index element={<Party/>}/>
                 </Route>

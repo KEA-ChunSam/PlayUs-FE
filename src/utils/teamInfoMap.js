@@ -11,6 +11,19 @@ export const teamInfoMap = [
     {id: 10, teamId: 'Kiwoom Heroes', name: '키움', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`},
 ];
 
+export const teamInfoMapBig = [
+    {id: 1, teamId: 'NC Dinos', name: 'NC', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/NC.png`},
+    {id: 2, teamId: 'Samsung Lions', name: '삼성', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/SS.png`},
+    {id: 3, teamId: 'Doosan Bears', name: '두산', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/OB.png`},
+    {id: 4, teamId: 'Hanwha Eagles', name: '한화', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/HH.png`},
+    {id: 5, teamId: 'Kia Tigers', name: 'KIA', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/HT.png`},
+    {id: 6, teamId: 'KT Wiz', name: 'KT', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/KT.png`},
+    {id: 7, teamId: 'Lotte Giants', name: '롯데', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/LT.png`},
+    {id: 8, teamId: 'LG Twins', name: 'LG', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/LG.png`},
+    {id: 9, teamId: 'SSG Landers', name: 'SSG', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/SK.png`},
+    {id: 10, teamId: 'Kiwoom Heroes', name: '키움', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/WO.png`},
+];
+
 export const teamInfoMapCommunity = [
     {id: 1, teamId: 'NC_DINOS', name: 'NC', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_NC.png`},
     {id: 2, teamId: 'Samsung_LIONS', name: '삼성', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SS.png`},
