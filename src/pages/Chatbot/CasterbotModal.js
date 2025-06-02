@@ -39,7 +39,7 @@ const CasterbotModal = ({onClose}) => {
         try {
             const token = document.cookie
                 .split('; ')
-                .find((row) => row.startsWith('access='))
+                .find((row) => row.startsWith('Access='))
                 ?.split('=')[1];
 
             const response = await axios.post(

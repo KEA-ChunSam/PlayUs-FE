@@ -65,7 +65,7 @@ const PartyMake = () => {
             // Extract access token from cookies
             const token = document.cookie
                 .split('; ')
-                .find(cookie => cookie.startsWith('access='))
+                .find(cookie => cookie.startsWith('Access='))
                 ?.split('=')[1];
             const response = await axios.post(
                 `${process.env.REACT_APP_AI_API_BASE}/detect`,

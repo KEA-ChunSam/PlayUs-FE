@@ -88,7 +88,7 @@ function MatchInfo() {
             // Extract access token from document.cookie
             const token = document.cookie
                 .split('; ')
-                .find(row => row.startsWith('access='))
+                .find(row => row.startsWith('Access='))
                 ?.split('=')[1];
             const response = await axios.post(
                 `${process.env.REACT_APP_AI_API_BASE}/simulate`,

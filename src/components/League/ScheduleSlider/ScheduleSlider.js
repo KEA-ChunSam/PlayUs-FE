@@ -38,9 +38,16 @@ export default function ScheduleSlider({initialDate = new Date(), onDateSelect})
         if (onDateSelect) {
             try {
                 const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                const token = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('Access='))
+                    ?.split('=')[1];
                 const response = await axios.get(
                     `${process.env.REACT_APP_AI_API_BASE}/matches`,
                     {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        },
                         withCredentials: true,
                         params: { date: formattedDate }
                     }
