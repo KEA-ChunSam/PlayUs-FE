@@ -85,9 +85,22 @@ function MatchInfo() {
         try {
             setActiveTab(1);
             setIsLoading(true); // 시작 시 로딩 ON
-            const response = await axios.post(`${process.env.REACT_APP_AI_API_BASE}/simulate`, requestData, {
-                headers: {'Content-Type': 'application/json'}
-            });
+            // Extract access token from document.cookie
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('access='))
+                ?.split('=')[1];
+            const response = await axios.post(
+                `${process.env.REACT_APP_AI_API_BASE}/simulate`,
+                requestData,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    withCredentials: true
+                }
+            );
 
             try {
                 const parsed = JSON.parse(response.data.result);

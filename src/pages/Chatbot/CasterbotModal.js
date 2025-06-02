@@ -37,11 +37,22 @@ const CasterbotModal = ({onClose}) => {
         setChatInput('');
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_AI_API_BASE}/chat`, {
-                question: userMessage,
-            }, {
-                headers: { 'Content-Type': 'application/json' }
-            });
+            const token = document.cookie
+                .split('; ')
+                .find((row) => row.startsWith('access='))
+                ?.split('=')[1];
+
+            const response = await axios.post(
+                `${process.env.REACT_APP_AI_API_BASE}/chat`,
+                { question: userMessage },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    withCredentials: true
+                }
+            );
 
             const answer = response.data.answer || '죄송합니다. 답변을 불러오지 못했습니다.';
             setMessages(prev => [...prev, {

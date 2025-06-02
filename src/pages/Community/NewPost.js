@@ -4,6 +4,7 @@ import styles from './NewPost.module.css';
 import Modal from '../../components/Modal/Modal';
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import CasterbotModal from "../Chatbot/CasterbotModal";
+import axios from "axios";
 
 const NewPost = () => {
     const navigate = useNavigate();
@@ -41,31 +42,42 @@ const NewPost = () => {
 
     // ABS봇 비속어 감지 함수 (API 호출)
     const checkProfanity = async (text) => {
-        if (!text) return false;
         try {
-            const response = await fetch('https://xrnfbckpskycrstm.tunnel.elice.io/detect', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ sentence: text }),
-            });
-            if (!response.ok) {
-                console.error('Profanity API 호출 실패:', response.statusText);
-                return false;
+            // Extract access token from cookies
+            const token = document.cookie
+                .split('; ')
+                .find(cookie => cookie.startsWith('access='))
+                ?.split('=')[1];
+            const response = await axios.post(
+                `${process.env.REACT_APP_AI_API_BASE}/detect`,
+                { sentence: text },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    withCredentials: true
+                }
+            );
+
+            let result = response.data?.result || response.data;
+
+            if (typeof result === 'string') {
+                result = result
+                    .replace(/```json\n/, '')
+                    .replace(/`{3,}[\s\S]*$/, '')
+                    .trim();
+                result = JSON.parse(result);
             }
-            const data = await response.json();
-            const resultString = data.result.replace(/```json\n|```/g, '');
-            const result = JSON.parse(resultString);
-            if (result.is_curse) {
-                setProfanityMessage(`감지된 비속어: ${result.words.join(', ')}`);
-                setShowAbsModal(true);
-                return true;
-            }
-            return false;
+
+            const isCurse = result && (String(result.isCurse || result.is_curse).toLowerCase() === 'true');
+            return {
+                isCurse,
+                words: result.words || [],
+            };
         } catch (error) {
-            console.error('Profanity API 호출 중 오류 발생:', error);
-            return false;
+            console.error('비속어 필터링 오류:', error);
+            return { isCurse: false, words: [] };
         }
     };
 
