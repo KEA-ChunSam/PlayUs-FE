@@ -2,6 +2,7 @@
 import React from "react";
 import {useNavigate} from 'react-router-dom';
 import styles from './GameCard.module.css';
+import PropTypes from 'prop-types';
 
 const GameCard = ({
                       matchId,
@@ -87,3 +88,18 @@ const GameCard = ({
 };
 
 export default GameCard;
+
+GameCard.propTypes = {
+        matchId: PropTypes.number,
+        time: PropTypes.string.isRequired,
+        homeTeam: PropTypes.string.isRequired,
+        awayTeam: PropTypes.string.isRequired,
+        stadium: PropTypes.string.isRequired,
+        mainTime: PropTypes.string.isRequired,
+        homeLogo: PropTypes.string.isRequired,
+        awayLogo: PropTypes.string.isRequired,
+        homeTeamScore: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        awayTeamScore: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        statusCode: PropTypes.oneOf(['RESULT', 'STARTED', 'BEFORE']).isRequired,
+        gameId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    };

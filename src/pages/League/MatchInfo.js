@@ -4,7 +4,7 @@ import styles from './MatchInfo.module.css';
 import React, {useEffect, useState} from "react";
 import {useLocation, useParams} from 'react-router-dom';
 import {teamInfoMapBig} from "../../utils/teamInfoMap";
-// import {useNavigate} from "react-router-dom";
+// import {useNavigate} from "react-router-dom";ㄱ
 import SubTabNav from "../../components/TabNav/SubTabNav";
 import LineupDraggableList from '../../components/DragNDrop/LineupDraggableList';
 import RecordsSection from "../../components/GameLogData/RecordsSection";
@@ -88,6 +88,13 @@ function MatchInfo() {
         {id: '12', name: '김병준', position: '좌익수', hand: '좌타'}
     ]);
     const [simulationResult, setSimulationResult] = useState([]);
+
+    const calculatePercentage = (value1, value2, defaultValue = 50) => {
+        const num1 = parseFloat(value1) || 0;
+        const num2 = parseFloat(value2) || 0;
+        const sum = num1 + num2;
+        return sum > 0 ? (num1 / sum) * 100 : defaultValue;
+    };
 
     async function startSimulate() {
         const requestData = {
@@ -264,23 +271,13 @@ function MatchInfo() {
                                                 <div
                                                     className={styles.metricBarLeft}
                                                     style={{
-                                                        width: `${
-                                                            (parseFloat(matchDetail.home.recent_batting_average) /
-                                                                (parseFloat(matchDetail.home.recent_batting_average) +
-                                                                    parseFloat(matchDetail.away.recent_batting_average))) *
-                                                            100
-                                                        }%`
+                                                        width: `${calculatePercentage(matchDetail.home.recent_batting_average, matchDetail.away.recent_batting_average)}%`
                                                     }}
                                                 ></div>
                                                 <div
                                                     className={styles.metricBarRight}
                                                     style={{
-                                                        width: `${
-                                                            (parseFloat(matchDetail.away.recent_batting_average) /
-                                                                (parseFloat(matchDetail.home.recent_batting_average) +
-                                                                    parseFloat(matchDetail.away.recent_batting_average))) *
-                                                            100
-                                                        }%`
+                                                        width: `${calculatePercentage(matchDetail.away.recent_batting_average, matchDetail.home.recent_batting_average)}%`
                                                     }}
                                                 ></div>
                                             </div>
