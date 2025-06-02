@@ -21,15 +21,6 @@ function Login() {
         }
     }, [location.search]);
 
-    // 차후 회원 DB 적용시 모달 구현 예정
-    // const onButtonClick = () => {
-    //     if (!selectedTeam) {
-    //         setShowModal(true);
-    //         return;
-    //     }
-    //     navigate("/choice-team");
-    // }
-
     const handleKakaoLogin = () => {
         console.log('카카오로 시작하기 클릭됨');
     };
@@ -48,7 +39,6 @@ function Login() {
                 </div>
 
                 <a
-                    // href={`https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${process.env.REACT_APP_KAKAO_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_KAKAO_REDIRECT_URI}`}
                     href={`${process.env.REACT_APP_LOCAL_BACKEND_URI}/oauth2/authorization/kakao`}
                     className={`${styles.login_button} ${styles.kakao_button}`}
                 >
@@ -60,8 +50,10 @@ function Login() {
                     <span>카카오로 시작하기</span>
                 </a>
 
-                <a href={`${process.env.REACT_APP_LOCAL_BACKEND_URI}/oauth2/authorization/naver`}
-                   className={`${styles.login_button} ${styles.naver_button}`}>
+                <a 
+                    href={`${process.env.REACT_APP_LOCAL_BACKEND_URI}/oauth2/authorization/naver`}
+                    className={`${styles.login_button} ${styles.naver_button}`}
+                >
                     <img
                         src={`${process.env.PUBLIC_URL}/Logo/Naver_logo.png`}
                         alt="Naver Icon"
@@ -80,14 +72,6 @@ function Login() {
                     ]}
                 />
             )}
-            {/*{showModal && (*/}
-            {/*    <Modal*/}
-            {/*        title="제재 안내"*/}
-            {/*        message={`${userName} 회원님께서는 타 사용자에게 '불쾌감을 주는 언행'으로 ${endDate}까지 해당 서비스를 이용하실 수 없습니다.`}*/}
-            {/*        onClose={() => setShowModal(false)}*/}
-            {/*    />*/}
-            {/*)}*/}
-
         </div>
     );
 }
