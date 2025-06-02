@@ -3,17 +3,51 @@ import React, {useEffect, useState} from 'react';
 import {useAuth} from '../../utils/AuthContext';
 import axios from 'axios';
 import CasterbotModal from '../../pages/Chatbot/CasterbotModal';
-import {useLocation, useNavigate} from 'react-router-dom';
+import {useLocation, useNavigate, useParams} from 'react-router-dom';
+import {teamInfoMapBig} from '../../utils/teamInfoMap';
 import TabNav from "../../components/TabNav/TabNav";
 import styles from './Party.module.css';
 import Modal from '../../components/Modal/Modal';
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 
+const getTeamLogoByName = (teamName) => {
+    const team = teamInfoMapBig.find(item => item.name === teamName);
+    return team ? team.logo : `${process.env.PUBLIC_URL}/Logo/TeamLogo/default.png`;
+};
+
 const Party = () => {
     const {user} = useAuth();
     const loginUserId = user?.id;
+    const {gameId} = useParams(); // matchId is actually gameId
     const location = useLocation();
+    const [matchDetail, setMatchDetail] = useState(null);
     const [activeTab, setActiveTab] = useState(location.state?.tabIndex || 0);
+    const {homeTeam, awayTeam, stadium, mainTime} = location.state || {};
+    useEffect(() => {
+        const fetchMatchDetail = async () => {
+            try {
+                // Extract access token from document.cookie
+                const token = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('Access='))
+                    ?.split('=')[1];
+                // Directly fetch match detail by naver game ID
+                const response = await axios.get(
+                    `${process.env.REACT_APP_AI_API_BASE}/match/${gameId}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        },
+                        withCredentials: true
+                    }
+                );
+                setMatchDetail(response.data);
+            } catch (error) {
+                console.error('경기 상세 조회 실패:', error);
+            }
+        };
+        fetchMatchDetail();
+    }, [gameId]);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [selectedApplyType, setSelectedApplyType] = useState('');
     const [selectedGender, setSelectedGender] = useState('');
@@ -136,7 +170,7 @@ const Party = () => {
             setLoadingChatId(partyId);
             const res = await axios.get(
                 `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}`,
-                { withCredentials: true }
+                {withCredentials: true}
             );
             const chatRoomId = res.data.chatRoomId;
 
@@ -148,7 +182,7 @@ const Party = () => {
 
             navigate(
                 `/chat/party/${chatRoomId}`,
-                { state: { partyId } }
+                {state: {partyId}}
             );
         } catch (err) {
             console.error("채팅방 ID 조회 실패:", err);
@@ -166,23 +200,53 @@ const Party = () => {
                     {/* 직관팟 입장시 접근하는 직관팟 구하기 서브메뉴*/}
                     {activeTab === 0 && (
                         <div className={styles.approvalSection}>
-                            <div className={styles.matchHeader}>
-                                <div className={styles.teamBox}>
-                                    <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/HH.png`} alt="한화"
-                                         className={styles.teamLogo}/>
-                                    <span className={styles.teamName}>한화 이글스</span>
+                            {matchDetail && (
+                                <div className={styles.matchHeader}>
+                                    <div className={styles.teamBox}>
+                                        <img
+                                            src={getTeamLogoByName(matchDetail.away.team_name)}
+                                            alt={`${matchDetail.away.team_name} 로고`}
+                                            className={styles.teamLogo}
+                                        />
+                                        <span className={styles.teamName}>{matchDetail.away.team_name}</span>
+                                        <div className={styles.pitcherCount}>
+                                            {matchDetail.away.starter && `선발투수 - ${matchDetail.away.starter}`}
+                                        </div>
+                                    </div>
+                                    <div className={styles.vsBlock}>
+                                        <div className={styles.vsText}>VS</div>
+                                        <div className={styles.location}>{stadium || matchDetail.stadium}</div>
+                                        <div className={styles.time}>
+                                            {mainTime ||
+                                                new Date(matchDetail.game_date_time).toLocaleTimeString('ko-KR', {
+                                                    timeZone: 'Asia/Seoul',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}
+                                        </div>
+                                        <div className={styles.matchBadgeArea}>
+                                      <span className={styles.matchBadge}>
+                                        {matchDetail.status_code === 'RESULT'
+                                            ? '경기종료'
+                                            : matchDetail.status_code === 'STARTED'
+                                                ? '경기중'
+                                                : '경기전'}
+                                      </span>
+                                        </div>
+                                    </div>
+                                    <div className={styles.teamBox}>
+                                        <img
+                                            src={getTeamLogoByName(matchDetail.home.team_name)}
+                                            alt={`${matchDetail.home.team_name} 로고`}
+                                            className={styles.teamLogo}
+                                        />
+                                        <span className={styles.teamName}>{matchDetail.home.team_name}</span>
+                                        <div className={styles.pitcherCount}>
+                                            {matchDetail.home.starter && `선발투수 - ${matchDetail.home.starter}`}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className={styles.vsBlock}>
-                                    <div className={styles.vsText}>VS</div>
-                                    <div className={styles.location}>수원</div>
-                                    <div className={styles.time}>18:30</div>
-                                </div>
-                                <div className={styles.teamBox}>
-                                    <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/KT.png`} alt="KT"
-                                         className={styles.teamLogo}/>
-                                    <span className={styles.teamName}>KT 위즈</span>
-                                </div>
-                            </div>
+                            )}
                             <div className={styles.titleRow}>
                                 <h3 className={styles.title}>직관 팟 구해요!</h3>
                                 <div className={styles.buttons}>
@@ -302,7 +366,7 @@ const Party = () => {
                                                     {statusKey === '채팅방 입장!' && (
                                                         <div className={styles.chatButtonWrapper}>
                                                             {loadingChatId === party.partyId ? (
-                                                                <div className={styles.skeletonChatButton} />
+                                                                <div className={styles.skeletonChatButton}/>
                                                             ) : (
                                                                 <>
                                                                     <button
@@ -504,7 +568,7 @@ const Party = () => {
                     title: '신청 취소',
                     message: '정말 취소하시겠습니까?',
                     buttons: [
-                        { label: '취소', onClick: () => setShowCancelModal(false) },
+                        {label: '취소', onClick: () => setShowCancelModal(false)},
                         {
                             label: '확인',
                             onClick: async () => {
@@ -519,7 +583,7 @@ const Party = () => {
                                     await axios.patch(
                                         `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}/cancel`,
                                         {},
-                                        { withCredentials: true }
+                                        {withCredentials: true}
                                     );
 
                                     // 신청 목록에서 제거
@@ -551,7 +615,7 @@ const Party = () => {
                     title: '승인하기',
                     message: '참가 요청을 승인하시겠습니까?',
                     buttons: [
-                        { label: '취소', onClick: () => setShowApproveModal(false) },
+                        {label: '취소', onClick: () => setShowApproveModal(false)},
                         {
                             label: '확인',
                             onClick: async () => {
@@ -562,7 +626,7 @@ const Party = () => {
                                             applicantUserId: selectedApplicantUserId,
                                             isApproved: true
                                         },
-                                        { withCredentials: true }
+                                        {withCredentials: true}
                                     );
                                     setShowApproveModal(false);
                                     setSelectedApplicantUserId(null);
@@ -583,7 +647,7 @@ const Party = () => {
                     title: '삭제하기',
                     message: '참가 요청을 거부하시겠습니까?',
                     buttons: [
-                        { label: '취소', onClick: () => setShowDenyModal(false) },
+                        {label: '취소', onClick: () => setShowDenyModal(false)},
                         {
                             label: '확인',
                             onClick: async () => {
@@ -594,7 +658,7 @@ const Party = () => {
                                             applicantUserId: selectedApplicantUserId,
                                             isApproved: false
                                         },
-                                        { withCredentials: true }
+                                        {withCredentials: true}
                                     );
                                     setShowDenyModal(false);
                                     setSelectedApplicantUserId(null);
