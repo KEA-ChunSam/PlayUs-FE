@@ -359,28 +359,57 @@ function MatchInfo() {
             {activeTab === 1 && (
                 <div className={styles.contents}>
                     {/*<p className={styles.simTitle}>시뮬레이팅할 팀을 선택해 주세요.</p>*/}
-                    <section className={styles.teamsSection}>
-                        <div className={styles.team}>
-                            <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/HH.png`} alt="한화 이글스 로고"
-                                 className={styles.teamLogo}/>
-                            <span className={styles.teamName}>한화 이글스</span>
-                            <div className={styles.pitcherCount}>선발투수-와이스</div>
-                        </div>
-                        <div className={styles.matchBox}>
-                            <div className={styles.matchPark}>수원</div>
-                            <div className={styles.matchTime}>18:30</div>
-                            <div className={styles.matchBadgeArea}>
-                                <span className={styles.matchBadge}>경기전</span>
+                    {matchDetail && (
+                        <section className={styles.teamsSection}>
+                            {/* Away Team on Left */}
+                            <div className={styles.team}>
+                                <img
+                                    src={getTeamLogoByName(awayTeam || matchDetail.away.team_name)}
+                                    alt={`${awayTeam || matchDetail.away.team_name} 로고`}
+                                    className={styles.teamLogo}
+                                />
+                                <span className={styles.teamName}>{awayTeam || matchDetail.away.team_name}</span>
+                                <div className={styles.pitcherCount}>
+                                    {matchDetail.away.starter && `선발투수 - ${matchDetail.away.starter}`}
+                                </div>
                             </div>
-                        </div>
 
-                        <div className={styles.team}>
-                            <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/KT.png`} alt="KT 위즈 로고"
-                                 className={styles.teamLogo}/>
-                            <span className={styles.teamName}>KT 위즈</span>
-                            <div className={styles.pitcherCount}>선발투수-쿠에바스</div>
-                        </div>
-                    </section>
+                            {/* Center Box: Park, Time, Status */}
+                            <div className={styles.matchBox}>
+                                <div className={styles.matchPark}>{stadium || matchDetail.stadium}</div>
+                                <div className={styles.matchTime}>
+                                    {mainTime ||
+                                        new Date(matchDetail.game_date_time).toLocaleTimeString('ko-KR', {
+                                            timeZone: 'Asia/Seoul',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                </div>
+                                <div className={styles.matchBadgeArea}>
+                          <span className={styles.matchBadge}>
+                            {matchDetail.status_code === 'RESULT'
+                                ? '경기종료'
+                                : matchDetail.status_code === 'STARTED'
+                                    ? '경기중'
+                                    : '경기전'}
+                          </span>
+                                </div>
+                            </div>
+
+                            {/* Home Team on Right */}
+                            <div className={styles.team}>
+                                <img
+                                    src={getTeamLogoByName(homeTeam || matchDetail.home.team_name)}
+                                    alt={`${homeTeam || matchDetail.home.team_name} 로고`}
+                                    className={styles.teamLogo}
+                                />
+                                <span className={styles.teamName}>{homeTeam || matchDetail.home.team_name}</span>
+                                <div className={styles.pitcherCount}>
+                                    {matchDetail.home.starter && `선발투수 - ${matchDetail.home.starter}`}
+                                </div>
+                            </div>
+                        </section>
+                    )}
                     <button className={styles.simStart} onClick={startSimulate}>시뮬레이션 시작!</button>
 
                     <SubTabNav tabs={subTabLabels} onTabChange={setActiveSubTab}/>

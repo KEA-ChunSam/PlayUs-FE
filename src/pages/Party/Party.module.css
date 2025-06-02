@@ -583,6 +583,24 @@
     margin-top: 2rem;
 }
 
+.matchBadgeArea {
+    font-size: 13px;
+    background-color: #4040ff;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: bold;
+    /*width: 4rem;*/
+    display: inline-block;
+    justify-content: center;
+}
+
+.pitcherCount {
+    color: #000080;
+    font-size: 14px;
+    font-weight: bold;
+}
+
 
 /* Skeleton placeholder for chat button */
 .skeletonChatButton {

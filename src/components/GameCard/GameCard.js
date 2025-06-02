@@ -19,7 +19,14 @@ const GameCard = ({
                   }) => {
     const navigate = useNavigate();
     const handlePartyClick = () => {
-        navigate(`/party/${gameId}`);
+        navigate(`/party/${gameId}`, {
+            state: {
+                homeTeam,
+                awayTeam,
+                stadium,
+                mainTime,
+            },
+        });
     };
     const handleInfoClick = () => {
         navigate(`/schedule/${gameId}`, {
