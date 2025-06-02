@@ -62,17 +62,27 @@ const PostDetail = () => {
   const checkProfanity = async (text) => {
     try {
       const response = await axios.post(
-        'https://xrnfbckpskycrstm.tunnel.elice.io/detect',
+          `${process.env.REACT_APP_AI_API_BASE}/detect`,
         { sentence: text },
         { headers: { 'Content-Type': 'application/json' } }
       );
-      const raw = response.data.result
-        .replace(/```json\n/, '')
-        .replace(/`{3,}[\s\S]*$/, '')
-        .trim();
-      const parsed = JSON.parse(raw);
-      const isCurse = String(parsed.is_curse).toLowerCase() === 'true';
-      return { isCurse, words: parsed.words || [] };
+
+      let result = response.data?.result || response.data;
+
+      if (typeof result === 'string') {
+        result = result
+          .replace(/```json\n/, '')
+          .replace(/`{3,}[\s\S]*$/, '')
+          .trim();
+
+        result = JSON.parse(result);
+      }
+
+      const isCurse = result && (String(result.isCurse || result.is_curse).toLowerCase() === 'true');
+      return {
+        isCurse,
+        words: result.words || [],
+      };
     } catch (error) {
       console.error('비속어 감지 실패:', error);
       return { isCurse: false, words: [] };

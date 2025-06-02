@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+  workflow_dispatch:
 
 jobs:
   validate:
@@ -23,6 +24,9 @@ jobs:
 
       - name: Run tests
         run: npm run test
+        env:
+          DISABLE_ESLINT_PLUGIN: true
+          CI: true
 
   build-and-deploy:
     needs: validate
@@ -37,6 +41,7 @@ jobs:
       WEB_SERVER: ${{ secrets.WEB_SERVER }}
       WEB_DIR: /var/www/html
       WEB_BACKUP_DIR: /var/www/backups
+      DEPLOY_DIR: /home/ubuntu/deploy
       NODE_ENV: development
       DEPLOY_VERSION: ${{ github.sha }}
 
@@ -72,12 +77,20 @@ jobs:
 
       - name: Build app
         run: npm run build
+        env:
+          DISABLE_ESLINT_PLUGIN: true
+          GENERATE_SOURCEMAP: false
 
       - name: Create version file
         run: |
-          echo "{\"version\": \"${{ env.DEPLOY_VERSION }}\", \"deployedAt\": \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\"}" > $APP_DIR/version.json
+          cat <<EOF > $APP_DIR/version.json
+          {
+            "version": "${{ env.DEPLOY_VERSION }}",
+            "deployedAt": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          }
+          EOF
 
-      - name: Create SSH key
+      - name: Save SSH private key
         run: |
           echo "${{ env.BASTION_KEY }}" > private_key
           chmod 600 private_key
@@ -85,70 +98,117 @@ jobs:
       - name: Add known hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ env.BASTION_HOST }} >> ~/.ssh/known_hosts
-          ssh-keyscan -H ${{ env.WEB_SERVER }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H -p 22 ${{ env.BASTION_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H -p 10000 ${{ env.BASTION_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection to Bastion
+        run: ssh -i private_key -o ConnectTimeout=10 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} 'echo "Bastion SSH connection successful"'
+
+      - name: Test SSH connection to Web Server via Bastion
+        run: ssh -i private_key -o ConnectTimeout=10 -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} 'echo "Web Server SSH connection successful"'
+
+      - name: Prepare deployment directory
+        run: ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} '
+          sudo mkdir -p ${{ env.DEPLOY_DIR }} &&
+          sudo chown ubuntu:ubuntu ${{ env.DEPLOY_DIR }} &&
+          sudo chmod 755 ${{ env.DEPLOY_DIR }} &&
+          rm -rf ${{ env.DEPLOY_DIR }}/*
+          '
 
       - name: Deploy to Web Server via Bastion
         run: |
-          ssh -i private_key -o ProxyJump=${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} ${{ env.WEB_SERVER }} '
-            sudo mkdir -p /home/ubuntu/deploy
-            sudo mkdir -p $WEB_BACKUP_DIR
-            BACKUP_DIR=$WEB_BACKUP_DIR/backup_$(date +%Y%m%d_%H%M%S)
+          rsync -avz --delete --progress \
+            -e "ssh -i private_key -p 10000" \
+            $APP_DIR/ ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }}:${{ env.DEPLOY_DIR }}/
+
+          ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} '
+            echo "배포 시작..."
+            sudo mkdir -p ${{ env.WEB_BACKUP_DIR }}
+            BACKUP_DIR=${{ env.WEB_BACKUP_DIR }}/backup_$(date +%Y%m%d_%H%M%S)
             sudo mkdir -p $BACKUP_DIR
-            sudo cp -r $WEB_DIR/* $BACKUP_DIR/ 2>/dev/null || true
+            sudo cp -r ${{ env.WEB_DIR }}/* $BACKUP_DIR/ 2>/dev/null || true
             echo $BACKUP_DIR > /tmp/latest_backup
-          '
+            echo "백업 완료: $BACKUP_DIR"
 
-          rsync -avz --delete -e "ssh -i private_key -o ProxyJump=${{ env.BASTION_USER }}@${{ env.BASTION_HOST }}" \
-            $APP_DIR/ ${{ env.WEB_SERVER }}:/home/ubuntu/deploy/
+            if [ -d "${{ env.DEPLOY_DIR }}" ] && [ "$(ls -A ${{ env.DEPLOY_DIR }})" ]; then
+              sudo rm -rf ${{ env.WEB_DIR }}/*
+              sudo cp -r ${{ env.DEPLOY_DIR }}/* ${{ env.WEB_DIR }}/
+              sudo chown -R www-data:www-data ${{ env.WEB_DIR }}
+              sudo rm -rf ${{ env.DEPLOY_DIR }}/*
+              echo "배포 완료"
+            else
+              echo "배포할 파일이 없습니다"
+              exit 1
+            fi
+            '
 
-          ssh -i private_key -o ProxyJump=${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} ${{ env.WEB_SERVER }} '
-            sudo mv /home/ubuntu/deploy/* $WEB_DIR/
-            sudo rm -rf /home/ubuntu/deploy
-            sudo systemctl restart nginx
-          '
+      - name: Restart Nginx
+        run: ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} 'sudo systemctl restart nginx'
 
       - name: Verify Nginx status
         run: |
-          ssh -i private_key -o ProxyJump=${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} \
-          ${{ env.WEB_SERVER }} 'sudo systemctl is-active nginx || (echo "Nginx is not running" && exit 1)'
-          ssh -i private_key -o ProxyJump=${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} \
-          ${{ env.WEB_SERVER }} 'sudo nginx -t || (echo "Nginx configuration test failed" && exit 1)'
+          ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} 'sudo systemctl is-active nginx || (echo "Nginx is not running" && exit 1)'
+          ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} 'sudo nginx -t || (echo "Nginx configuration test failed" && exit 1)'
 
       - name: Health check
         run: |
-          for i in {1..5}; do
-            if curl -f ${{ secrets.APP_URL }}/version.json; then
+          for i in {1..10}; do
+            if ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} 'curl -f http://localhost/'; then
               echo "Health check passed"
-              exit 0
+              break
+            fi
+            if [ $i -eq 10 ]; then
+              echo "Health check failed after 10 attempts"
+              exit 1
             fi
             echo "Attempt $i: Health check failed, retrying in 10 seconds..."
             sleep 10
           done
-          echo "Health check failed after 5 attempts"
-          exit 1
+
+      - name: External health check
+        if: success()
+        run: |
+          if [ ! -z "${{ secrets.APP_URL }}" ]; then
+            for i in {1..5}; do
+              if curl -f ${{ secrets.APP_URL }}/; then
+                echo "External health check passed"
+                break
+              fi
+              if [ $i -eq 5 ]; then
+                echo "External health check failed after 5 attempts"
+                echo "::warning::External health check failed, but deployment completed"
+              fi
+              echo "External attempt $i: Health check failed, retrying in 10 seconds..."
+              sleep 10
+            done
+          else
+            echo "APP_URL not configured, skipping external health check"
+          fi
 
       - name: Rollback on failure
         if: failure()
         run: |
-          ssh -i private_key -o ProxyJump=${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} \
-          ${{ env.WEB_SERVER }} '
-            LATEST_BACKUP=$(ls -t $WEB_BACKUP_DIR/backup_* 2>/dev/null | head -n1)
-            if [ ! -z "$LATEST_BACKUP" ]; then
-              sudo cp -r $LATEST_BACKUP/* $WEB_DIR/
-              sudo systemctl restart nginx
-              echo "Rollback completed to backup: $LATEST_BACKUP"
+          echo "배포 실패로 인한 롤백 시작..."
+          ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} '
+            if [ -f /tmp/latest_backup ]; then
+              LATEST_BACKUP=$(cat /tmp/latest_backup)
+              if [ -d "$LATEST_BACKUP" ]; then
+                sudo rm -rf ${{ env.WEB_DIR }}/*
+                sudo cp -r $LATEST_BACKUP/* ${{ env.WEB_DIR }}/
+                sudo chown -R www-data:www-data ${{ env.WEB_DIR }}
+                sudo systemctl restart nginx
+                echo "롤백 완료: $LATEST_BACKUP"
+              else
+                echo "백업 디렉토리를 찾을 수 없습니다: $LATEST_BACKUP"
+              fi
             else
-              echo "No backup found for rollback"
-              exit 1
+              echo "백업 정보를 찾을 수 없습니다"
             fi
-          '
+            '
 
       - name: Clean old backups
         if: success()
-        run: |
-          ssh -i private_key -o ProxyJump=${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} \
-          ${{ env.WEB_SERVER }} "sudo find $WEB_BACKUP_DIR/backup_* -maxdepth 0 -mtime +7 -exec rm -rf {} \; 2>/dev/null || true"
+        run: ssh -i private_key -p 10000 ${{ env.BASTION_USER }}@${{ env.BASTION_HOST }} "sudo find ${{ env.WEB_BACKUP_DIR }}/backup_* -maxdepth 0 -mtime +7 -exec rm -rf {} \; 2>/dev/null || true"
 
       - name: Clean up
         if: always()
@@ -157,78 +217,83 @@ jobs:
       - name: Notify deployment status
         if: always()
         run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            COLOR="#36a64f"
+            EMOJI="✅"
+            STATUS="성공"
+          else
+            COLOR="#ff0000"
+            EMOJI="❌"
+            STATUS="실패"
+          fi
+
           COMMIT_MESSAGE=$(git log -1 --pretty=%B | tr '\n' ' ' | sed 's/"/\\"/g')
           COMMIT_AUTHOR=$(git log -1 --pretty=%an)
           COMMIT_SHA_SHORT=$(git rev-parse --short HEAD)
           DEPLOY_TIME=$(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M:%S %Z')
-          STATUS=$([ "${{ job.status }}" == "success" ] && echo "성공" || echo "실패")
-          COLOR=$([ "${{ job.status }}" == "success" ] && echo "#36a64f" || echo "#ff0000")
-          EMOJI=$([ "${{ job.status }}" == "success" ] && echo "✅" || echo "❌")
 
-          jq -n \
-            --arg color "$COLOR" \
-            --arg emoji "$EMOJI" \
-            --arg status "$STATUS" \
-            --arg version "$COMMIT_SHA_SHORT" \
-            --arg deployTime "$DEPLOY_TIME" \
-            --arg commitMsg "$COMMIT_MESSAGE" \
-            --arg author "$COMMIT_AUTHOR" \
-            --arg env "$NODE_ENV" \
-            --arg url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
-            '{
-              "attachments": [{
-                "color": $color,
-                "blocks": [
-                  {
-                    "type": "header",
-                    "text": {
-                      "type": "plain_text",
-                      "text": $emoji + " PlayUs 배포 " + $status,
-                      "emoji": true
+          if [ ! -z "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            PAYLOAD='{
+              "attachments": [
+                {
+                  "color": "'"${COLOR}"'",
+                  "blocks": [
+                    {
+                      "type": "header",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "'"${EMOJI}"' PlayUs 배포 '"${STATUS}"'",
+                        "emoji": true
+                      }
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*버전:*\n'"${COMMIT_SHA_SHORT}"'"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*배포 시간:*\n'"${DEPLOY_TIME}"'"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*커밋 메시지:*\n'"${COMMIT_MESSAGE}"'"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*작성자:*\n'"${COMMIT_AUTHOR}"'"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "text": {
+                        "type": "mrkdwn",
+                        "text": "*배포 환경:*\n'"${NODE_ENV}"'"
+                      }
+                    },
+                    {
+                      "type": "context",
+                      "elements": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|배포 상세 정보 보기>"
+                        }
+                      ]
                     }
-                  },
-                  {
-                    "type": "section",
-                    "fields": [
-                      {
-                        "type": "mrkdwn",
-                        "text": "*버전:*\n" + $version
-                      },
-                      {
-                        "type": "mrkdwn",
-                        "text": "*배포 시간:*\n" + $deployTime
-                      }
-                    ]
-                  },
-                  {
-                    "type": "section",
-                    "fields": [
-                      {
-                        "type": "mrkdwn",
-                        "text": "*커밋 메시지:*\n" + $commitMsg
-                      },
-                      {
-                        "type": "mrkdwn",
-                        "text": "*작성자:*\n" + $author
-                      }
-                    ]
-                  },
-                  {
-                    "type": "section",
-                    "text": {
-                      "type": "mrkdwn",
-                      "text": "*배포 환경:*\n" + $env
-                    }
-                  },
-                  {
-                    "type": "context",
-                    "elements": [
-                      {
-                        "type": "mrkdwn",
-                        "text": "<" + $url + "|배포 상세 정보 보기>"
-                      }
-                    ]
-                  }
-                ]
-              }]
-            }' | curl -X POST -H 'Content-type: application/json' --data @- ${{ secrets.SLACK_WEBHOOK_URL }}
+                  ]
+                }
+              ]
+            }'
+
+            curl -X POST -H 'Content-type: application/json' --data "${PAYLOAD}" ${{ secrets.SLACK_WEBHOOK_URL }}
+          else
+            echo "Slack webhook URL not configured"
+          fi

@@ -87,7 +87,7 @@ function AppRouter() {
                     <Route index element={<PartyApply/>}/>
                 </Route>
                 {/* 직관팟 입장 시 채팅방 */}
-                <Route path="/chat/party/:chatId" element={<MobileView/>}>
+                <Route path="/chat/party/:chatRoomId" element={<MobileView/>}>
                     <Route index element={<Chatting/>}/>
                 </Route>
                 {/* 직관팟 후기 페이지 */}
@@ -103,7 +103,7 @@ function AppRouter() {
                     <Route index element={<Profile/>}/>
                 </Route>
                 {/* 직관일지 목록 */}
-                <Route path="/diary/list" element={<MobileView/>}>
+                <Route path="/diary/list/:id" element={<MobileView/>}>
                     <Route index element={<DiaryList/>}/>
                 </Route>
                 {/* 직관일지 작성 */}

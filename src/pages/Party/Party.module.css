@@ -582,3 +582,25 @@
     text-align: center;
     margin-top: 2rem;
 }
+
+
+/* Skeleton placeholder for chat button */
+.skeletonChatButton {
+    width: 100px; /* 버튼 너비와 맞추세요, 실제 버튼 크기에 맞게 변경 가능 */
+    height: 32px; /* 버튼 높이와 맞추세요 */
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.4;
+    }
+    100% {
+        opacity: 1;
+    }
+}

@@ -1,10 +1,10 @@
 // 직관팟 작성 페이지
-import React, {useRef, useState, useEffect} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import axios from 'axios';
 import PartyFormStep1 from '../../components/Form/PartyFormStep1';
 import PartyFormStep2 from '../../components/Form/PartyFormStep2';
 import Modal from '../../components/Modal/Modal'; // adjust path if necessary
-import { useLocation, useParams, useNavigate } from 'react-router-dom';
+import {useLocation, useNavigate, useParams} from 'react-router-dom';
 
 const getCookie = (name) => {
     const cookies = document.cookie.split(';').map(cookie => cookie.trim());
@@ -14,7 +14,7 @@ const getCookie = (name) => {
 
 const PartyMake = () => {
     const location = useLocation();
-    const { partyId } = useParams();
+    const {partyId} = useParams();
     const navigate = useNavigate();
     const isEditMode = location.pathname.includes('/party/edit');
 
@@ -32,6 +32,7 @@ const PartyMake = () => {
     });
 
     const [modalVisible, setModalVisible] = useState(false);
+    const [detectModalVisible, setDetectModalVisible] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
     const [redirectId, setRedirectId] = useState(null);
 
@@ -58,36 +59,45 @@ const PartyMake = () => {
         // This function is no longer used for immediate upload
     };
 
-    /*
-    const checkProfanity = async (description) => {
+
+    const checkProfanity = async (text) => {
         try {
             const response = await axios.post(
-                "https://xrnfbckpskycrstm.tunnel.elice.io/detect",
-                {sentence: description},
-                {headers: {'Content-Type': 'application/json'}}
+                `${process.env.REACT_APP_AI_API_BASE}/detect`,
+                { sentence: text },
+                { headers: { 'Content-Type': 'application/json' } }
             );
-            const raw = response.data.result
-                .replace(/```json\n/, '')
-                .replace(/`{3,}[\s\S]*$/, '')
-                .trim();
 
-            const parsed = JSON.parse(raw);
-            const isCurse = String(parsed.is_curse).toLowerCase() === 'true';
-            if (isCurse) {
-                const detectedWords = parsed.words || [];
-                setModalMessage(detectedWords.join(', '));
-                return false;
+            let result = response.data?.result || response.data;
+
+            if (typeof result === 'string') {
+                result = result
+                    .replace(/```json\n/, '')
+                    .replace(/`{3,}[\s\S]*$/, '')
+                    .trim();
+                result = JSON.parse(result);
             }
-            return true;
 
+            const isCurse = result && (String(result.isCurse || result.is_curse).toLowerCase() === 'true');
+            return {
+                isCurse,
+                words: result.words || [],
+            };
         } catch (error) {
             console.error('비속어 필터링 오류:', error);
-            return false;
+            return { isCurse: false, words: [] };
         }
     };
-    */
+
 
     const handleSubmit = async () => {
+        const { isCurse, words } = await checkProfanity(partyForm.message);
+        if (isCurse) {
+            setModalMessage(words.join(', '));
+            setDetectModalVisible(true);
+            return;
+        }
+
         const uploadedFileNames = ["default.png"];
 
         const payload = {
@@ -110,14 +120,14 @@ const PartyMake = () => {
             if (isEditMode) {
                 await axios.put(`http://localhost:8081/party/${partyId}`, payload, {
                     withCredentials: true,
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {'Content-Type': 'application/json'},
                 });
                 setModalMessage('직관팟이 성공적으로 수정되었습니다!');
                 setModalVisible(true);
             } else {
                 const response = await axios.post('http://localhost:8081/party', payload, {
                     withCredentials: true,
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {'Content-Type': 'application/json'},
                 });
                 const newPartyId = response.data.partyId;
                 setRedirectId(newPartyId);
@@ -147,37 +157,39 @@ const PartyMake = () => {
                     onSubmit={handleSubmit}
                 />
             )}
-            {/*{modalVisible && (*/}
-            {/*    <Modal*/}
-            {/*        title="ABS봇이 작동중입니다."*/}
-            {/*        message={*/}
-            {/*            <>*/}
-            {/*                ABS봇이 부적절한 키워드를 감지했습니다.*/}
-            {/*                <br/>*/}
-            {/*                작성글을 수정해 주세요.*/}
-            {/*                <br/>*/}
-            {/*                <br />*/}
-            {/*                감지된 단어: {modalMessage}*/}
-            {/*            </>*/}
-            {/*        }*/}
-            {/*        buttons={[*/}
-            {/*            {label: '확인', onClick: () => setModalVisible(false)}*/}
-            {/*        ]}*/}
-            {/*        onClose={() => setModalVisible(false)}*/}
-            {/*    />*/}
-            {/*)}*/}
+            {detectModalVisible && (
+                <Modal
+                    title="ABS봇이 작동중입니다."
+                    message={
+                        <>
+                            ABS봇이 부적절한 키워드를 감지했습니다.
+                            <br/>
+                            작성글을 수정해 주세요.
+                            <br/>
+                            <br/>
+                            감지된 단어: {modalMessage}
+                        </>
+                    }
+                    buttons={[
+                        {label: '확인', onClick: () => setDetectModalVisible(false)}
+                    ]}
+                    onClose={() => setDetectModalVisible(false)}
+                />
+            )}
             {modalVisible && (
                 <Modal
                     title="알림"
                     message={modalMessage}
-                    buttons={[{ label: '확인', onClick: () => {
-                        setModalVisible(false);
-                        if (isEditMode) {
-                            navigate(`/party/matchid/${partyId}`);
-                        } else if (redirectId) {
-                            navigate(`/party/matchid/${redirectId}`);
+                    buttons={[{
+                        label: '확인', onClick: () => {
+                            setModalVisible(false);
+                            if (isEditMode) {
+                                navigate(`/party/matchid/${partyId}`);
+                            } else if (redirectId) {
+                                navigate(`/party/matchid/${redirectId}`);
+                            }
                         }
-                    }}]}
+                    }]}
                     onClose={() => {
                         setModalVisible(false);
                         if (isEditMode) {

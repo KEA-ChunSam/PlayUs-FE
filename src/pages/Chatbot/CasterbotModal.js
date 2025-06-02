@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import axios from 'axios';
 import styles from './CasterbotModal.module.css';
 
 const CasterbotModal = ({onClose}) => {
@@ -9,32 +10,54 @@ const CasterbotModal = ({onClose}) => {
             // time: '11:30 AM',
             mine: false,
         },
-        {
-            sender: '',
-            content: '현재 타율 1위가 누군지 알려줘',
-            // time: '11:30 AM',
-            mine: true,
-        },
-        {
-            sender: '캐스터봇',
-            content: '2025시즌 타율 1위는 NC 다이노스의 손아섭 선수입니다.',
-            // time: '11:30 AM',
-            mine: false,
-        }
+        // {
+        //     sender: '',
+        //     content: '현재 타율 1위가 누군지 알려줘',
+        //     // time: '11:30 AM',
+        //     mine: true,
+        // },
+        // {
+        //     sender: '캐스터봇',
+        //     content: '2025시즌 타율 1위는 NC 다이노스의 손아섭 선수입니다.',
+        //     // time: '11:30 AM',
+        //     mine: false,
+        // }
     ]);
 
     const [chatInput, setChatInput] = useState('');
 
-    const handleSendMessage = () => {
+    const handleSendMessage = async () => {
         if (!chatInput.trim()) return;
-        // const now = new Date();
+        const userMessage = chatInput.trim().slice(0, 500);
         setMessages(prev => [...prev, {
             sender: '',
-            content: chatInput.trim().slice(0, 500),
-            // time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            content: userMessage,
             mine: true,
         }]);
         setChatInput('');
+
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_AI_API_BASE}/chat`, {
+                question: userMessage,
+            }, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const answer = response.data.answer || '죄송합니다. 답변을 불러오지 못했습니다.';
+            setMessages(prev => [...prev, {
+                sender: '캐스터봇',
+                content: answer,
+                mine: false,
+            }]);
+        } catch (error) {
+            console.error('챗봇 응답 에러:', error);
+            setMessages(prev => [...prev, {
+                sender: '캐스터봇',
+                content: '죄송합니다. 응답 중 문제가 발생했습니다.',
+                mine: false,
+            }]);
+        }
+        return;
     };
 
     const handleKeyDown = (e) => {
