@@ -132,6 +132,29 @@ const PostDetail = () => {
         fetchPost();
     }, [postId, team]);
 
+    // 답글쓰기 버튼 클릭 시
+    const handleReplyClick = (commentId) => {
+        setReplyTo(commentId);
+        setTimeout(() => {
+            commentInputRef.current?.focus();
+        }, 0);
+    };
+
+    // 작성자 닉네임 표시 함수
+    const getWriterNickname = () => {
+        if (!post?.writerNickname) return '';
+        if (post.writerNickname.startsWith('User#')) {
+            return currentUser?.nickname || post.writerNickname;
+        }
+        return post.writerNickname;
+    };
+
+    // 댓글 작성자 확인 함수
+    const isCommentAuthor = (authorId) => {
+        if (!currentUser?.id || !authorId) return false;
+        return authorId === currentUser.id;
+    };
+
     // 댓글 저장
     const saveComments = (newComments) => {
         setComments(newComments);
@@ -379,115 +402,121 @@ const PostDetail = () => {
         return <div>로딩 중...</div>;
     }
 
+    // Add missing handler functions
     const handleSaveCommentEdit = async (commentId) => {
-        try {
-            const commentToEdit = comments.find(c => c.id === commentId);
-            if (!commentToEdit) return;
+        if (isSubmitting) return;
 
-            const response = await axios.put(
-                `${process.env.REACT_APP_API_URL}/api/comments/${commentId}`,
+        try {
+            setIsSubmitting(true);
+            const hasProfanity = await checkProfanity(editingContent);
+            if (hasProfanity) {
+                alert('비속어가 포함되어 있습니다.');
+                return;
+            }
+
+            await axios.put(
+                `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment`,
+                { postId: postId, commentId, content: editingContent },
                 {
-                    content: commentToEdit.content,
-                    postId: post.id
-                },
-                {
+                    withCredentials: true,
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                        'Content-Type': 'application/json'
                     }
                 }
             );
 
-            if (response.status === 200) {
-                setComments(prevComments =>
-                    prevComments.map(comment =>
-                        comment.id === commentId
-                            ? { ...comment, isEditing: false }
-                            : comment
-                    )
-                );
-            }
+            setComments(comments.map(comment => 
+                comment.id === commentId 
+                    ? { ...comment, content: editingContent }
+                    : comment
+            ));
+            setEditingCommentId(null);
+            setEditingContent('');
         } catch (error) {
-            console.error('댓글 수정 실패:', error);
-            alert('댓글 수정에 실패했습니다.');
+            console.error('Error editing comment:', error);
+            alert('댓글 수정 중 오류가 발생했습니다.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
-    const handleEditReply = (replyId) => {
-        setComments(prevComments =>
-            prevComments.map(comment => ({
-                ...comment,
-                replies: comment.replies.map(reply =>
-                    reply.id === replyId
-                        ? { ...reply, isEditing: true }
-                        : reply
-                )
-            }))
-        );
+    const handleEditReply = (commentId, replyId, content) => {
+        setEditingCommentId(`${commentId}_${replyId}`);
+        setEditingContent(content);
     };
 
-    const handleDeleteReply = async (replyId) => {
+    const handleDeleteReply = async (commentId, replyId) => {
         if (!window.confirm('답글을 삭제하시겠습니까?')) return;
 
         try {
-            const response = await axios.delete(
-                `${process.env.REACT_APP_API_URL}/api/replies/${replyId}`,
+            await axios.patch(
+                `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment/reply`,
+                { postId: postId, commentId, replyId, delete: true },
                 {
+                    withCredentials: true,
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                        'Content-Type': 'application/json'
                     }
                 }
             );
 
-            if (response.status === 200) {
-                setComments(prevComments =>
-                    prevComments.map(comment => ({
+            setComments(comments.map(comment => {
+                if (comment.id === commentId) {
+                    return {
                         ...comment,
                         replies: comment.replies.filter(reply => reply.id !== replyId)
-                    }))
-                );
-            }
+                    };
+                }
+                return comment;
+            }));
         } catch (error) {
-            console.error('답글 삭제 실패:', error);
-            alert('답글 삭제에 실패했습니다.');
+            console.error('Error deleting reply:', error);
+            alert('답글 삭제 중 오류가 발생했습니다.');
         }
     };
 
-    const handleSaveEditReply = async (replyId) => {
-        try {
-            const commentWithReply = comments.find(comment =>
-                comment.replies.some(reply => reply.id === replyId)
-            );
-            const replyToEdit = commentWithReply?.replies.find(r => r.id === replyId);
-            if (!replyToEdit) return;
+    const handleSaveEditReply = async (commentId, replyId) => {
+        if (isSubmitting) return;
 
-            const response = await axios.put(
-                `${process.env.REACT_APP_API_URL}/api/replies/${replyId}`,
+        try {
+            setIsSubmitting(true);
+            const hasProfanity = await checkProfanity(editingContent);
+            if (hasProfanity) {
+                alert('비속어가 포함되어 있습니다.');
+                return;
+            }
+
+            await axios.put(
+                `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment/reply`,
+                { postId: postId, commentId, replyId, content: editingContent },
                 {
-                    content: replyToEdit.content,
-                    commentId: commentWithReply.id
-                },
-                {
+                    withCredentials: true,
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                        'Content-Type': 'application/json'
                     }
                 }
             );
 
-            if (response.status === 200) {
-                setComments(prevComments =>
-                    prevComments.map(comment => ({
+            setComments(comments.map(comment => {
+                if (comment.id === commentId) {
+                    return {
                         ...comment,
                         replies: comment.replies.map(reply =>
                             reply.id === replyId
-                                ? { ...reply, isEditing: false }
+                                ? { ...reply, content: editingContent }
                                 : reply
                         )
-                    }))
-                );
-            }
+                    };
+                }
+                return comment;
+            }));
+            setEditingCommentId(null);
+            setEditingContent('');
         } catch (error) {
-            console.error('답글 수정 실패:', error);
-            alert('답글 수정에 실패했습니다.');
+            console.error('Error editing reply:', error);
+            alert('답글 수정 중 오류가 발생했습니다.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -607,10 +636,10 @@ const PostDetail = () => {
                                                         {showReplyMenu === `${c.id}_${r.id}` && (
                                                             <div className={styles.menuPopup}>
                                                                 <div className={styles.menuItem}
-                                                                     onClick={() => handleEditReply(r.id)}>수정하기
+                                                                     onClick={() => handleEditReply(c.id, r.id, r.content)}>수정하기
                                                                 </div>
                                                                 <div className={styles.menuItem}
-                                                                     onClick={() => handleDeleteReply(r.id)}>삭제하기
+                                                                     onClick={() => handleDeleteReply(c.id, r.id)}>삭제하기
                                                                 </div>
                                                             </div>
                                                         )}
@@ -622,7 +651,7 @@ const PostDetail = () => {
                                             <div className={styles.editBox}>
                                                 <input value={editingContent}
                                                        onChange={e => setEditingContent(e.target.value)}/>
-                                                <button onClick={() => handleSaveEditReply(r.id)}>저장</button>
+                                                <button onClick={() => handleSaveEditReply(c.id, r.id)}>저장</button>
                                             </div>
                                         ) : (
                                             <div className={styles.commentContent}>{r.content}</div>

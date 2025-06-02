@@ -51,8 +51,6 @@ const Community = () => {
   const [profanityMessage, setProfanityMessage] = useState('');
   const [showCasterbot, setShowCasterbot] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPostMenu, setShowPostMenu] = useState(null);
 
   const getTeamInfo = (teamId) => {
     if (!teamId) return null;
@@ -68,18 +66,28 @@ const Community = () => {
       if (!isInitialLoad) return;
       
       try {
+        console.log('선호팀 가져오기 시작');
         const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
+        console.log('백엔드 URL:', baseUrl);
+        
         const res = await axios.get(`${baseUrl}/user/profile`, { withCredentials: true });
+        console.log('프로필 응답:', res.data);
         
         const favorites = Array.isArray(res.data.favoriteTeams) ? res.data.favoriteTeams : [];
-        const sorted = [...favorites].sort((a, b) => a.displayOrder - b.displayOrder);
+        console.log('선호팀 목록:', favorites);
         
+        const sorted = [...favorites].sort((a, b) => a.displayOrder - b.displayOrder);
         if (sorted.length === 0) {
+          console.log('선호팀이 없습니다.');
           return;
         }
         
         const firstTeamId = sorted[0].teamId;
+        console.log('첫 번째 선호팀 ID:', firstTeamId);
+        
+        // teamInfoMapCommunity에서 해당 ID의 팀 정보 찾기
         const teamInfo = teamInfoMapCommunity.find(team => team.id === firstTeamId);
+        console.log('찾은 팀 정보:', teamInfo);
         
         if (teamInfo) {
           // URL에 팀 정보가 없는 경우에만 선호팀으로 설정
@@ -88,6 +96,7 @@ const Community = () => {
             navigate(`/community/post/${teamInfo.teamId}`);
           }
         } else {
+          console.log('팀 정보를 찾을 수 없습니다.');
           // URL에 팀 정보가 없는 경우에만 기본 팀으로 설정
           if (!location.pathname.includes('/post/')) {
             const defaultTeam = 'KIA_TIGERS';
@@ -96,6 +105,7 @@ const Community = () => {
           }
         }
       } catch (error) {
+        console.error('선호팀 가져오기 실패:', error);
         // URL에 팀 정보가 없는 경우에만 기본 팀으로 설정
         if (!location.pathname.includes('/post/')) {
           const defaultTeam = 'KIA_TIGERS';
@@ -116,10 +126,28 @@ const Community = () => {
     if (teamIndex > 0 && teamIndex < pathParts.length) {
       const teamFromUrl = pathParts[teamIndex];
       if (teamFromUrl && teamFromUrl !== selectedTeam) {
+        console.log('URL에서 팀 정보 가져옴:', teamFromUrl);
         setSelectedTeam(teamFromUrl);
       }
     }
   }, [location.pathname, selectedTeam]);
+
+  // selectedTeam이 변경될 때마다 로그 출력
+  useEffect(() => {
+    console.log('selectedTeam 변경됨:', selectedTeam);
+  }, [selectedTeam]);
+
+  // teamInfo가 변경될 때마다 로그 출력
+  useEffect(() => {
+    console.log('teamInfo 변경됨:', teamInfo);
+  }, [teamInfo]);
+
+  // 초기 렌더링 시 로그 출력
+  useEffect(() => {
+    console.log('컴포넌트 마운트됨');
+    console.log('현재 selectedTeam:', selectedTeam);
+    console.log('현재 teamInfo:', teamInfo);
+  }, []);
 
   useEffect(() => {
     if (!selectedTeam) return;
@@ -127,13 +155,18 @@ const Community = () => {
     const fetchPosts = async () => {
       setIsLoading(true);
       try {
+        console.log('선택된 팀:', selectedTeam);
         const url = `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/${selectedTeam}`;
+        console.log('API 요청 URL:', url);
+        
         const response = await axios.get(url, { 
           withCredentials: true,
           headers: {
             'Content-Type': 'application/json'
           }
         });
+        
+        console.log('API 응답:', response.data);
         
         if (!response.data) {
           throw new Error('서버 응답이 없습니다.');
@@ -146,8 +179,10 @@ const Community = () => {
           id: post.postId || post.id // postId를 id로 통일
         }));
         
+        console.log('처리된 게시글 목록:', postsWithTeam);
         setPosts(postsWithTeam);
       } catch (error) {
+        console.error('게시글 목록 조회 실패:', error);
         if (error.response) {
           console.error('에러 응답:', error.response.data);
           console.error('에러 상태:', error.response.status);
@@ -179,7 +214,13 @@ const Community = () => {
   };
 
   const handleWriteClick = () => {
+    console.log('selectedTeam:', selectedTeam, 'typeof:', typeof selectedTeam);
+    console.log('teamInfoMapCommunity teamIds:', teamInfoMapCommunity.map(t => t.teamId));
+    teamInfoMapCommunity.forEach(team => {
+      console.log('team.teamId:', team.teamId, 'typeof:', typeof team.teamId, '===', team.teamId === selectedTeam);
+    });
     const teamInfo = teamInfoMapCommunity.find(team => team.teamId === selectedTeam);
+    console.log('teamInfo:', teamInfo);
     if (!teamInfo) {
       alert('팀 정보를 찾을 수 없습니다.');
       return;
@@ -246,6 +287,13 @@ const Community = () => {
     const normalize = v => (v || '').replace(/_/g, '').toUpperCase();
     const normalizedPostTeam = normalize(post.team);
     const normalizedSelectedTeam = normalize(selectedTeam);
+    console.log('팀 비교:', { 
+      postTeam: post.team, 
+      normalizedPostTeam,
+      selectedTeam,
+      normalizedSelectedTeam,
+      matches: normalizedPostTeam === normalizedSelectedTeam
+    });
     return normalizedPostTeam === normalizedSelectedTeam;
   };
 
@@ -254,6 +302,7 @@ const Community = () => {
   }
 
   const filteredPosts = posts.filter(filterByTeam);
+  console.log('필터링된 게시글:', filteredPosts);
 
   return (
     <div className={styles.pageWrapper}>
