@@ -110,7 +110,7 @@ const PostDetail = () => {
                     postData._writerId = writerId;
                     try {
                         const userRes = await axios.get(
-                            `http://localhost:8080/user/profile/${writerId}`,
+                            `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile/${writerId}`,
                             { withCredentials: true }
                         );
                         postData.writerNickname = userRes.data.nickname;
@@ -163,30 +163,6 @@ const PostDetail = () => {
         } catch (error) {
             console.error('댓글 저장 중 오류가 발생했습니다:', error);
         }
-    };
-
-    // 답글쓰기 버튼 클릭 시
-    const handleReplyClick = (commentId) => {
-        setReplyTo(commentId);
-        // 입력창에 포커스
-        setTimeout(() => {
-            commentInputRef.current?.focus();
-        }, 0);
-    };
-
-    // 작성자 닉네임 표시 함수
-    const getWriterNickname = () => {
-        if (!post?.writerNickname) return '';
-        if (post.writerNickname.startsWith('User#')) {
-            return currentUser?.nickname || post.writerNickname;
-        }
-        return post.writerNickname;
-    };
-
-    // 댓글 작성자 확인 함수
-    const isCommentAuthor = (authorId) => {
-        if (!currentUser?.id || !authorId) return false;
-        return authorId === currentUser.id;
     };
 
     // 댓글/답글 등록
@@ -294,17 +270,8 @@ const PostDetail = () => {
             return;
         }
 
-        // 현재 로그인한 사용자 정보 가져오기
-        const userData = localStorage.getItem('user');
-        let currentUser = null;
-        try {
-            currentUser = JSON.parse(userData);
-        } catch (error) {
-            console.error('사용자 정보를 불러오는 중 오류가 발생했습니다:', error);
-        }
-
         if (!currentUser) {
-            alert('사용자 정보를 찾을 수 없습니다.');
+            alert('로그인이 필요합니다.');
             return;
         }
 

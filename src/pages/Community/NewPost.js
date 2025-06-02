@@ -19,7 +19,7 @@ const NewPost = () => {
     const [content, setContent] = useState(post?.content || '');
     const [image, setImage] = useState(post?.image || null);
     const [imageFile, setImageFile] = useState(null);
-    const selectedTeam = location.state?.team;
+    const selectedTeam = location.state?.team || 'hanwha';
     const [showAbsModal, setShowAbsModal] = useState(false);
     const [profanityMessage, setProfanityMessage] = useState('');
     const [showCasterbot, setShowCasterbot] = useState(false);

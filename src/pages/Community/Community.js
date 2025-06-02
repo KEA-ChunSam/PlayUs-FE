@@ -51,6 +51,7 @@ const Community = () => {
   const [profanityMessage, setProfanityMessage] = useState('');
   const [showCasterbot, setShowCasterbot] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [showPostMenu, setShowPostMenu] = useState(null);
 
   const getTeamInfo = (teamId) => {
     if (!teamId) return null;
@@ -261,18 +262,37 @@ const Community = () => {
     if (!window.confirm('게시글을 삭제하시겠습니까?')) return;
 
     try {
-      await axios.delete(
+      const response = await axios.delete(
         `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/${postId}`,
         {
-          withCredentials: true
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
         }
       );
 
-      setPosts(posts.filter(post => post.id !== postId));
-      setShowPostMenu(null);
+      if (response.status === 200) {
+        // 서버에서 삭제가 성공적으로 처리된 후에만 상태 업데이트
+        setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+        setShowPostMenu(null);
+        alert('게시글이 삭제되었습니다.');
+      } else {
+        throw new Error('게시글 삭제에 실패했습니다.');
+      }
     } catch (error) {
       console.error('Error deleting post:', error);
-      alert('게시글 삭제 중 오류가 발생했습니다.');
+      if (error.response) {
+        if (error.response.status === 403) {
+          alert('게시글을 삭제할 권한이 없습니다.');
+        } else if (error.response.status === 401) {
+          alert('로그인이 필요합니다.');
+        } else {
+          alert(`게시글 삭제 중 오류가 발생했습니다: ${error.response.data?.message || error.message}`);
+        }
+      } else {
+        alert('게시글 삭제 중 오류가 발생했습니다.');
+      }
     }
   };
 
