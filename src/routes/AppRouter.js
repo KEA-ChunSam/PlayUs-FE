@@ -5,9 +5,7 @@ import MobileView from "../components/MobileView/MobileView";
 import MainPage from "../pages/Main/MainPage";
 import Splash from "../pages/Login/Splash";
 import Login from "../pages/Login/Login";
-import Community from '../pages/Community/Community';
 import NewPost from '../pages/Community/NewPost';
-// import Party from '../components/Party';
 import Profile from '../pages/Profile/Profile';
 import TeamChoice from "../pages/InitialProfile/TeamChoice";
 import SetProfile from "../pages/InitialProfile/SetProfile";
@@ -25,6 +23,7 @@ import MatchInfo from "../pages/League/MatchInfo";
 import DiaryList from "../pages/LiveMatchDiary/DiaryList";
 import DiaryDetail from "../pages/LiveMatchDiary/DiaryDetail";
 import NewDiary from "../pages/LiveMatchDiary/NewDiary";
+import Community from '../pages/Community/Community';
 
 function AppRouter() {
     return (
@@ -41,10 +40,10 @@ function AppRouter() {
                     <Route index element={<MainPage/>}/>
                 </Route>
                 {/* 커뮤니티 */}
-                <Route path="/community" element={<MobileView/>}>
+                <Route path="/community/post/:team" element={<MobileView/>}>
                     <Route index element={<Community/>}/>
                 </Route>
-                <Route path="/community/posts/:postId" element={<MobileView />}>
+                <Route path="/community/post/:team/:postId" element={<MobileView/>}>
                     <Route index element={<PostDetail />} />
                 </Route>
                 {/* 일정 & 직관팟 */}

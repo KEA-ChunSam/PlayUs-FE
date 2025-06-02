@@ -66,12 +66,14 @@ export default function MainPage() {
                 const favorites = res.data.favoriteTeams;
 
                 const map = {};
-                favorites.forEach(fav => {
-                    map[fav.teamId] = fav.displayOrder;
-                });
+                if (Array.isArray(favorites)) {
+                    favorites.forEach(fav => {
+                        map[fav.teamId] = fav.displayOrder;
+                    });
+                }
                 setFavoriteMap(map);
 
-                const sortedFavorites = [...favorites].sort((a, b) => a.displayOrder - b.displayOrder);
+                const sortedFavorites = Array.isArray(favorites) ? [...favorites].sort((a, b) => a.displayOrder - b.displayOrder) : [];
                 const teamIds = sortedFavorites.map(f => f.teamId);
                 setSelectedFavorites(teamIds);
 

@@ -5,6 +5,8 @@ import axios from 'axios';
 import Modal from '../../components/Modal/Modal';
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import CasterbotModal from "../Chatbot/CasterbotModal";
+import { teamInfoMapCommunity } from '../../utils/teamInfoMap';
+import { useAuth } from '../../utils/AuthContext';
 
 // 게시글 샘플 데이터 (실제로는 API에서 가져와야 함)
 const samplePosts = [
@@ -17,9 +19,10 @@ const samplePosts = [
 ];
 
 const PostDetail = () => {
-  const { postId } = useParams();
+  const { postId, team } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const [post, setPost] = useState(null);
   const [showPostMenu, setShowPostMenu] = useState(false); // 게시글 삼점바
   const [showCommentMenu, setShowCommentMenu] = useState(null); // 댓글 삼점바(댓글 id)
   const [showReplyMenu, setShowReplyMenu] = useState(null); // 대댓글 삼점바(댓글id_대댓글id)
@@ -34,11 +37,27 @@ const PostDetail = () => {
   const [editedTitle, setEditedTitle] = useState('');
   const [isCommentEditing, setIsCommentEditing] = useState(false);
   const [editedComment, setEditedComment] = useState('');
-  const [currentUser, setCurrentUser] = useState(null); // 현재 로그인한 사용자
   const [showMenu, setShowMenu] = useState(false);
     const [showCasterbot, setShowCasterbot] = useState(false);
   const [showAbsModal, setShowAbsModal] = useState(false);
   const [profanityMessage, setProfanityMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editCommentText, setEditCommentText] = useState('');
+  const { user: currentUser } = useAuth();
+
+  const getWriterId = () => {
+    if (post?._writerId) return String(post._writerId);
+    if (post?.writerId) return String(post.writerId);
+    const match = post?.writerNickname && post.writerNickname.match(/^User#(\d+)$/);
+    return match ? match[1] : undefined;
+  };
+
+  const isAuthor = () =>
+    currentUser?.id && getWriterId() && String(currentUser.id) === String(getWriterId());
+  console.log('내 userId:', currentUser?.id);
+  console.log('게시글 작성자 writerId:', getWriterId());
+  console.log('isAuthor:', isAuthor());
 
   const checkProfanity = async (text) => {
     try {
@@ -83,43 +102,68 @@ const PostDetail = () => {
         kiwoom: 'WO'
     };
 
-    // localStorage의 communityPosts에서만 찾기 (샘플 데이터 제외)
-    let saved = [];
-    try {
-        saved = JSON.parse(localStorage.getItem('communityPosts') ?? '[]');
-    } catch (error) {
-        console.error('게시물 데이터를 불러오는 중 오류가 발생했습니다:', error);
-        saved = [];
-    }
-    const post = saved.find(p => String(p.id) === String(postId));
-
-    // 댓글 불러오기
+    // 게시글 불러오기 + 닉네임 보정
     useEffect(() => {
-        let savedComments = [];
-        try {
-            savedComments = JSON.parse(localStorage.getItem(`comments_${postId}`) ?? '[]');
-        } catch (error) {
-            console.error('댓글 데이터를 불러오는 중 오류가 발생했습니다:', error);
-            savedComments = [];
-        }
-        setComments(savedComments);
-    }, [postId]);
-
-    useEffect(() => {
-        // localStorage에서 현재 로그인한 사용자 정보 가져오기
-        let user = null;
-        try {
-            const userData = localStorage.getItem('user') ?? 'null';
-            user = JSON.parse(userData);
-            if (user === null || typeof user !== 'object') {
-                user = null;
+        const teamParam = team || post?.team;
+        if (!teamParam || !postId) return;
+        const fetchPost = async () => {
+            try {
+                const res = await axios.get(
+                    `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/${teamParam}/${postId}`,
+                    { withCredentials: true }
+                );
+                let postData = { ...res.data, id: res.data.postId || res.data.id };
+                // User#숫자면 id 추출해서 별도 필드에 저장하고, 닉네임은 실제 닉네임으로 덮어쓰기
+                const match = postData.writerNickname && postData.writerNickname.match(/^User#(\d+)$/);
+                if (match) {
+                    const writerId = match[1];
+                    postData._writerId = writerId;
+                    try {
+                        const userRes = await axios.get(
+                            `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile/${writerId}`,
+                            { withCredentials: true }
+                        );
+                        postData.writerNickname = userRes.data.nickname;
+                    } catch (e) {
+                        console.error('프로필 API 실패:', e);
+                    }
+                } else if (postData.writerId) {
+                    postData._writerId = postData.writerId;
+                }
+                setPost(postData);
+                console.log('최종 postData:', postData);
+            } catch (error) {
+                console.error('Error fetching post:', error);
+                alert('게시글을 불러오는 중 오류가 발생했습니다.');
+            } finally {
+                setIsLoading(false);
             }
-        } catch (error) {
-            console.error('사용자 정보를 불러오는 중 오류가 발생했습니다:', error);
-            user = null;
+        };
+        fetchPost();
+    }, [postId, team]);
+
+    // 답글쓰기 버튼 클릭 시
+    const handleReplyClick = (commentId) => {
+        setReplyTo(commentId);
+        setTimeout(() => {
+            commentInputRef.current?.focus();
+        }, 0);
+    };
+
+    // 작성자 닉네임 표시 함수
+    const getWriterNickname = () => {
+        if (!post?.writerNickname) return '';
+        if (post.writerNickname.startsWith('User#')) {
+            return currentUser?.nickname || post.writerNickname;
         }
-        setCurrentUser(user);
-    }, []);
+        return post.writerNickname;
+    };
+
+    // 댓글 작성자 확인 함수
+    const isCommentAuthor = (authorId) => {
+        if (!currentUser?.id || !authorId) return false;
+        return authorId === currentUser.id;
+    };
 
     // 댓글 저장
     const saveComments = (newComments) => {
@@ -131,172 +175,357 @@ const PostDetail = () => {
         }
     };
 
-    // 답글쓰기 버튼 클릭 시
-    const handleReplyClick = (commentId) => {
-        setReplyTo(commentId);
-        // 입력창에 포커스
-        setTimeout(() => {
-            commentInputRef.current?.focus();
-        }, 0);
-    };
+    // 댓글/답글 등록
+    const handleAddComment = async (e) => {
+        e.preventDefault();
+        if (isSubmitting) return;
 
-  // 댓글/답글 등록
-  const handleAddComment = async () => {
-    if (!comment.trim()) return;
+        try {
+            setIsSubmitting(true);
+            const hasProfanity = await checkProfanity(comment);
+            if (hasProfanity) {
+                alert('비속어가 포함되어 있습니다.');
+                return;
+            }
 
-    const { isCurse, words } = await checkProfanity(comment);
-    if (isCurse) {
-      setProfanityMessage(words.join(', '));
-      setShowAbsModal(true);
-      return;
-    }
-
-    const user = JSON.parse(localStorage.getItem('user'));
-    const author = user?.nickname || user?.name || '익명';
-
-        if (replyTo) {
-            // 답글 등록
-            const newComments = comments.map(c => {
-                if (c.id === replyTo) {
-                    return {
-                        ...c,
-                        replies: [...(c.replies || []), {
-                            id: Date.now(),
-                            content: comment,
-                            author,
-                            time: new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})
-                        }]
-                    };
+            const response = await axios.post(
+                `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment`,
+                { postId: postId, content: comment },
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 }
-                return c;
-            });
-            saveComments(newComments);
-            setReplyTo(null); // 답글 모드 해제
-        } else {
-            // 일반 댓글 등록
-            const newComment = {
-                id: Date.now(),
-                content: comment,
-                author,
-                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
-                replies: [],
-            };
-            const newComments = [...comments, newComment];
-            saveComments(newComments);
+            );
+
+            setComments([...comments, response.data]);
+            setComment("");
+        } catch (error) {
+            console.error('Error adding comment:', error);
+            alert('댓글 작성 중 오류가 발생했습니다.');
+        } finally {
+            setIsSubmitting(false);
         }
-        setComment("");
     };
 
     // 댓글 수정/삭제/대댓글 관련
-    const handleEditComment = (id, content) => {
-        setEditingCommentId(id);
-        setEditingContent(content);
-        setShowCommentMenu(null); // 삼점바 닫기
-    };
+    const handleEditComment = async (commentId) => {
+        if (isSubmitting) return;
 
-    const handleSaveCommentEdit = (id) => {
-        const newComments = comments.map(c => c.id === id ? {...c, content: editingContent} : c);
-        saveComments(newComments);
-        setEditingCommentId(null);
-        setEditingContent("");
-    };
-
-    const handleDeleteComment = (id) => {
-        const newComments = comments.filter(c => c.id !== id);
-        saveComments(newComments);
-    };
-    const handleEditReply = (parentId, replyId, content) => {
-        setEditingCommentId(`${parentId}_${replyId}`);
-        setEditingContent(content);
-        setShowReplyMenu(null); // 삼점바 닫기
-    };
-    const handleSaveEditReply = (parentId, replyId) => {
-        const newComments = comments.map(c => {
-            if (c.id === parentId) {
-                return {
-                    ...c,
-                    replies: c.replies.map(r => r.id === replyId ? {...r, content: editingContent} : r)
-                };
+        try {
+            setIsSubmitting(true);
+            const hasProfanity = await checkProfanity(editCommentText);
+            if (hasProfanity) {
+                alert('비속어가 포함되어 있습니다.');
+                return;
             }
-            return c;
-        });
-        saveComments(newComments);
-        setEditingCommentId(null);
-        setEditingContent("");
-    };
-    const handleDeleteReply = (parentId, replyId) => {
-        const newComments = comments.map(c => {
-            if (c.id === parentId) {
-                return {
-                    ...c,
-                    replies: c.replies.filter(r => r.id !== replyId)
-                };
-            }
-            return c;
-        });
-        saveComments(newComments);
+
+            await axios.put(
+                `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment`,
+                { postId: postId, commentId, content: editCommentText },
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            setComments(comments.map(comment => 
+                comment.id === commentId 
+                    ? { ...comment, content: editCommentText }
+                    : comment
+            ));
+            setEditingCommentId(null);
+            setEditCommentText('');
+        } catch (error) {
+            console.error('Error editing comment:', error);
+            alert('댓글 수정 중 오류가 발생했습니다.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
-    // 게시글 작성자 확인 함수
-    const isAuthor = (author) => {
-        if (!currentUser) return false;
-        return author === currentUser.nickname || author === currentUser.name;
+    const handleDeleteComment = async (commentId) => {
+        if (!window.confirm('댓글을 삭제하시겠습니까?')) return;
+
+        try {
+            await axios.patch(
+                `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment`,
+                { postId: postId, commentId, delete: true },
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            setComments(comments.filter(comment => comment.id !== commentId));
+        } catch (error) {
+            console.error('Error deleting comment:', error);
+            alert('댓글 삭제 중 오류가 발생했습니다.');
+        }
     };
 
-    if (!post) {
-        return <div>게시글을 찾을 수 없습니다.</div>;
-    }
+    const handleEdit = async () => {
+        if (!post) return;
+        
+        // 팀 정보 가져오기
+        const teamInfo = getTeamInfo(team || post.team);
+        if (!teamInfo) {
+            console.error('팀 정보를 찾을 수 없습니다.');
+            alert('팀 정보를 찾을 수 없습니다.');
+            return;
+        }
 
-    const handleEdit = () => {
+        if (!currentUser) {
+            alert('로그인이 필요합니다.');
+            return;
+        }
+
         navigate('/newpost', {
             state: {
-                post: post,
-                isEditing: true
+                post: {
+                    ...post,
+                    id: post.id || post.postId,
+                    user: {
+                        id: currentUser.id,
+                        nickname: currentUser.nickname
+                    }
+                },
+                isEditing: true,
+                team: teamInfo.teamId,
+                teamName: teamInfo.name
             }
         });
-        setShowMenu(false);
     };
 
-    const handleDelete = () => {
-        // localStorage에서 삭제 (샘플 데이터가 아닌 localStorage 데이터만)
-        const prev = JSON.parse(localStorage.getItem('communityPosts')) || [];
-        const updated = prev.filter(p => String(p.id) !== String(post.id));
-        localStorage.setItem('communityPosts', JSON.stringify(updated));
-        setShowPostMenu(false); // 메뉴 닫기
-        navigate('/community');
+    const handleDelete = async () => {
+        if (!postId) {
+            alert('postId가 없습니다.');
+            return;
+        }
+        if (!window.confirm('게시글을 삭제하시겠습니까?')) return;
+
+        try {
+            const response = await axios.delete(
+                `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/${postId}`,
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            if (response.data) {
+                alert('게시글이 삭제되었습니다.');
+                // 현재 보고 있는 팀의 게시판으로 돌아가기
+                const currentTeam = team || post?.team;
+                if (!currentTeam) {
+                    console.error('팀 정보가 없습니다.');
+                    navigate('/community');
+                    return;
+                }
+                navigate(`/community/post/${currentTeam}`);
+            }
+        } catch (error) {
+            console.error('Error deleting post:', error);
+            if (error.response) {
+                console.error('Error response:', error.response.data);
+                if (error.response.status === 403) {
+                    alert('게시글을 삭제할 권한이 없습니다.');
+                } else {
+                    alert('게시글 삭제 중 오류가 발생했습니다.');
+                }
+            } else {
+                alert('게시글 삭제 중 오류가 발생했습니다.');
+            }
+        }
     };
 
-    const handleBack = () => {
-        navigate(`/community?team=${post.team}`);
+    const handleBackToList = () => {
+        // 현재 보고 있는 팀의 게시판으로 돌아가기
+        const currentTeam = team || post?.team;
+        if (!currentTeam) {
+            console.error('팀 정보가 없습니다.');
+            navigate('/community');
+            return;
+        }
+        navigate(`/community/post/${currentTeam}`);
     };
 
     const toggleMenu = () => {
         setShowMenu(!showMenu);
     };
 
+    const getTeamInfo = (teamId) => {
+        if (!teamId) return null;
+        const normalize = v => (v || '').replace(/_/g, '').toUpperCase();
+        return teamInfoMapCommunity.find(t => normalize(t.teamId) === normalize(teamId));
+    };
+
+    const teamParam = team || post?.team;
+    const teamInfo = getTeamInfo(teamParam);
+
+    if (post) {
+        console.log('상세 post.team:', post.team);
+        console.log('상세 teamInfo:', teamInfo);
+    }
+
+    if (!post) {
+        return <div>로딩 중...</div>;
+    }
+
+    // Add missing handler functions
+    const handleSaveCommentEdit = async (commentId) => {
+        if (isSubmitting) return;
+
+        try {
+            setIsSubmitting(true);
+            const hasProfanity = await checkProfanity(editingContent);
+            if (hasProfanity) {
+                alert('비속어가 포함되어 있습니다.');
+                return;
+            }
+
+            await axios.put(
+                `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment`,
+                { postId: postId, commentId, content: editingContent },
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            setComments(comments.map(comment => 
+                comment.id === commentId 
+                    ? { ...comment, content: editingContent }
+                    : comment
+            ));
+            setEditingCommentId(null);
+            setEditingContent('');
+        } catch (error) {
+            console.error('Error editing comment:', error);
+            alert('댓글 수정 중 오류가 발생했습니다.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleEditReply = (commentId, replyId, content) => {
+        setEditingCommentId(`${commentId}_${replyId}`);
+        setEditingContent(content);
+    };
+
+    const handleDeleteReply = async (commentId, replyId) => {
+        if (!window.confirm('답글을 삭제하시겠습니까?')) return;
+
+        try {
+            await axios.patch(
+                `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment/reply`,
+                { postId: postId, commentId, replyId, delete: true },
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            setComments(comments.map(comment => {
+                if (comment.id === commentId) {
+                    return {
+                        ...comment,
+                        replies: comment.replies.filter(reply => reply.id !== replyId)
+                    };
+                }
+                return comment;
+            }));
+        } catch (error) {
+            console.error('Error deleting reply:', error);
+            alert('답글 삭제 중 오류가 발생했습니다.');
+        }
+    };
+
+    const handleSaveEditReply = async (commentId, replyId) => {
+        if (isSubmitting) return;
+
+        try {
+            setIsSubmitting(true);
+            const hasProfanity = await checkProfanity(editingContent);
+            if (hasProfanity) {
+                alert('비속어가 포함되어 있습니다.');
+                return;
+            }
+
+            await axios.put(
+                `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment/reply`,
+                { postId: postId, commentId, replyId, content: editingContent },
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            setComments(comments.map(comment => {
+                if (comment.id === commentId) {
+                    return {
+                        ...comment,
+                        replies: comment.replies.map(reply =>
+                            reply.id === replyId
+                                ? { ...reply, content: editingContent }
+                                : reply
+                        )
+                    };
+                }
+                return comment;
+            }));
+            setEditingCommentId(null);
+            setEditingContent('');
+        } catch (error) {
+            console.error('Error editing reply:', error);
+            alert('답글 수정 중 오류가 발생했습니다.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <div className={styles.detailWrapper}>
             {/* 상단바 */}
             <div className={styles.topBar}>
-                <button className={styles.backBtn} onClick={handleBack}>
+                <button className={styles.backBtn} onClick={handleBackToList}>
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M16 5L9 12L16 19" stroke="#111" strokeWidth="2.2" strokeLinecap="round"
                               strokeLinejoin="round"/>
                     </svg>
                 </button>
-                <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_${teamLogoMap[post.team] || 'HH'}.png`}
+                <img src={teamInfo?.logo || `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HH.png`}
                      alt="팀로고" className={styles.teamLogo}/>
-                <span className={styles.teamName}>{post.teamName || '한화 이글스'}</span>
+                <span className={styles.teamName}>{post?.teamName || teamInfo?.name || ''}</span>
             </div>
             {/* 게시글 카드 */}
             <div className={styles.card}>
                 <div className={styles.titleRow}>
                     <h2 className={styles.title}>{post.title}</h2>
                     <div className={styles.profileBox}>
-                        <img className={styles.profileImg} src={`${process.env.PUBLIC_URL}/profile/user2.jpg`}
-                             alt="프로필"/>
-                        <span className={styles.profileName}>{post.author}</span>
-                        {isAuthor && (
+                        <img className={styles.profileImg} 
+                             src={post.profileImg || post.writerProfileImage || `${process.env.PUBLIC_URL}/profile/default.png`}
+                             alt="프로필"
+                             onError={(e) => {
+                                 e.target.onerror = null;
+                                 e.target.src = `${process.env.PUBLIC_URL}/profile/default.png`;
+                             }}
+                        />
+                        <span className={styles.profileName}>{post.writerNickname}</span>
+                        {isAuthor() && (
                             <div className={styles.menuWrapper}>
                                 <button className={styles.menuButton} onClick={toggleMenu}>⋮</button>
                                 {showMenu && (
@@ -331,7 +560,7 @@ const PostDetail = () => {
                                 </div>
                                 <div className={styles.commentRight}>
                                     <span className={styles.commentTime}>{c.time}</span>
-                                    {isAuthor(c.author) && (
+                                    {isCommentAuthor(c.author) && (
                                         <div className={styles.menuWrapper}>
                                             <button
                                                 onClick={() => setShowCommentMenu(showCommentMenu === c.id ? null : c.id)}
@@ -340,7 +569,7 @@ const PostDetail = () => {
                                             {showCommentMenu === c.id && (
                                                 <div className={styles.menuPopup}>
                                                     <div className={styles.menuItem}
-                                                         onClick={() => handleEditComment(c.id, c.content)}>수정하기
+                                                         onClick={() => handleEditComment(c.id)}>수정하기
                                                     </div>
                                                     <div className={styles.menuItem}
                                                          onClick={() => handleDeleteComment(c.id)}>삭제하기
