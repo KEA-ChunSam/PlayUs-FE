@@ -321,7 +321,7 @@ const PostDetail = () => {
 
         try {
             const response = await axios.delete(
-                `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/${postId}`,
+                `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/${teamParam}/${postId}`,
                 {
                     withCredentials: true,
                     headers: {
