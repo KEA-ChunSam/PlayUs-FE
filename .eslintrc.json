@@ -25,11 +25,12 @@
     "react/prop-types": "off",
     "no-unused-vars": "off",
     "no-console": "off",
-    "react-hooks/exhaustive-deps": "off"
+    "react-hooks/exhaustive-deps": "off",
+    "no-undef": "off"
   },
   "settings": {
     "react": {
       "version": "detect"
     }
   }
-} 
+}
