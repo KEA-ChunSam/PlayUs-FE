@@ -226,11 +226,15 @@ const Party = () => {
                                         </div>
                                         <div className={styles.matchBadgeArea}>
                                       <span className={styles.matchBadge}>
-                                        {matchDetail.status_code === 'RESULT'
-                                            ? '경기종료'
-                                            : matchDetail.status_code === 'READY' ? '경기중'
-                                                : matchDetail.status_code === 'BEFORE' ? '경기전'
-                                                    : matchDetail.status_code === 'STARTED' ? '경기중' : ""}
+                                        {matchDetail.statusCode === "RESULT"
+                                            ? "경기종료"
+                                            : matchDetail.statusCode === "READY"
+                                                ? "경기전"
+                                                : matchDetail.statusCode === "STARTED"
+                                                    ? "LIVE!"
+                                                    : matchDetail.statusCode === "BEFORE"
+                                                        ? "경기전"
+                                                        : ""}
                                       </span>
                                         </div>
                                     </div>
