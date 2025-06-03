@@ -10,6 +10,7 @@ const ReviewParty = () => {
     const navigate = useNavigate();
     const { partyId } = useParams();
     const [reviewData, setReviewData] = useState([]);
+    const [showErrorModal, setShowErrorModal] = useState(false);
 
     useEffect(() => {
         if (partyId) {
@@ -29,6 +30,7 @@ const ReviewParty = () => {
                     setReviewData(users);
                 } catch (err) {
                     console.error('Failed to fetch participants:', err);
+                    setShowErrorModal(true);
                     setReviewData([]);
                 }
             };
@@ -64,7 +66,7 @@ const ReviewParty = () => {
             );
             setShowReviewRegisterModal(true);
         } catch (err) {
-            console.error('Failed to send reviews:', err);
+            setShowErrorModal(true);
         }
     };
     const [selectedMemberIdx, setSelectedMemberIdx] = useState(null);
@@ -136,6 +138,20 @@ const ReviewParty = () => {
                             navigate('/schedule');
                         }
                     }]}
+                />
+            )}
+            {showErrorModal && (
+                <Modal
+                    title="에러"
+                    message="후기 전송 중 오류가 발생했습니다."
+                    buttons={[
+                        {
+                            label: '확인',
+                            onClick: () => {
+                                setShowErrorModal(false);
+                            }
+                        }
+                    ]}
                 />
             )}
         </div>
