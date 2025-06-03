@@ -228,7 +228,7 @@ const Party = () => {
                                       <span className={styles.matchBadge}>
                                         {matchDetail.status_code === 'RESULT'
                                             ? '경기종료'
-                                            : matchDetail.status_code === 'STARTED'
+                                            : (matchDetail.status_code === 'BEFORE' || matchDetail.status_code === 'READY')
                                                 ? '경기중'
                                                 : '경기전'}
                                       </span>

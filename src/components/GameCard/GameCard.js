@@ -67,11 +67,24 @@ const GameCard = ({
             <div className={styles.infoBlock}>
                 <span className={styles.mainTime}>{mainTime}</span>
                 <span className={styles.stadium}>{stadium}</span>
-                <span className={styles.status}>
-                  {statusCode === "RESULT" ? "경기종료" :
-                   statusCode === "STARTED" ? "경기중" :
-                   statusCode === "BEFORE" ? "경기전" :
-                   ""}
+                <span
+                    className={
+                        statusCode === "RESULT"
+                            ? styles.statusResult
+                            : statusCode === "READY"
+                                ? styles.statusLive
+                                : statusCode === "BEFORE"
+                                    ? styles.statusBefore
+                                    : ""
+                    }
+                >
+                  {statusCode === "RESULT"
+                      ? "경기종료"
+                      : statusCode === "READY"
+                          ? "LIVE!"
+                          : statusCode === "BEFORE"
+                              ? "경기전"
+                              : ""}
                 </span>
             </div>
 
@@ -90,16 +103,16 @@ const GameCard = ({
 export default GameCard;
 
 GameCard.propTypes = {
-        matchId: PropTypes.number,
-        time: PropTypes.string.isRequired,
-        homeTeam: PropTypes.string.isRequired,
-        awayTeam: PropTypes.string.isRequired,
-        stadium: PropTypes.string.isRequired,
-        mainTime: PropTypes.string.isRequired,
-        homeLogo: PropTypes.string.isRequired,
-        awayLogo: PropTypes.string.isRequired,
-        homeTeamScore: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-        awayTeamScore: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-        statusCode: PropTypes.oneOf(['RESULT', 'STARTED', 'BEFORE']).isRequired,
-        gameId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    };
+    matchId: PropTypes.number,
+    time: PropTypes.string.isRequired,
+    homeTeam: PropTypes.string.isRequired,
+    awayTeam: PropTypes.string.isRequired,
+    stadium: PropTypes.string.isRequired,
+    mainTime: PropTypes.string.isRequired,
+    homeLogo: PropTypes.string.isRequired,
+    awayLogo: PropTypes.string.isRequired,
+    homeTeamScore: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    awayTeamScore: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    statusCode: PropTypes.oneOf(['RESULT', 'STARTED', 'BEFORE']).isRequired,
+    gameId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+};

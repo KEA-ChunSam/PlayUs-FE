@@ -53,11 +53,29 @@
     padding-bottom: 0.5rem;
 }
 
-.status {
+.statusLive {
     font-size: 0.875rem;
     color: #ffffff;
     font-weight: 600;
     background-color: #ff4f4f;
+    padding: 0.3rem 0.5rem;
+    border-radius: 1.5rem;
+}
+
+.statusResult {
+    font-size: 0.875rem;
+    color: #ffffff;
+    font-weight: 600;
+    background-color: #6b7280;
+    padding: 0.3rem 0.5rem;
+    border-radius: 1.5rem;
+}
+
+.statusBefore {
+    font-size: 0.875rem;
+    color: #ffffff;
+    font-weight: 600;
+    background-color: #3b82f6;
     padding: 0.3rem 0.5rem;
     border-radius: 1.5rem;
 }
