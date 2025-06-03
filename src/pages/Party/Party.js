@@ -325,32 +325,6 @@ const Party = () => {
                     {activeTab === 1 && (
                         <div className={styles.approvalSection}>
                             <div className={styles.myStatusList}>
-                                {/* 직관팟 후기 작성 테스트를 위한 임시 dummydata 카드 */}
-                                <div className={styles.myStatusCard}>
-                                  <div className={styles.myStatusCardContent}>
-                                    <div className={styles.myStatusTagRow}>
-                                      <span className={styles.tag}>10대</span>
-                                      <span className={styles.tag}>20대</span>
-                                      <span className={styles.tagHighlight}>남자만</span>
-                                    </div>
-                                    <div className={styles.myStatusTitle}>
-                                      <strong>더미 직관팟 제목</strong>
-                                    </div>
-                                    <div className={styles.myStatusMeta}>
-                                      <span>직관팟후기</span>
-                                      <span>20대</span>
-                                      <span>남성</span>
-                                    </div>
-                                    <div className={styles.myStatusButtons}>
-                                      <button className={styles.statusCancel} onClick={() => navigate(`/review/party/${1}`)}>후기 작성</button>
-                                    </div>
-                                  </div>
-                                  <img
-                                    src={`${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
-                                    alt="더미 썸네일"
-                                    className={styles.thumbnailImg}
-                                  />
-                                </div>
                                 {myApplications.map((party, idx) => {
                                     const statusKey = mapStatusToKey(party.partyJoinRequestStatus);
                                     return (
