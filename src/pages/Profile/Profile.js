@@ -317,8 +317,8 @@ useEffect(() => {
                                                             datasets: [
                                                                 {
                                                                     data: [
-                                                                        profile.userScore,
-                                                                        1 - profile.userScore
+                                                                        profile.userScore || 0,
+                                                                        1 - (profile.userScore || 0)
                                                                     ],
                                                                     backgroundColor: ['#f66', '#f2f2f2'],
                                                                     borderWidth: 0
@@ -334,7 +334,7 @@ useEffect(() => {
                                                         }}
                                                     />
                                                     <div className={styles.accuracyNumberOverlay}>
-                                                        {profile.userScore.toFixed(3)}
+                                                        {(profile.userScore || 0).toFixed(3)}
                                                     </div>
                                                 </div>
                                                 <div className={styles.reviewSummary}>
