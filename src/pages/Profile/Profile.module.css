@@ -225,6 +225,19 @@
   font-size: 0.85rem;
   color: #333;
 }
+.reviewSummary p {
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-bottom: #F2F2F2 1px solid;
+  margin-bottom: 0.5rem;
+}
+
+.reviewTagContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
 
 .reviewTag {
   background-color: #f2f2f2;

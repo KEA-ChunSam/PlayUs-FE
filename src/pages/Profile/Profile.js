@@ -156,7 +156,24 @@ useEffect(() => {
         navigate('/login');
     };
 
-    const accuracyValue = 9.3; // TODO: 해당 값은 후기 타율 데이터를 받아와 구현
+    // 후기 태그 요약 정보 state 및 fetch
+    const [tagSummary, setTagSummary] = useState(null);
+    useEffect(() => {
+        if (!isMine && userId) {
+            const fetchTagSummary = async () => {
+                try {
+                    const res = await axios.get(
+                        `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/${userId}/tags/summary`,
+                        { withCredentials: true }
+                    );
+                    setTagSummary(res.data);
+                } catch (err) {
+                    setTagSummary(null);
+                }
+            };
+            fetchTagSummary();
+        }
+    }, [isMine, userId]);
 
     const tileContent = ({date, view}) => {
         if (view === 'month') {
@@ -288,40 +305,58 @@ useEffect(() => {
                             </>
                         ) : (
                             <>
-                                <section className={styles.accuracySection}>
-                                    <h2>직관 타율</h2>
-                                    <div className={styles.accuracyChartWrapper}>
-                                        <div className={styles.accuracyCircle}>
-                                            <Doughnut
-                                                data={{
-                                                    labels: ['타율', '빈 공간'],
-                                                    datasets: [
-                                                        {
-                                                            data: [accuracyValue, 100 - accuracyValue],
-                                                            backgroundColor: ['#f66', '#f2f2f2'],
-                                                            borderWidth: 0
-                                                        }
-                                                    ]
-                                                }}
-                                                options={{
-                                                    cutout: '70%',
-                                                    plugins: {
-                                                        legend: {display: false},
-                                                        tooltip: {enabled: false}
-                                                    }
-                                                }}
-                                            />
-                                            <div
-                                                className={styles.accuracyNumberOverlay}>{(accuracyValue / 100).toFixed(3)}</div>
-                                        </div>
-                                        <div className={styles.reviewSummary}>
-                                            <p>100명 중 42명이 직관팟에 만족했어요.</p>
-                                            <div className={styles.reviewTag}>답장이 빨라요.</div>
-                                            <div className={styles.reviewTag}>시간 약속을 잘 지켜요.</div>
-                                            <div className={styles.reviewTag}>경기 직관이 열정적이에요.</div>
-                                        </div>
-                                    </div>
-                                </section>
+                                {!isMine && (
+                                    <section className={styles.accuracySection}>
+                                        <h2>직관 타율</h2>
+                                        {tagSummary ? (
+                                            <div className={styles.accuracyChartWrapper}>
+                                                <div className={styles.accuracyCircle}>
+                                                    <Doughnut
+                                                        data={{
+                                                            labels: ['타율', '빈 공간'],
+                                                            datasets: [
+                                                                {
+                                                                    data: [
+                                                                        profile.userScore || 0,
+                                                                        1 - (profile.userScore || 0)
+                                                                    ],
+                                                                    backgroundColor: ['#f66', '#f2f2f2'],
+                                                                    borderWidth: 0
+                                                                }
+                                                            ]
+                                                        }}
+                                                        options={{
+                                                            cutout: '70%',
+                                                            plugins: {
+                                                                legend: { display: false },
+                                                                tooltip: { enabled: false }
+                                                            }
+                                                        }}
+                                                    />
+                                                    <div className={styles.accuracyNumberOverlay}>
+                                                        {(profile.userScore || 0).toFixed(3)}
+                                                    </div>
+                                                </div>
+                                                <div className={styles.reviewSummary}>
+                                                    <p>이 회원님께서는...</p>
+                                                    <div className={styles.reviewTagContainer}>
+                                                        {tagSummary.topTags.length > 0 ? (
+                                                            tagSummary.topTags.map((tagName, idx) => (
+                                                                <span key={idx} className={styles.reviewTag}>
+                                                                    {tagName}
+                                                                </span>
+                                                            ))
+                                                        ) : (
+                                                            <span className={styles.noTagsText}>태그가 없습니다.</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <p>후기 정보를 불러오는 중입니다...</p>
+                                        )}
+                                    </section>
+                                )}
 
                                 <section className={styles.journalSection}>
                                     <div className={styles.journalHeader}>

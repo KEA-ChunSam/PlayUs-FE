@@ -1,23 +1,73 @@
 // 직관팟 기간 만료 시 직관팟 참가자들의 후기를 작성하는 페이지
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './ReviewParty.module.css';
 import Modal from '../../../components/Modal/Modal';
 import ReviewSelectModal from '../../../components/Modal/ReviewSelectModal/ReviewSelectModal';
-import {useNavigate} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from 'axios';
 
 const ReviewParty = () => {
     const navigate = useNavigate();
-    const [reviewData, setReviewData] = useState([
-        {name: 'ZSJ', liked: null, message: ''},
-        {name: '네모', liked: null, message: ''},
-        {name: '인기스타김도영', liked: null, message: ''},
-        {name: '20년째보살팬', liked: null, message: ''},
-        {name: '언제나한화생각', liked: null, message: ''}
-    ]);
+    const { partyId } = useParams();
+    const [reviewData, setReviewData] = useState([]);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+
+    useEffect(() => {
+        if (partyId) {
+            const fetchParticipants = async () => {
+                try {
+                    const res = await axios.get(
+                        `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}/participants`,
+                        { withCredentials: true }
+                    );
+                    // res.data is an array of PartyParticipantsInfoResponse
+                    const users = res.data.map(user => ({
+                        userId: user.userId,
+                        name: user.name,
+                        liked: null,
+                        message: ''
+                    }));
+                    setReviewData(users);
+                } catch (err) {
+                    console.error('Failed to fetch participants:', err);
+                    setShowErrorModal(true);
+                    setReviewData([]);
+                }
+            };
+            fetchParticipants();
+        }
+    }, [partyId]);
     const [modalOpen, setModalOpen] = useState(false);
     const [showReviewRegisterModal, setShowReviewRegisterModal] = useState(false);
-    const handleSubmitReview = () => {
-        setShowReviewRegisterModal(true);
+    const handleSubmitReview = async () => {
+        const messageToTagId = {
+            '시간 약속을 잘 지켜요.': 3,
+            '경기 직관이 열정적이에요.': 4,
+            '상대방에 대한 배려심이 깊어요.': 5,
+            '어색한 분위기를 잘 풀어요.': 6,
+            '야구 경기에 박식해요.': 7
+        };
+        const payload = reviewData
+            .filter(member => member.liked === true || member.liked === false)
+            .map(member => {
+                if (member.liked === true) {
+                    const tagId = member.message ? (messageToTagId[member.message] || 2) : 2;
+                    return { userId: member.userId, tagId, positive: true };
+                } else if (member.liked === false) {
+                    return { userId: member.userId, tagId: 2, positive: false };
+                }
+                // If neither liked nor disliked, skip (should not occur due to filter)
+            });
+        try {
+            await axios.post(
+                `${process.env.REACT_APP_LOCAL_BACKEND_URI}/users/reviews`,
+                payload,
+                { withCredentials: true }
+            );
+            setShowReviewRegisterModal(true);
+        } catch (err) {
+            setShowErrorModal(true);
+        }
     };
     const [selectedMemberIdx, setSelectedMemberIdx] = useState(null);
 
@@ -68,7 +118,7 @@ const ReviewParty = () => {
                     </div>
                 ))}
             </div>
-            <button className={styles.nextBtn} onClick={handleSubmitReview}>다음</button>
+            <button className={styles.nextBtn} onClick={handleSubmitReview}>후기 전송!</button>
 
             {modalOpen && (
                 <ReviewSelectModal
@@ -82,10 +132,26 @@ const ReviewParty = () => {
                 <Modal
                     title="후기 작성 완료!"
                     message="소중한 후기가 전달되었어요!"
-                    onClose={() => {
-                        setShowReviewRegisterModal(false);
-                        navigate('/schedule');
-                    }}
+                    buttons={[{
+                        label: '확인', onClick: () => {
+                            setShowReviewRegisterModal(false);
+                            navigate('/schedule');
+                        }
+                    }]}
+                />
+            )}
+            {showErrorModal && (
+                <Modal
+                    title="에러"
+                    message="후기 전송 중 오류가 발생했습니다."
+                    buttons={[
+                        {
+                            label: '확인',
+                            onClick: () => {
+                                setShowErrorModal(false);
+                            }
+                        }
+                    ]}
                 />
             )}
         </div>

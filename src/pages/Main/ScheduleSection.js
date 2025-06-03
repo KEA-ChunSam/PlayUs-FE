@@ -28,18 +28,18 @@ export default function ScheduleSection({ schedule }) {
         {/* Away 팀 */}
         <div className={styles.teamColumn}>
           <div className={styles.name}>{away}</div>
-          <div className={styles.player}>오승환</div>
+          {/*<div className={styles.player}>오승환</div>*/}
         </div>
         <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo/${teamLogoMap[away] || 'emblem_default.png'}`} alt={away} className={styles.logo} />
-        <div className={styles.score}>{score[1]}</div>
+        <div className={styles.score}>{score[0]}</div>
 
         <div className={styles.status}>{status}</div>
 
-        <div className={styles.score}>{score[0]}</div>
+        <div className={styles.score}>{score[1]}</div>
         <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo/${teamLogoMap[home] || 'emblem_default.png'}`} alt={home} className={styles.logo} />
         <div className={styles.teamColumn}>
           <div className={styles.name}>{home}</div>
-          <div className={styles.player}>우강훈</div>
+          {/*<div className={styles.player}>우강훈</div>*/}
         </div>
       </div>
       </div>

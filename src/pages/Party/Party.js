@@ -226,11 +226,15 @@ const Party = () => {
                                         </div>
                                         <div className={styles.matchBadgeArea}>
                                       <span className={styles.matchBadge}>
-                                        {matchDetail.status_code === 'RESULT'
-                                            ? '경기종료'
-                                            : matchDetail.status_code === 'STARTED'
-                                                ? '경기중'
-                                                : '경기전'}
+                                        {matchDetail.statusCode === "RESULT"
+                                            ? "경기종료"
+                                            : matchDetail.statusCode === "READY"
+                                                ? "경기전"
+                                                : matchDetail.statusCode === "STARTED"
+                                                    ? "LIVE!"
+                                                    : matchDetail.statusCode === "BEFORE"
+                                                        ? "경기전"
+                                                        : ""}
                                       </span>
                                         </div>
                                     </div>
@@ -374,6 +378,13 @@ const Party = () => {
                                                                         onClick={() => onEnterChat(party.partyId)}
                                                                     >
                                                                         채팅방 입장!
+                                                                    </button>
+                                                                    <button
+                                                                        className={styles.statusApproved}
+                                                                        onClick={() => {
+                                                                            navigate(`/review/party/${party.partyId}`)}}
+                                                                    >
+                                                                        후기 작성
                                                                     </button>
                                                                     <span className={styles.newChatCount}>1</span>
                                                                 </>

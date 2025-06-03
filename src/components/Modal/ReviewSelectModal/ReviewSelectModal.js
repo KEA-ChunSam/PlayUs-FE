@@ -7,7 +7,6 @@ const ReviewSelectModal = ({title, selectedMessage, onSelect, onClose}) => {
     const [open, setOpen] = useState(false);
 
     const PRESET_MESSAGES = [
-        '답장이 빨라요.',
         '시간 약속을 잘 지켜요.',
         '경기 직관이 열정적이에요.',
         '상대방에 대한 배려심이 깊어요.',

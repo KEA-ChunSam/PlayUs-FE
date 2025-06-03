@@ -57,17 +57,12 @@ function AppRouter() {
                 <Route path="/search" element={<MobileView />}>
                     <Route index element={<SearchResultPage />} />
                 </Route>
-                {/* 서브메뉴 표시 탭 -> 라우트에는 필요 없어서 주석 처리함 */}
-                {/*<Route path="/schedule/tab" element={<MobileView/>}>*/}
-                {/*    <Route index element={<TabNav/>}/>*/}
-                {/*</Route>*/}
                 {/* 경기 정보 */}
                 <Route path="/schedule/:gameId" element={<MobileView/>}>
                     <Route index element={<MatchInfo/>}/>
                 </Route>
                 {/* 직관팟 목록 */}
                 <Route path="/party/:gameId" element={<MobileView/>}>
-                    {/*나중에 path를 /party/{partyid}로 수정 예정*/}
                     <Route index element={<Party/>}/>
                 </Route>
                 {/* 직관팟 상세 */}
@@ -91,12 +86,9 @@ function AppRouter() {
                     <Route index element={<Chatting/>}/>
                 </Route>
                 {/* 직관팟 후기 페이지 */}
-                <Route path="/review/party/partyid" element={<MobileView/>}>
+                <Route path="/review/party/:partyId" element={<MobileView/>}>
                     <Route index element={<ReviewParty/>}/>
                 </Route>
-                {/*<Route path="/schedule" element={<MobileView/>}>*/}
-                {/*    <Route index element={<LeagueSchedule />} />*/}
-                {/*</Route>*/}
                 {/* 프로필 & 직관일지 */}
                 {/* 프로필 메인 & 타 사용자 프로필 */}
                 <Route path="/profile/:userId" element={<MobileView/>}>
