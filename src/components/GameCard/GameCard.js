@@ -117,6 +117,6 @@ GameCard.propTypes = {
     awayLogo: PropTypes.string.isRequired,
     homeTeamScore: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     awayTeamScore: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    statusCode: PropTypes.oneOf(['RESULT', 'STARTED', 'BEFORE']).isRequired,
+    statusCode: PropTypes.oneOf(['RESULT', 'STARTED', 'BEFORE', 'READY']).isRequired,
     gameId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
 };
