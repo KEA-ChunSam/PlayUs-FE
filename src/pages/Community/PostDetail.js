@@ -321,7 +321,7 @@ const PostDetail = () => {
 
         try {
             const response = await axios.delete(
-                `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/${postId}`,
+                `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/${teamParam}/${postId}`,
                 {
                     withCredentials: true,
                     headers: {
@@ -531,7 +531,7 @@ const PostDetail = () => {
                              alt="프로필"
                              onError={(e) => {
                                  e.target.onerror = null;
-                                 e.target.src = `${process.env.PUBLIC_URL}/profile/default.png`;
+                                 // e.target.src = `${process.env.PUBLIC_URL}/profile/default.png`;
                              }}
                         />
                         <span className={styles.profileName}>{post.writerNickname}</span>
