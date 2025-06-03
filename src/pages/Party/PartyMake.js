@@ -129,14 +129,14 @@ const PartyMake = () => {
 
         try {
             if (isEditMode) {
-                await axios.put(`http://localhost:8081/party/${partyId}`, payload, {
+                await axios.put(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}`, payload, {
                     withCredentials: true,
                     headers: {'Content-Type': 'application/json'},
                 });
                 setModalMessage('직관팟이 성공적으로 수정되었습니다!');
                 setModalVisible(true);
             } else {
-                const response = await axios.post('http://localhost:8081/party', payload, {
+                const response = await axios.post(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party`, payload, {
                     withCredentials: true,
                     headers: {'Content-Type': 'application/json'},
                 });
