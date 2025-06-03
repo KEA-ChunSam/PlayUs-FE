@@ -86,7 +86,7 @@ function AppRouter() {
                     <Route index element={<Chatting/>}/>
                 </Route>
                 {/* 직관팟 후기 페이지 */}
-                <Route path="/review/party/:partyid" element={<MobileView/>}>
+                <Route path="/review/party/:partyId" element={<MobileView/>}>
                     <Route index element={<ReviewParty/>}/>
                 </Route>
                 {/* 프로필 & 직관일지 */}

@@ -338,7 +338,7 @@ useEffect(() => {
                                                     </div>
                                                 </div>
                                                 <div className={styles.reviewSummary}>
-                                                    <p>후기 태그 상위 3개</p>
+                                                    <p>이 회원님께서는...</p>
                                                     <div className={styles.reviewTagContainer}>
                                                         {tagSummary.topTags.length > 0 ? (
                                                             tagSummary.topTags.map((tagName, idx) => (

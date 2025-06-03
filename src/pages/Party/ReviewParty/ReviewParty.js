@@ -1,12 +1,16 @@
 // 직관팟 기간 만료 시 직관팟 참가자들의 후기를 작성하는 페이지
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './ReviewParty.module.css';
 import Modal from '../../../components/Modal/Modal';
 import ReviewSelectModal from '../../../components/Modal/ReviewSelectModal/ReviewSelectModal';
-import {useNavigate} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from 'axios';
 
 const ReviewParty = () => {
     const navigate = useNavigate();
+    const { partyId } = useParams();
+    // const [reviewData, setReviewData] = useState([]);
+
     const [reviewData, setReviewData] = useState([
         {name: 'ZSJ', liked: null, message: ''},
         {name: '네모', liked: null, message: ''},
@@ -14,6 +18,30 @@ const ReviewParty = () => {
         {name: '20년째보살팬', liked: null, message: ''},
         {name: '언제나한화생각', liked: null, message: ''}
     ]);
+    // useEffect(() => {
+    //     if (partyId) {
+    //         const fetchAppliedUsers = async () => {
+    //             try {
+    //                 const res = await axios.get(
+    //                     `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}/approved-applicants`,
+    //                     { withCredentials: true }
+    //                 );
+    //                 // res.data is an array of PartyAppliedUserResponse
+    //                 const users = res.data.map(user => ({
+    //                     userId: user.userId,
+    //                     name: user.name,
+    //                     liked: null,
+    //                     message: ''
+    //                 }));
+    //                 setReviewData(users);
+    //             } catch (err) {
+    //                 console.error('Failed to fetch applied users:', err);
+    //                 setReviewData([]);
+    //             }
+    //         };
+    //         fetchAppliedUsers();
+    //     }
+    // }, [partyId]);
     const [modalOpen, setModalOpen] = useState(false);
     const [showReviewRegisterModal, setShowReviewRegisterModal] = useState(false);
     const handleSubmitReview = () => {
