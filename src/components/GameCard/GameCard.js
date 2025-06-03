@@ -73,18 +73,22 @@ const GameCard = ({
                             ? styles.statusResult
                             : statusCode === "READY"
                                 ? styles.statusLive
-                                : statusCode === "BEFORE"
-                                    ? styles.statusBefore
-                                    : ""
+                                : statusCode === "STARTED"
+                                    ? styles.statusLive
+                                    : statusCode === "BEFORE"
+                                        ? styles.statusBefore
+                                        : ""
                     }
                 >
                   {statusCode === "RESULT"
                       ? "경기종료"
                       : statusCode === "READY"
-                          ? "LIVE!"
-                          : statusCode === "BEFORE"
-                              ? "경기전"
-                              : ""}
+                          ? "경기전"
+                          : statusCode === "STARTED"
+                              ? "LIVE!"
+                              : statusCode === "BEFORE"
+                                  ? "경기전"
+                                  : ""}
                 </span>
             </div>
 
