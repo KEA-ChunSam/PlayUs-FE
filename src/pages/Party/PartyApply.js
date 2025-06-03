@@ -82,7 +82,7 @@ export default function PartyApply() {
                             onClick: () => {
                                 // 삭제 로직 실행
                                 setShowApplyModal(false);
-                                navigate('/party/matchid')
+                                navigate(`/party/matchid/${partyId}`);
                             }
                         }
                     ]}

@@ -531,7 +531,7 @@ const PostDetail = () => {
                              alt="프로필"
                              onError={(e) => {
                                  e.target.onerror = null;
-                                 e.target.src = `${process.env.PUBLIC_URL}/profile/default.png`;
+                                 // e.target.src = `${process.env.PUBLIC_URL}/profile/default.png`;
                              }}
                         />
                         <span className={styles.profileName}>{post.writerNickname}</span>

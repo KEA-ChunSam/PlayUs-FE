@@ -27,7 +27,7 @@ const SearchResultPage = () => {
             withCredentials: true,
           }
         );
-        // 백엔드 응답: { resultSize: number, searchResultList: [ { postId, writerName, title, thumbnailUrl, createdAt, tag }, ... ] }
+        // 백엔드 응답: { resultSize: number, searchResultList: [ { postId, writerName, title, thumbnailUrl, createdAt, teamTag }, ... ] }
         const resultList = response.data.searchResultList || [];
         setPosts(resultList);
       } catch (err) {
@@ -73,7 +73,7 @@ const SearchResultPage = () => {
             time={item.createdAt}
             author={item.writerName}
             image={item.thumbnailUrl}
-            onClick={() => handlePostClick(item.tag, item.postId)}
+            onClick={() => handlePostClick(item.teamTag, item.postId)}
           />
         ))}
       </ul>

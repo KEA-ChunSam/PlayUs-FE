@@ -1,5 +1,7 @@
 import axios from "axios";
 import React, {useEffect, useState, useRef} from "react";
+import { useAuth} from "../../utils/AuthContext";
+import { useNavigate } from "react-router-dom";
 import styles from "./MainPage.module.css";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import CasterbotModal from "../Chatbot/CasterbotModal";
@@ -9,6 +11,8 @@ import DummyMatchData from "../../components/DummyData/DummyMatchData";
 import {teamInfoMap} from "../../utils/teamInfoMap";
 
 export default function MainPage() {
+    const { user } = useAuth();
+    const loginUserId = user?.id;
     const [showCasterbot, setShowCasterbot] = useState(false);
     const [teams2, setTeams2] = useState([]);
     const [activeTeamIndex, setActiveTeamIndex] = useState(0);
@@ -20,10 +24,13 @@ export default function MainPage() {
     const [favoriteMap, setFavoriteMap] = useState({});
     const [selectedFavorites, setSelectedFavorites] = useState([]);
     const [allMatches, setAllMatches] = useState([]);
+    const [myApprovalPartyDetail, setMyApprovalPartyDetail] = useState(null);
     const today = new Date().toISOString().split("T")[0];
 
     const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
     const sseUrl = `${baseUrl}/user/notifications/connect`;
+
+    const navigate = useNavigate();
 
     // Reference to hold EventSource instance
     const eventSourceRef = useRef(null);
@@ -93,6 +100,36 @@ export default function MainPage() {
 
         fetchUserProfileAndFavorites();
     }, []);
+
+    useEffect(() => {
+      const fetchMyApprovalPartyDetail = async () => {
+        if (!loginUserId) return;
+        try {
+          const twpBase = process.env.REACT_APP_LOCAL_BACKEND_TWP_URI;
+          const listRes = await axios.get(
+            `${twpBase}/party`,
+            {
+              params: { matchId: 1, deletedAt: null },
+              withCredentials: true
+            }
+          );
+          const myParties = listRes.data.filter(
+            (p) => p.writerId === loginUserId
+          );
+          if (myParties.length > 0) {
+            const partyId = myParties[0].partyId;
+            const detailRes = await axios.get(
+              `${twpBase}/party/${partyId}`,
+              { withCredentials: true }
+            );
+            setMyApprovalPartyDetail(detailRes.data);
+          }
+        } catch (err) {
+          console.error("내가 승인한 직관팟 정보 조회 실패:", err);
+        }
+      };
+      fetchMyApprovalPartyDetail();
+    }, [loginUserId]);
 
     // SSE 구독: 로그인 후 "/home"에 도착할 때 바로 실행
     useEffect(() => {
@@ -191,6 +228,10 @@ export default function MainPage() {
         }
       : null;
 
+    const onEnterChat = (chatRoomId) => {
+      navigate(`/chat/party/${chatRoomId}`);
+    };
+
     return (
         <div className={styles.main_page}>
             <TeamTabNav
@@ -216,6 +257,63 @@ export default function MainPage() {
                 {/*)}*/}
             </div>
             <h2 className={styles.sectionTitleWithMargin}>나의 직관팟</h2>
+            {myApprovalPartyDetail && (
+              <div
+                className={styles.partyCard}
+                onClick={() => onEnterChat(myApprovalPartyDetail.partyId)}
+                style={{ cursor: "pointer" }}
+              >
+                <img
+                  src={myApprovalPartyDetail.partyThumbnailUrls?.[0] || `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
+                  alt="직관팟 썸네일"
+                  className={styles.playerImg}
+                />
+                <div className={styles.partyContent}>
+                  <div className={styles.tags}>
+                    <span className={styles.tag}>{myApprovalPartyDetail.partyJoinMethod}</span>
+                    {myApprovalPartyDetail.partyAges?.map((tag, index) => (
+                      <span
+                        key={index}
+                        className={`${styles.tag} ${index === 2 ? styles.tagHighlight : ''}`}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                    <span className={`${styles.tag} ${styles.tagHighlight}`}>
+                      {myApprovalPartyDetail.availableGender}
+                    </span>
+                  </div>
+                  <div className={styles.partyTitle}>{myApprovalPartyDetail.title}</div>
+                  <div className={styles.partyMeta}>
+                    <span>{myApprovalPartyDetail.authorName || '작성자'}</span>
+                    <span>{myApprovalPartyDetail.authorAge || '나이'}</span>
+                    <span>
+                      {myApprovalPartyDetail.authorGender === 'MALE'
+                        ? '남성'
+                        : myApprovalPartyDetail.authorGender === 'FEMALE'
+                          ? '여성'
+                          : '기타'}
+                    </span>
+                    <span>· {myApprovalPartyDetail.matchDate}</span>
+                  </div>
+
+                  <div className={styles.partyStatus}>
+                    <div className={styles.avatars}>
+                      {myApprovalPartyDetail.userThumbnailUrls?.slice(0, 1).map((url, i) => (
+                        <img
+                          key={i}
+                          src={url || `${process.env.PUBLIC_URL}/Logo/profile.png`}
+                          alt="프로필"
+                        />
+                      ))}
+                    </div>
+                    <div className={styles.slot}>
+                      {myApprovalPartyDetail.currentParticipantsCount}/{myApprovalPartyDetail.maximumParticipantsCount}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             {/* TODO: 이후 ISSUE에서 TWP SERVICE merge 이후 적용 예정 */}
             {/*{parties.length > 0 ? (*/}
             {/*    parties.map((party, i) => <MyPartyCard key={i} {...party} />)*/}
