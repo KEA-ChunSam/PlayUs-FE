@@ -71,8 +71,20 @@ const SetProfile = () => {
                     { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
                 );
 
-                await axios.put(presignedRes.data.presignedUrl, fileBlob, {
-                    headers: { 'Content-Type': 'image/png' }
+                await new Promise((resolve, reject) => {
+                    fetch(presignedRes.data.presignedUrl, {
+                        method: 'PUT',
+                        body: fileBlob,
+                        headers: {
+                            // 'Content-Type': 'image/png',
+                            // 다른 헤더 추가하지 마세요!
+                        },
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error("이미지 업로드 실패");
+                        resolve();
+                    })
+                    .catch(reject);
                 });
 
                 thumbnailURL = `${process.env.REACT_APP_PRESIGNED_URI}/${fileName}`;

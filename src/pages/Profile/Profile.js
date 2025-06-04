@@ -51,6 +51,8 @@ const journalEntries = [
 const Profile = () => {
     // 최근 직관일지 state
     const [recentDiaries, setRecentDiaries] = useState([]);
+    // 최근 커뮤니티 게시글 state
+    const [recentPosts, setRecentPosts] = useState([]);
     // 최근 직관일지 fetch
 
     // const [searchParams] = useSearchParams();
@@ -141,6 +143,24 @@ useEffect(() => {
     };
 
     fetchProfile();
+}, [userId]);
+
+// 최근 커뮤니티 게시글 fetch
+useEffect(() => {
+    const fetchRecentPosts = async () => {
+        if (!userId) return;
+
+        try {
+            const res = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/writer/${userId}`, {
+                withCredentials: true
+            });
+            setRecentPosts(res.data);
+        } catch (err) {
+            console.error('커뮤니티 게시글 불러오기 실패:', err);
+        }
+    };
+
+    fetchRecentPosts();
 }, [userId]);
 
     const today = new Date();
@@ -297,7 +317,13 @@ useEffect(() => {
                                                     <img src={entry.image} alt="entry" className={styles.entryImg} />
                                                 )}
                                                 <span className={styles.entryTitle}>{entry.title}</span>
-                                                <span className={styles.entryDate}>{entry.date}</span>
+                                                <span className={styles.entryDate}>
+                                                    {new Date(entry.date).toLocaleDateString('ko-KR', {
+                                                        year: 'numeric',
+                                                        month: '2-digit',
+                                                        day: '2-digit'
+                                                    })}
+                                                </span>
                                             </li>
                                         ))}
                                     </ul>
@@ -361,17 +387,20 @@ useEffect(() => {
                                 <section className={styles.journalSection}>
                                     <div className={styles.journalHeader}>
                                         <h2>최근 커뮤니티 게시글</h2>
-                                        {/*<div className={styles.logout} onClick={handleDiaryList}>더보기</div>*/}
                                     </div>
                                     <ul className={styles.journalList}>
-                                        {journalEntries.map((entry, idx) => (
-                                            <li key={idx} className={styles.journalItem}>
-                                                {entry.image &&
-                                                    <img src={entry.image} alt="entry" className={styles.entryImg}/>}
-                                                <span className={styles.entryTitle}>{entry.title}</span>
-                                                <span className={styles.entryDate}>{entry.date}</span>
-                                            </li>
-                                        ))}
+                                        {[...recentPosts]
+                                            .sort((a, b) => new Date(b.date) - new Date(a.date))
+                                            .slice(0, 3)
+                                            .map((entry, idx) => (
+                                                <li key={idx} className={styles.journalItem}>
+                                                    {entry.image && (
+                                                        <img src={entry.image} alt="entry" className={styles.entryImg} />
+                                                    )}
+                                                    <span className={styles.entryTitle}>{entry.title}</span>
+                                                    <span className={styles.entryDate}>{entry.date}</span>
+                                                </li>
+                                            ))}
                                     </ul>
                                 </section>
                             </>
