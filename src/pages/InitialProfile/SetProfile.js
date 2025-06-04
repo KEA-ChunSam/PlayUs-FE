@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {useLocation, useNavigate} from 'react-router-dom';
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from './SetProfile.module.css';
 import LoginHeader from "../../components/Header/LoginHeader/LoginHeader";
@@ -20,9 +20,10 @@ const SetProfile = () => {
     });
 
     // Profile image crop state
-    const [profileImage, setProfileImage] = useState(null);
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [profileImage, setProfileImage] = useState(null); // DataURL
+    const [selectedImage, setSelectedImage] = useState(null); // ObjectURL
     const [showCropModal, setShowCropModal] = useState(false);
+    const [originalFile, setOriginalFile] = useState(null); // File 객체
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -31,6 +32,7 @@ const SetProfile = () => {
                 alert('이미지 파일만 선택할 수 있습니다.');
                 return;
             }
+            setOriginalFile(file); // File 객체 저장
             setSelectedImage(URL.createObjectURL(file));
             setShowCropModal(true);
         }
@@ -50,25 +52,32 @@ const SetProfile = () => {
 
         let thumbnailURL = 'default.png';
 
-        // 이미지가 있다면 presigned URL 요청 및 업로드 수행
         if (profileImage) {
             try {
-                const file = await fetch(profileImage).then(res => res.blob());
+                // profileImage는 DataURL임. Blob으로 변환
+                const fileBlob = await fetch(profileImage).then(res => res.blob());
+                let fileName;
 
-                const fileName = `${Date.now()}.png`; // 또는 uuid 등 유니크한 이름
+                if (originalFile && originalFile.name) {
+                    fileName = `profile/${originalFile.name}`;
+                } else {
+                    const uuid = crypto.randomUUID();
+                    fileName = `profile/${uuid}.png`;
+                }
+
                 const presignedRes = await axios.post(
-                    `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/presigned-url`,
-                    { fileName },
+                    `${process.env.REACT_APP_LOCAL_BACKEND_URI}/presigned-url`,
+                    { imageFileName: fileName },
                     { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
                 );
 
                 await fetch(presignedRes.data.presignedUrl, {
                     method: 'PUT',
-                    body: file,
+                    body: fileBlob,
                     headers: { 'Content-Type': 'image/png' },
                 });
 
-                thumbnailURL = presignedRes.data.accessUrl; // 최종 접근 URL
+                thumbnailURL = `${process.env.REACT_APP_PRESIGNED_URI}/${fileName}`;
             } catch (err) {
                 console.error("이미지 업로드 실패:", err);
                 setShowModal(true);
@@ -83,8 +92,8 @@ const SetProfile = () => {
         };
 
         try {
-            const response = await axios.post(
-                `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/register`,
+            await axios.post(
+                `${process.env.REACT_APP_LOCAL_BACKEND_URI}/register`,
                 payload,
                 {
                     headers: { 'Content-Type': 'application/json' },
@@ -100,14 +109,14 @@ const SetProfile = () => {
 
     return (
         <div className={styles.container}>
-            <LoginHeader style={{marginBottom: '-50px'}}/>
+            <LoginHeader style={{ marginBottom: '-50px' }} />
             <h1 className={styles.title}>프로필 이미지를 설정해 주세요.</h1>
 
             <div className={styles.profileSection}>
                 <div className={styles.profileImageWrapper}
                      onClick={() => document.getElementById('imageInput').click()}>
                     {profileImage ? (
-                        <img src={profileImage} alt="프로필 이미지" className={styles.profileImage}/>
+                        <img src={profileImage} alt="프로필 이미지" className={styles.profileImage} />
                     ) : (
                         <div className={styles.profilePlaceholder}>이미지 설정</div>
                     )}
@@ -117,7 +126,7 @@ const SetProfile = () => {
                     accept="image/*"
                     id="imageInput"
                     onChange={handleFileChange}
-                    style={{display: 'none'}}
+                    style={{ display: 'none' }}
                 />
             </div>
 
@@ -126,8 +135,17 @@ const SetProfile = () => {
                     image={selectedImage}
                     onClose={() => setShowCropModal(false)}
                     onCropDone={(croppedDataUrl) => {
-                        setProfileImage(croppedDataUrl);
-                        setShowCropModal(false);
+                        // croppedDataUrl(DataURL)을 Blob으로 변환 후 File 객체로 만들어 원본 파일명 유지
+                        fetch(croppedDataUrl)
+                            .then(res => res.blob())
+                            .then(blob => {
+                                if (originalFile && originalFile.name) {
+                                    const croppedFile = new File([blob], originalFile.name, { type: blob.type });
+                                    setOriginalFile(croppedFile); // 잘린 이미지로 File 객체 갱신
+                                }
+                                setProfileImage(croppedDataUrl);
+                                setShowCropModal(false);
+                            });
                     }}
                 />
             )}
