@@ -40,8 +40,10 @@
 
 .entryContent {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 .entryTitle {
@@ -51,6 +53,7 @@
 .entryDate {
   font-size: 0.9rem;
   color: #555;
+  margin-left: auto;
 }
 
 .teamLogo {
@@ -61,7 +64,7 @@
 .paginationWrapper {
   display: flex;
   justify-content: center;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
 }
 
 .casterbotButton {

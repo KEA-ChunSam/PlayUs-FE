@@ -34,26 +34,15 @@ const DiaryList = () => {
             setError(null);
             try {
                 const response = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/live-match-diary/my`, {
-                    params: {
-                        page: page - 1,
-                        size: 10
-                    },
                     withCredentials: true, // 필요시 쿠키 인증
                 });
 
                 let entriesArray;
-                let tp;
-                if (response.data.content !== undefined && response.data.totalPages !== undefined) {
-                  // Backend returned a Page object
-                  entriesArray = response.data.content;
-                  tp = response.data.totalPages;
-                } else if (Array.isArray(response.data)) {
+                if (Array.isArray(response.data)) {
                   // Backend returned a simple list
                   entriesArray = response.data;
-                  tp = 1; // default to single page (all items)
                 } else {
                   entriesArray = [];
-                  tp = 1;
                 }
                 const data = entriesArray.map((entry) => {
                     const teamData = teamInfoMapCommunity.find(team => team.teamId === entry.TeamName);
@@ -69,7 +58,7 @@ const DiaryList = () => {
                     };
                 });
                 setDiaries(data);
-                setTotalPages(tp);
+                setTotalPages(Math.ceil(data.length / 8));
 
             } catch (error) {
                 console.error('직관일지 목록 불러오기 실패:', error);
@@ -91,7 +80,7 @@ const DiaryList = () => {
         navigate(`/profile/${userId}`);
     }
 
-    const pagedDiaries = diaries;
+    const pagedDiaries = diaries.slice((page - 1) * 8, page * 8);
 
     // Navigate to diary detail page
     const handleClickDiary = (id) => {
@@ -126,9 +115,11 @@ const DiaryList = () => {
                                      className={styles.thumbnail}/>
                             ) : null}
                             <div className={styles.entryContent}>
-                                <span className={styles.entryTitle}>{entry.title}</span>
+                                <div>
+                                    <span className={styles.entryTitle}>{entry.title}</span>
+                                    {entry.teamLogo && <img src={entry.teamLogo} alt="logo" className={styles.teamLogo}/>}
+                                </div>
                                 <span className={styles.entryDate}>{entry.date}</span>
-                                {entry.teamLogo && <img src={entry.teamLogo} alt="logo" className={styles.teamLogo}/>}
                             </div>
                         </div>
                     ))}

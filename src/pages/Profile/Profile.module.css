@@ -150,7 +150,7 @@
 .journalItem {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
+  margin: 1rem 0;
 }
 
 .entryImg {
@@ -165,12 +165,25 @@
   flex-grow: 1;
   font-size: 1rem;
   font-weight: 500;
+  margin-bottom: 5%;
 }
 
 .entryDate {
   font-size: 0.85rem;
   color: #666;
   margin-left: 1rem;
+}
+
+.noPostsMessage {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 2rem 1rem;
+  margin: 1rem 0;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px dashed #ddd;
+  list-style: none;
 }
 
 .accuracySection {

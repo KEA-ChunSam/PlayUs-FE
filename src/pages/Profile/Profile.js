@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Doughnut} from 'react-chartjs-2';
 import {ArcElement, Chart as ChartJS, Legend, Tooltip} from 'chart.js';
 import dummyDiaries from '../../components/DummyData/dummyDiaries';
-import {useNavigate, useParams, useSearchParams} from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import '../../components/CustomCalendar/CalendarOverride.css';
@@ -16,16 +16,16 @@ import axios from "axios";
 
 // 팀 정보 맵 (예시, 실제 데이터는 프로젝트에서 적절히 import/정의 필요)
 const teamInfoMapCommunity = [
-    { teamId: 1, name: 'NC 다이노스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_NC.png` },
-    { teamId: 2, name: '삼성 라이온즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SS.png` },
-    { teamId: 3, name: '두산 베어스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_OB.png` },
-    { teamId: 4, name: '한화 이글스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HH.png` },
-    { teamId: 5, name: 'KIA 타이거즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HT.png` },
-    { teamId: 6, name: 'KT 위즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png` },
-    { teamId: 7, name: '롯데 자이언츠', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LT.png` },
-    { teamId: 8, name: 'LG 트윈스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LG.png` },
-    { teamId: 9, name: 'SSG 랜더스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SK.png` },
-    { teamId: 10, name: '키움 히어로즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png` }
+    {teamId: 1, name: 'NC 다이노스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_NC.png`},
+    {teamId: 2, name: '삼성 라이온즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SS.png`},
+    {teamId: 3, name: '두산 베어스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_OB.png`},
+    {teamId: 4, name: '한화 이글스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HH.png`},
+    {teamId: 5, name: 'KIA 타이거즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HT.png`},
+    {teamId: 6, name: 'KT 위즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`},
+    {teamId: 7, name: '롯데 자이언츠', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LT.png`},
+    {teamId: 8, name: 'LG 트윈스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LG.png`},
+    {teamId: 9, name: 'SSG 랜더스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SK.png`},
+    {teamId: 10, name: '키움 히어로즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
 ];
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -51,11 +51,13 @@ const journalEntries = [
 const Profile = () => {
     // 최근 직관일지 state
     const [recentDiaries, setRecentDiaries] = useState([]);
+    // 최근 커뮤니티 게시글 state
+    const [recentPosts, setRecentPosts] = useState([]);
     // 최근 직관일지 fetch
 
     // const [searchParams] = useSearchParams();
     // const userId = searchParams.get('userId');
-    const { userId } = useParams();
+    const {userId} = useParams();
 
     const [profile, setProfile] = useState(null);
     const [nickname, setNickname] = useState('');
@@ -80,7 +82,7 @@ const Profile = () => {
                     return {
                         id: entry.postId,
                         title: entry.title,
-                        date: entry.twpDate || entry.date,
+                        date: entry.date,
                         image: entry.thumbnail || null,
                         team: teamData?.name || '',
                         teamLogo: teamData?.logo || `${process.env.PUBLIC_URL}/exImage.png`,
@@ -97,51 +99,69 @@ const Profile = () => {
         }
     }, [isMine]);
 
-useEffect(() => {
-    const fetchProfile = async () => {
-        const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
-        try {
-            // Always fetch the logged-in user's profile to get their ID
-            const loggedInRes = await axios.get(`${baseUrl}/user/profile`, { withCredentials: true });
-            const loggedInData = loggedInRes.data;
-            setLoggedInUserId(loggedInData.id);
+    useEffect(() => {
+        const fetchProfile = async () => {
+            const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
+            try {
+                // Always fetch the logged-in user's profile to get their ID
+                const loggedInRes = await axios.get(`${baseUrl}/user/profile`, {withCredentials: true});
+                const loggedInData = loggedInRes.data;
+                setLoggedInUserId(loggedInData.id);
 
-            // Now fetch the target profile (could be mine or another user's)
-            let targetProfileUrl;
-            if (!userId) {
-                targetProfileUrl = `${baseUrl}/user/profile`;
-            } else {
-                targetProfileUrl = `${baseUrl}/user/profile/${userId}`;
+                // Now fetch the target profile (could be mine or another user's)
+                let targetProfileUrl;
+                if (!userId) {
+                    targetProfileUrl = `${baseUrl}/user/profile`;
+                } else {
+                    targetProfileUrl = `${baseUrl}/user/profile/${userId}`;
+                }
+                const res = await axios.get(targetProfileUrl, {withCredentials: true});
+                const data = res.data;
+                const favoriteTeams = data.favoriteTeams || [];
+                const primaryTeam = favoriteTeams.find(team => team.displayOrder === 1);
+
+                const teamLogoMap = {
+                    1: 'NC', 2: 'SS', 3: 'OB', 4: 'HH', 5: 'HT',
+                    6: 'KT', 7: 'LT', 8: 'LG', 9: 'SK', 10: 'WO'
+                };
+                const logoPrefix = teamLogoMap[primaryTeam?.teamId] || 'default';
+                const teamLogo = `TeamLogo/emblem_${logoPrefix}.png`;
+
+                setProfile({...data, teamLogo});
+                setNickname(data.nickname);
+
+                // Compare logged-in user ID with the profile being viewed
+                if (userId) {
+                    setIsMine(Number(loggedInData.id) === Number(userId));
+                } else {
+                    setIsMine(true);
+                }
+            } catch (err) {
+                console.error('프로필 불러오기 오류:', err);
+                setError('프로필을 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.');
             }
-            const res = await axios.get(targetProfileUrl, { withCredentials: true });
-            const data = res.data;
-            const favoriteTeams = data.favoriteTeams || [];
-            const primaryTeam = favoriteTeams.find(team => team.displayOrder === 1);
+        };
 
-            const teamLogoMap = {
-                1: 'NC', 2: 'SS', 3: 'OB', 4: 'HH', 5: 'HT',
-                6: 'KT', 7: 'LT', 8: 'LG', 9: 'SK', 10: 'WO'
-            };
-            const logoPrefix = teamLogoMap[primaryTeam?.teamId] || 'default';
-            const teamLogo = `TeamLogo/emblem_${logoPrefix}.png`;
+        fetchProfile();
+    }, [userId]);
 
-            setProfile({ ...data, teamLogo });
-            setNickname(data.nickname);
+// 최근 커뮤니티 게시글 fetch
+    useEffect(() => {
+        const fetchRecentPosts = async () => {
+            if (!userId) return;
 
-            // Compare logged-in user ID with the profile being viewed
-            if (userId) {
-                setIsMine(Number(loggedInData.id) === Number(userId));
-            } else {
-                setIsMine(true);
+            try {
+                const res = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/writer/${userId}`, {
+                    withCredentials: true
+                });
+                setRecentPosts(res.data);
+            } catch (err) {
+                console.error('커뮤니티 게시글 불러오기 실패:', err);
             }
-        } catch (err) {
-            console.error('프로필 불러오기 오류:', err);
-            setError('프로필을 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.');
-        }
-    };
+        };
 
-    fetchProfile();
-}, [userId]);
+        fetchRecentPosts();
+    }, [userId]);
 
     const today = new Date();
     const [value, setValue] = useState(today);
@@ -164,7 +184,7 @@ useEffect(() => {
                 try {
                     const res = await axios.get(
                         `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/${userId}/tags/summary`,
-                        { withCredentials: true }
+                        {withCredentials: true}
                     );
                     setTagSummary(res.data);
                 } catch (err) {
@@ -294,10 +314,12 @@ useEffect(() => {
                                         {recentDiaries.slice(0, 2).map((entry, idx) => (
                                             <li key={idx} className={styles.journalItem}>
                                                 {entry.image && (
-                                                    <img src={entry.image} alt="entry" className={styles.entryImg} />
+                                                    <img src={entry.image} alt="entry" className={styles.entryImg}/>
                                                 )}
                                                 <span className={styles.entryTitle}>{entry.title}</span>
-                                                <span className={styles.entryDate}>{entry.date}</span>
+                                                <span className={styles.entryDate}>
+                                                    {entry.date?.replace(/-/g, '.')}
+                                                </span>
                                             </li>
                                         ))}
                                     </ul>
@@ -328,8 +350,8 @@ useEffect(() => {
                                                         options={{
                                                             cutout: '70%',
                                                             plugins: {
-                                                                legend: { display: false },
-                                                                tooltip: { enabled: false }
+                                                                legend: {display: false},
+                                                                tooltip: {enabled: false}
                                                             }
                                                         }}
                                                     />
@@ -361,17 +383,22 @@ useEffect(() => {
                                 <section className={styles.journalSection}>
                                     <div className={styles.journalHeader}>
                                         <h2>최근 커뮤니티 게시글</h2>
-                                        {/*<div className={styles.logout} onClick={handleDiaryList}>더보기</div>*/}
                                     </div>
                                     <ul className={styles.journalList}>
-                                        {journalEntries.map((entry, idx) => (
-                                            <li key={idx} className={styles.journalItem}>
-                                                {entry.image &&
-                                                    <img src={entry.image} alt="entry" className={styles.entryImg}/>}
-                                                <span className={styles.entryTitle}>{entry.title}</span>
-                                                <span className={styles.entryDate}>{entry.date}</span>
-                                            </li>
-                                        ))}
+                                        {Array.isArray(recentPosts) && recentPosts.length > 0 ? [...recentPosts]
+                                            .sort((a, b) => new Date(b.date) - new Date(a.date))
+                                            .slice(0, 3)
+                                            .map((entry, idx) => (
+                                                <li key={idx} className={styles.journalItem}>
+                                                    {entry?.image && (
+                                                        <img src={entry.image} alt="entry" className={styles.entryImg}/>
+                                                    )}
+                                                    <span className={styles.entryTitle}>{entry?.title || '제목 없음'}</span>
+                                                    <span className={styles.entryDate}>{entry?.date || ''}</span>
+                                                </li>
+                                            )) : (
+                                            <li className={styles.noPostsMessage}>게시글이 없습니다.</li>
+                                        )}
                                     </ul>
                                 </section>
                             </>
@@ -383,13 +410,13 @@ useEffect(() => {
                         title="로그아웃"
                         message="로그아웃하시겠어요?"
                         buttons={[
-                            { label: '취소', onClick: () => setShowLogoutModal(false) },
+                            {label: '취소', onClick: () => setShowLogoutModal(false)},
                             {
                                 label: '확인',
                                 onClick: async () => {
                                     const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
                                     try {
-                                        await axios.post(`${baseUrl}/auth/logout`, {}, { withCredentials: true });
+                                        await axios.post(`${baseUrl}/auth/logout`, {}, {withCredentials: true});
                                         navigate('/login');
                                     } catch (err) {
                                         navigate('/login');
