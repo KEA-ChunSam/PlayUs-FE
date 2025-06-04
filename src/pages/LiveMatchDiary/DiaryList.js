@@ -1,3 +1,4 @@
+// DiaryList.js
 // 직관일지 목록 페이지
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useSearchParams, useParams} from 'react-router-dom';
@@ -15,7 +16,7 @@ const DiaryList = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const page = parseInt(searchParams.get("page")) || 1;
     const [diaries, setDiaries] = useState([]);
-    const PER_PAGE = 6;
+    const [totalPages, setTotalPages] = useState(1);
 
     const navigate = useNavigate();
     const tabLabels = ["나의 직관일지"];
@@ -35,12 +36,26 @@ const DiaryList = () => {
                 const response = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/live-match-diary/my`, {
                     params: {
                         page: page - 1,
-                        size: PER_PAGE,
+                        size: 10
                     },
                     withCredentials: true, // 필요시 쿠키 인증
                 });
 
-                const data = response.data.map((entry) => {
+                let entriesArray;
+                let tp;
+                if (response.data.content !== undefined && response.data.totalPages !== undefined) {
+                  // Backend returned a Page object
+                  entriesArray = response.data.content;
+                  tp = response.data.totalPages;
+                } else if (Array.isArray(response.data)) {
+                  // Backend returned a simple list
+                  entriesArray = response.data;
+                  tp = 1; // default to single page (all items)
+                } else {
+                  entriesArray = [];
+                  tp = 1;
+                }
+                const data = entriesArray.map((entry) => {
                     const teamData = teamInfoMapCommunity.find(team => team.teamId === entry.TeamName);
                     return {
                         id: entry.postId,
@@ -54,6 +69,7 @@ const DiaryList = () => {
                     };
                 });
                 setDiaries(data);
+                setTotalPages(tp);
 
             } catch (error) {
                 console.error('직관일지 목록 불러오기 실패:', error);
@@ -75,7 +91,7 @@ const DiaryList = () => {
         navigate(`/profile/${userId}`);
     }
 
-    const pagedDiaries = diaries.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+    const pagedDiaries = diaries;
 
     // Navigate to diary detail page
     const handleClickDiary = (id) => {
@@ -119,7 +135,7 @@ const DiaryList = () => {
                 </div>
                 <div className={styles.paginationWrapper}>
                     <Pagination
-                        count={Math.ceil(diaries.length / PER_PAGE)}
+                        count={totalPages}
                         page={page}
                         onChange={handlePageChange}
                         variant="outlined"

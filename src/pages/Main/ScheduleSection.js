@@ -14,7 +14,10 @@ const teamLogoMap = {
 };
 
 export default function ScheduleSection({ schedule }) {
-  const formattedDate = new Date(schedule.date).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
+  const today = new Date();
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+  const weekday = weekdays[today.getDay()];
+  const formattedDate = `${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')} (${weekday})`;
   const { home, away, status, score } = schedule;
 
   return (
