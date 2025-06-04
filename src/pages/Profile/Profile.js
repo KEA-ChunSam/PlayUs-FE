@@ -250,7 +250,7 @@ useEffect(() => {
                                     <div className={styles.email}>{profile.email}</div>
                                 ) : (
                                     <div className={styles.email}>
-                                        직관일지 {profile.diaryCount}회 작성 · {profile.joined} 가입
+                                        게시글 {profile.diaryCount}회 작성 · {profile.joined} 가입
                                     </div>
                                 )}
                                 {isMine && (
@@ -361,7 +361,7 @@ useEffect(() => {
                                 <section className={styles.journalSection}>
                                     <div className={styles.journalHeader}>
                                         <h2>최근 커뮤니티 게시글</h2>
-                                        <div className={styles.logout} onClick={handleDiaryList}>더보기</div>
+                                        {/*<div className={styles.logout} onClick={handleDiaryList}>더보기</div>*/}
                                     </div>
                                     <ul className={styles.journalList}>
                                         {journalEntries.map((entry, idx) => (

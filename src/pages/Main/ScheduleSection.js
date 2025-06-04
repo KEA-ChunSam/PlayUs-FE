@@ -14,15 +14,19 @@ const teamLogoMap = {
 };
 
 export default function ScheduleSection({ schedule }) {
+  const today = new Date();
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+  const weekday = weekdays[today.getDay()];
+  const formattedDate = `${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')} (${weekday})`;
   const { home, away, status, score } = schedule;
 
   return (
     <section className={styles.section}>
     <div className={styles.card}>
       <div className={styles.dateRow}>
-        <button>{'<'}</button>
-        <span className={styles.dateText}>05.02 (목)</span>{/* TODO: 이후 match api 연결시 적용예정 */}
-        <button>{'>'}</button>
+        {/*<button>{'<'}</button>*/}
+        <span className={styles.dateText}>{formattedDate}</span>
+        {/*<button>{'>'}</button>*/}
       </div>
       <div className={styles.matchCard}>
         {/* Away 팀 */}

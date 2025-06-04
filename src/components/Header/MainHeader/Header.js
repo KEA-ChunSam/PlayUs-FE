@@ -88,6 +88,17 @@ const Header = () => {
                     onFocus={handleInputFocus}
                     onBlur={handleInputBlur}
                 />
+                <button
+                  type="button"
+                  className={styles.clearButton}
+                  onClick={() => {
+                    setInputValue("");
+                    setKeyword("");
+                    setShowDropdown(false);
+                  }}
+                >
+                  ×
+                </button>
                 {showDropdown && trendingList.length > 0 && (
                   <ul className={styles.searchDropdown}>
                     {trendingList.slice(0, 5).map((item) => (

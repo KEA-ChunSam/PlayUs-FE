@@ -375,7 +375,7 @@ const Chatting = () => {
                 </main>
 
                 <div className={styles.chatInputWrapper}>
-                    <button className={styles.plusBtn}>+</button>
+                    {/*<button className={styles.plusBtn}>+</button>*/}
                     <input
                         className={styles.chatInput}
                         placeholder="메세지를 입력하세요."

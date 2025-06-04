@@ -37,6 +37,7 @@
     height: 43px;
 
     padding-left: 4%;
+    padding-right: 2rem;
 
     background: #F4F4F4;
     border: 0.2vw solid #0F62FE;
@@ -90,7 +91,6 @@
 }
 
 .header_right button {
-    /*background: none;*/
     border: none;
     cursor: pointer;
     margin-left: 1%;
@@ -104,4 +104,22 @@
 .noti_alert {
     width: 30px;
     height: 30px;
+}
+
+.clearButton {
+    position: absolute;
+    top: 46%;
+    right: 10%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    line-height: 1;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+}
+
+.clearButton:hover {
+    color: #333;
 }
