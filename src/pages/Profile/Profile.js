@@ -82,7 +82,7 @@ const Profile = () => {
                     return {
                         id: entry.postId,
                         title: entry.title,
-                        date: entry.twpDate || entry.date,
+                        date: entry.date,
                         image: entry.thumbnail || null,
                         team: teamData?.name || '',
                         teamLogo: teamData?.logo || `${process.env.PUBLIC_URL}/exImage.png`,
@@ -318,11 +318,7 @@ useEffect(() => {
                                                 )}
                                                 <span className={styles.entryTitle}>{entry.title}</span>
                                                 <span className={styles.entryDate}>
-                                                    {new Date(entry.date).toLocaleDateString('ko-KR', {
-                                                        year: 'numeric',
-                                                        month: '2-digit',
-                                                        day: '2-digit'
-                                                    })}
+                                                    {entry.date?.replace(/-/g, '.')}
                                                 </span>
                                             </li>
                                         ))}
