@@ -66,15 +66,13 @@ const SetProfile = () => {
                 }
 
                 const presignedRes = await axios.post(
-                    `${process.env.REACT_APP_LOCAL_BACKEND_URI}/presigned-url`,
+                    `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/presigned-url`,
                     { imageFileName: fileName },
                     { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
                 );
 
-                await fetch(presignedRes.data.presignedUrl, {
-                    method: 'PUT',
-                    body: fileBlob,
-                    headers: { 'Content-Type': 'image/png' },
+                await axios.put(presignedRes.data.presignedUrl, fileBlob, {
+                    headers: { 'Content-Type': 'image/png' }
                 });
 
                 thumbnailURL = `${process.env.REACT_APP_PRESIGNED_URI}/${fileName}`;
@@ -93,7 +91,7 @@ const SetProfile = () => {
 
         try {
             await axios.post(
-                `${process.env.REACT_APP_LOCAL_BACKEND_URI}/register`,
+                `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/register`,
                 payload,
                 {
                     headers: { 'Content-Type': 'application/json' },
