@@ -147,7 +147,7 @@ const SetProfile = () => {
 
             <div className={styles.buttonGroup}>
                 <button className={styles.backButton} onClick={() => navigate('/choice-team')}>이전으로</button>
-                <button className={styles.submitButton} onClick={handleSubmit}>가입 완료하기!</button>
+                <button className={styles.submitButton} onClick={handleSubmit}>가입 완료!</button>
             </div>
             {showModal && (
                 <Modal

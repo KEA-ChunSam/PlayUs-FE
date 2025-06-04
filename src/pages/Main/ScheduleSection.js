@@ -14,15 +14,16 @@ const teamLogoMap = {
 };
 
 export default function ScheduleSection({ schedule }) {
+  const formattedDate = new Date(schedule.date).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
   const { home, away, status, score } = schedule;
 
   return (
     <section className={styles.section}>
     <div className={styles.card}>
       <div className={styles.dateRow}>
-        <button>{'<'}</button>
-        <span className={styles.dateText}>05.02 (목)</span>{/* TODO: 이후 match api 연결시 적용예정 */}
-        <button>{'>'}</button>
+        {/*<button>{'<'}</button>*/}
+        <span className={styles.dateText}>{formattedDate}</span>
+        {/*<button>{'>'}</button>*/}
       </div>
       <div className={styles.matchCard}>
         {/* Away 팀 */}
