@@ -41,6 +41,7 @@ const teams = [
 
 const Community = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const [selectedTeam, setSelectedTeam] = useState(null);
