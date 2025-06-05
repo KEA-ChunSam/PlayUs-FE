@@ -264,20 +264,44 @@ useEffect(() => {
               content: text
           };
 
+          let parentComment = null;
           if (replyTo !== null && replyTo !== undefined && replyTo !== '') {
-              const parentComment = comments.find(c => String(c.id) === String(replyTo));
+              parentComment = comments.find(c => String(c.id) === String(replyTo));
               if (parentComment) {
-                  // commentGroupId 대신 부모 댓글의 id를 전달
-                  payload.commentGroupId = Number(parentComment.id);
+                  // 부모 댓글의 commentGroupId를 사용 (백엔드 로직에 따라 부모 댓글 ID를 전달)
+                  if (!parentComment.commentGroupId) {
+                       // 부모 댓글 자체가 최상위 댓글일 경우 commentGroupId는 자신의 ID와 같음
+                       payload.commentGroupId = Number(parentComment.id);
+                  } else {
+                       // 부모 댓글이 다른 댓글의 답글인 경우, 그 부모의 commentGroupId를 사용
+                       payload.commentGroupId = Number(parentComment.commentGroupId);
+                  }
+
+                   console.log('답글 작성 - 부모 댓글 정보 및 Payload:', {
+                      parentCommentId: parentComment.id,
+                      parentCommentGroupIdFromParent: parentComment.commentGroupId,
+                      payloadCommentGroupId: payload.commentGroupId,
+                      payload
+                  });
+
               } else {
-                  console.error('답글 작성 실패 - 부모 댓글을 찾을 수 없음');
+                  console.error('답글 작성 실패 - 부모 댓글을 찾을 수 없음 (replyTo ID:', replyTo, ')');
                   alert('답글 작성에 실패했습니다. 페이지를 새로고침 후 다시 시도해주세요.');
                   return;
               }
           }
 
+          // 입력 필드 초기화 (서버 응답 전에 미리 초기화)
+          if (replyTo) {
+              setReplyInputValue({ ...replyInputValue, [String(replyTo)]: '' });
+              setReplyTo(null);
+          } else {
+              setComment("");
+          }
+
           const requestUrl = `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment`;
           console.log('실제 요청 URL:', requestUrl);
+          // Log the payload here, regardless of whether it's a reply or new comment
           console.log('댓글/답글 전송 payload:', payload);
 
           const response = await axios.post(
@@ -290,19 +314,22 @@ useEffect(() => {
                   }
               }
           );
+
           console.log('서버 응답:', response.data);
 
-          // 댓글 작성 성공 후에는 전체 댓글 목록을 다시 불러와서 화면 갱신
-          // 백엔드가 새 댓글 정보만 주거나 전체 목록을 주더라도, 프론트 구조화 로직을 다시 거치는 것이 가장 안전
-          await fetchPost();
+          const newCommentData = response.data;
 
-          if (replyTo) {
-              setReplyInputValue({ ...replyInputValue, [String(replyTo)]: '' });
-              setReplyTo(null);
+          // 작성 성공 후 새 댓글/답글의 ID를 받아 URL 해시로 붙여 새로고침
+          if (newCommentData && newCommentData.commentId) {
+              // comment-${id} 형식으로 ID를 사용한다고 가정
+              // 실제 댓글/답글 요소의 ID가 이 형식과 일치해야 스크롤됩니다.
+              const newCommentId = newCommentData.commentId;
+              window.location.href = window.location.pathname + `#comment-${newCommentId}`;
+               // window.location.reload() 대신 href 변경 사용 (해시 포함 시)
           } else {
-              setComment("");
+               // 새 댓글/답글 ID를 받지 못한 경우 일반 새로고침
+               window.location.reload();
           }
-
 
       } catch (error) {
           console.error('댓글 작성 중 오류:', error);
@@ -805,7 +832,7 @@ useEffect(() => {
           <div className={styles.commentSection}>
               <div className={styles.commentList}>
                   {comments.map((c) => (
-                      <div key={c.id} className={styles.commentItem}>
+                      <div key={c.id} id={`comment-${c.id}`} className={styles.commentItem}>
                           {/* 부모 댓글 렌더링 */}
                           <div className={styles.commentTop}>
                               <div className={styles.commentProfile}>
@@ -906,8 +933,16 @@ useEffect(() => {
                                       placeholder="답글을 입력하세요"
                                       ref={commentInputRef}
                                   />
-                                  <button className={styles.sendBtn} onClick={handleAddComment}>
-                                      <img src={`${process.env.PUBLIC_URL}/Button/paperplane.png`} alt="전송" width="24" />
+                                  <button 
+                                      className={styles.sendBtn} 
+                                      onClick={handleAddComment}
+                                      disabled={isSubmitting}
+                                  >
+                                      <img 
+                                          src={`${process.env.PUBLIC_URL}/Button/paperplane.png`} 
+                                          alt="전송" 
+                                          width={24}
+                                      />
                                   </button>
                               </div>
                           )}
@@ -915,7 +950,7 @@ useEffect(() => {
                           {/* 대댓글 목록 */}
                           <div className={styles.replySection}>
                               {c.replies && c.replies.map(r => (
-                                  <div key={r.id} className={styles.replyItem}>
+                                  <div key={r.id} id={`comment-${r.id}`} className={styles.replyItem}>
                                       <div className={styles.replyRow}>
                                           <div className={styles.commentProfile}>
                                               <img 
@@ -990,8 +1025,16 @@ useEffect(() => {
                           onChange={e => setComment(e.target.value)}
                           placeholder="댓글을 남겨보세요"
                       />
-                      <button className={styles.sendBtn} onClick={handleAddComment}>
-                          <img src={`${process.env.PUBLIC_URL}/Button/paperplane.png`} alt="전송" width={24}/>
+                      <button 
+                          className={styles.sendBtn} 
+                          onClick={handleAddComment}
+                          disabled={isSubmitting}
+                      >
+                          <img 
+                              src={`${process.env.PUBLIC_URL}/Button/paperplane.png`} 
+                              alt="전송" 
+                              width={24}
+                          />
                       </button>
                   </div>
               )}
