@@ -27,7 +27,7 @@ import Community from '../pages/Community/Community';
 
 function AppRouter() {
     return (
-        <Router>
+        // <Router>
             <Routes>
                 {/* 로그인 & 회원가입 */}
                 <Route path="/" element={<Splash/>}/>
@@ -107,7 +107,7 @@ function AppRouter() {
                     <Route index element={<DiaryDetail/>}/>
                 </Route>
             </Routes>
-        </Router>
+        // </Router>
     );
 }
 
