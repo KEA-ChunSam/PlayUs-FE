@@ -81,7 +81,11 @@ const PostDetail = () => {
         );
         let postData = { ...res.data, id: res.data.postId || res.data.id };
 
-        console.log('1. 백엔드로부터 받은 원본 postData (댓글 포함):', res.data); // 1. 백엔드 원본 데이터 확인
+        console.log('=== 댓글 데이터 디버깅 ===');
+        console.log('1. 백엔드로부터 받은 원본 postData:', res.data);
+        console.log('2. 댓글 배열 존재 여부:', !!postData.comments);
+        console.log('3. 댓글 배열 타입:', Array.isArray(postData.comments) ? 'Array' : typeof postData.comments);
+        console.log('4. 댓글 개수:', postData.comments?.length || 0);
 
         // User#숫자 처리
         const match = postData.writerNickname && postData.writerNickname.match(/^User#(\d+)$/);
@@ -103,112 +107,107 @@ const PostDetail = () => {
 
         // 댓글 데이터 구조화 (commentGroupId를 기준으로 그룹화하고 각 그룹의 첫 댓글을 부모로 간주)
         if (postData.comments && Array.isArray(postData.comments)) {
-            console.log('2. 댓글 구조화 시작 전 원본 댓글 배열:', postData.comments); // 2. 구조화 전 배열 확인
-
-            // 1차 순회: commentGroupId 별로 댓글 그룹화 및 닉네임 처리
+            console.log('5. 댓글 구조화 시작 전 원본 댓글 배열:', postData.comments);
+            
+            // 1차 순회: 댓글과 답글 처리
             const fetchNicknamePromises = postData.comments.map(async comment => {
-                const commentId = comment.id || comment.commentId;
+                const commentId = comment.commentId || comment.id;
                 const commentGroupId = comment.commentGroupId;
 
-                 if (commentId === undefined || commentId === null || commentGroupId === undefined || commentGroupId === null) {
-                    console.warn('댓글에 필수 필드(id, commentGroupId)가 없습니다:', comment);
-                    return null; // 필수 필드가 없는 댓글은 건너뛰고 null 반환
+                if (commentId === undefined || commentId === null) {
+                    console.warn('댓글에 필수 필드(id)가 없습니다:', comment);
+                    return null;
                 }
 
-                let writerNickname = comment.writerNickname || comment.author; // 백엔드 필드 사용
-                let authorId = comment.writerId || comment.authorId; // 백엔드 필드 사용
+                let writerNickname = comment.writerNickname || comment.author;
+                let authorId = comment.writerId || comment.authorId;
 
                 // writerNickname이 User#숫자 형태인지 확인하고 실제 닉네임 가져오기
                 const match = writerNickname && String(writerNickname).match(/^User#(\d+)$/);
                 if (match) {
                     const idFromNickname = match[1];
-                    authorId = authorId || idFromNickname; // writerId가 없으면 User#숫자의 숫자를 authorId로 사용
+                    authorId = authorId || idFromNickname;
                     if (authorId) {
-                         try {
+                        try {
                             const userRes = await axios.get(
                                 `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile/${authorId}`,
                                 { withCredentials: true }
                             );
-                            writerNickname = userRes.data.nickname; // 실제 닉네임으로 업데이트
+                            writerNickname = userRes.data.nickname;
                         } catch (e) {
                             console.error(`댓글 작성자 프로필 API 실패 (ID: ${authorId}):`, e);
-                            // 실패 시 기존 User#숫자 형태 유지
                         }
                     }
                 }
 
+                // 답글들도 같은 방식으로 처리
+                const processedReComments = await Promise.all((comment.reComments || []).map(async reComment => {
+                    let reWriterNickname = reComment.writerNickname;
+                    let reAuthorId = reComment.writerId;
+
+                    const reMatch = reWriterNickname && String(reWriterNickname).match(/^User#(\d+)$/);
+                    if (reMatch) {
+                        const reIdFromNickname = reMatch[1];
+                        reAuthorId = reAuthorId || reIdFromNickname;
+                        if (reAuthorId) {
+                            try {
+                                const userRes = await axios.get(
+                                    `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile/${reAuthorId}`,
+                                    { withCredentials: true }
+                                );
+                                reWriterNickname = userRes.data.nickname;
+                            } catch (e) {
+                                console.error(`답글 작성자 프로필 API 실패 (ID: ${reAuthorId}):`, e);
+                            }
+                        }
+                    }
+
+                    return {
+                        ...reComment,
+                        id: reComment.reCommentId,
+                        author: reWriterNickname,
+                        authorId: reAuthorId,
+                        content: reComment.content || reComment.body || reComment.text || '',
+                        time: reComment.time
+                    };
+                }));
+
                 const processedComment = {
-                    ...comment, // 원본 필드 복사
+                    ...comment,
                     id: commentId,
                     commentGroupId: commentGroupId,
-                    // 필요한 다른 필드 매핑 (postId, content 등)
                     postId: comment.postId || Number(postId),
                     content: comment.content || comment.body || comment.text || '',
-                    author: writerNickname, // 업데이트된 닉네임 사용
-                    authorId: authorId,     // authorId 사용
+                    author: writerNickname,
+                    authorId: authorId,
                     time: comment.time,
-                    replies: [] // replies 배열 초기화
+                    replies: processedReComments // 처리된 답글들
                 };
 
-                return processedComment; // 처리된 댓글 객체 반환
+                return processedComment;
             });
 
             // 모든 닉네임 정보가 로딩될 때까지 대기
-            const processedComments = (await Promise.all(fetchNicknamePromises)).filter(comment => comment !== null); // null 필터링
+            const processedComments = (await Promise.all(fetchNicknamePromises)).filter(comment => comment !== null);
 
-            // commentGroupId 별로 댓글 그룹화
-            const commentsByGroup = new Map(); // commentGroupId -> [comments in this group] 매핑
-            const structuredComments = []; // 최종 구조화될 댓글 목록 (부모 댓글만 포함)
+            console.log('11. 최종 처리된 댓글 데이터:', processedComments.map(c => ({
+                id: c.id,
+                content: c.content,
+                답글수: c.replies.length,
+                답글들: c.replies.map(r => ({ id: r.id, content: r.content }))
+            })));
 
-            processedComments.forEach(comment => {
-                const commentGroupId = comment.commentGroupId;
-                 if (!commentsByGroup.has(commentGroupId)) {
-                    commentsByGroup.set(commentGroupId, []);
-                }
-                commentsByGroup.get(commentGroupId).push(comment);
-            });
-
-            // 2차 순회: 각 그룹 내에서 부모와 자식 구분 및 연결
-            commentsByGroup.forEach(commentGroup => {
-                // commentGroup 배열의 첫 번째 댓글을 부모 댓글로 간주
-                const parentCommentCandidate = commentGroup[0];
-
-                if (parentCommentCandidate) {
-                    // 부모 댓글 후보를 구조화된 목록에 추가
-                    const parentComment = {
-                        ...parentCommentCandidate,
-                        replies: [] // 부모 댓글의 replies 초기화
-                    };
-                    structuredComments.push(parentComment);
-
-                    // 나머지 댓글들을 해당 부모의 답글로 연결
-                    for (let i = 1; i < commentGroup.length; i++) {
-                        parentComment.replies.push(commentGroup[i]);
-                    }
-                } else {
-                    console.warn('댓글 그룹에 댓글이 없습니다:', commentGroup);
-                }
-                 // 각 그룹 내 답글들은 필요시 시간 순 등으로 정렬 가능 (현재는 백엔드에서 넘어온 순서 유지)
-                 // parentComment.replies.sort((a, b) => new Date(a.time) - new Date(b.time));
-            });
-
-            // 최종 구조화된 댓글 목록 (부모 댓글 목록)을 원래 댓글 배열처럼 보이게
-            // commentGroupId 또는 부모 댓글의 ID/시간 기준으로 정렬
-            const finalStructuredComments = structuredComments.sort((a, b) => (a.commentGroupId || 0) - (b.commentGroupId || 0)); // commentGroupId 기준으로 정렬 (필요시 time 등으로 변경)
-
-
-            console.log('3. 프론트 구조화된 최종 댓글 데이터 (setComments에 전달될 값):', finalStructuredComments); // 3. 구조화 후 배열 확인
-            postData.comments = finalStructuredComments; // 구조화된 목록으로 교체
-
+            postData.comments = processedComments;
         } else {
-             console.log('백엔드 응답에 comments 배열이 없거나 Array가 아닙니다.'); // comments 배열이 없는 경우
-             postData.comments = []; // comments가 없으면 빈 배열로 설정
+            console.log('12. 댓글 데이터가 없거나 배열이 아님');
+            postData.comments = [];
         }
 
         setPost(postData);
-        setComments(postData.comments || []); // 받은 (구조화된) 데이터로 무조건 상태 업데이트, 없으면 빈 배열
+        setComments(postData.comments || []);
 
-        console.log('4. fetchPost 완료 - setComments 호출됨'); // 4. setComments 호출 확인
+        console.log('13. 상태 업데이트 완료 - comments 길이:', postData.comments.length);
+        console.log('=== 댓글 데이터 디버깅 종료 ===');
 
     } catch (error) {
         console.error('Error fetching post:', error);
@@ -266,28 +265,16 @@ useEffect(() => {
           };
 
           if (replyTo !== null && replyTo !== undefined && replyTo !== '') {
-              const parentComment = comments.find(c => String(c.id) === String(replyTo)); // 구조화된 comments에서 부모 찾기
-              console.log('답글 작성 - 부모 댓글 정보:', {
-                  replyTo,
-                  parentComment,
-                  found: !!parentComment,
-                  commentGroupId: parentComment?.commentGroupId // 부모의 commentGroupId 사용
-              });
-              if (parentComment?.commentGroupId) {
-                  payload.commentGroupId = Number(parentComment.commentGroupId);
+              const parentComment = comments.find(c => String(c.id) === String(replyTo));
+              if (parentComment) {
+                  // commentGroupId 대신 부모 댓글의 id를 전달
+                  payload.commentGroupId = Number(parentComment.id);
               } else {
-                  console.error('답글 작성 실패 - 부모 댓글의 commentGroupId를 찾을 수 없음');
+                  console.error('답글 작성 실패 - 부모 댓글을 찾을 수 없음');
                   alert('답글 작성에 실패했습니다. 페이지를 새로고침 후 다시 시도해주세요.');
                   return;
               }
-          } else {
-              // 일반 댓글인 경우, commentGroupId를 백엔드에서 생성하도록 payload에서 제외
-              // payload에 commentGroupId를 포함하면 백엔드에서 기존 그룹에 추가하려 할 수 있음
-              // 백엔드에서 일반 댓글 저장 시 새로운 commentGroupId를 생성해야 함.
-              // payload.commentGroupId = null; // 명시적으로 null 전달 시도 (백엔드 API에 따라 다름)
-              delete payload.commentGroupId; // payload에서 제거하여 백엔드에서 새로 생성하도록 유도
           }
-
 
           const requestUrl = `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment`;
           console.log('실제 요청 URL:', requestUrl);
@@ -418,77 +405,87 @@ useEffect(() => {
       console.log('handleDeleteComment - 삭제 시도 Comment ID:', commentId);
       if (!window.confirm('댓글을 삭제하시겠습니까?')) return;
       try {
-          let targetComment = null;
-          // 부모 댓글 중에서 찾기
-          targetComment = comments.find(c => String(c.id) === String(commentId));
-          // 부모 댓글이 아니면 대댓글 중에서 찾기
-          if (!targetComment) {
-              for (const c of comments) {
-                  targetComment = c.replies?.find(r => String(r.id) === String(commentId));
-                  if (targetComment) {
-                      break;
-                  }
+          // 부모 댓글인지 답글인지 확인
+          const parentComment = comments.find(c => String(c.id) === String(commentId));
+          const isParentComment = !!parentComment;
+
+          if (!isParentComment) {
+              // 답글인 경우, 부모 댓글 찾기
+              const parentWithReply = comments.find(c => 
+                  c.replies && c.replies.some(r => String(r.id) === String(commentId))
+              );
+              
+              if (!parentWithReply) {
+                  console.error('삭제하려는 댓글/대댓글을 찾을 수 없음:', commentId);
+                  alert('댓글을 찾을 수 없습니다.');
+                  return;
               }
-          }
 
-          if (!targetComment) {
-              console.error('삭제하려는 댓글/대댓글을 찾을 수 없음:', commentId);
-              alert('댓글을 찾을 수 없습니다.');
-              return;
-          }
-
-          if (!targetComment.commentGroupId) {
-              throw new Error('댓글 그룹 ID를 찾을 수 없습니다.');
-          }
-
-          const payload = {
-              commentId: Number(commentId),
-              commentGroupId: Number(targetComment.commentGroupId), // 찾은 댓글의 commentGroupId 사용
-            
-          };
-          await axios.patch(
-              `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment/${commentId}`,
-              payload,
-              {
-                  withCredentials: true,
-                  headers: {
-                      'Content-Type': 'application/json'
-                  }
+              const targetReply = parentWithReply.replies.find(r => String(r.id) === String(commentId));
+              if (!targetReply) {
+                  console.error('답글을 찾을 수 없음:', commentId);
+                  return;
               }
-          );
 
-          // 상태 직접 업데이트 (재조회 없이)
-          setComments(prevComments =>
-              prevComments.reduce((acc, comment) => {
-                  if (String(comment.id) === String(commentId)) {
-                      // 부모 댓글 삭제: 해당 댓글 그룹 전체를 제거
-                      // 해당 댓글(comment)을 acc에 추가하지 않음으로써 삭제 효과
-                      return acc;
-                  }
-                  if (comment.replies) {
-                      // 대댓글 삭제: 해당 대댓글만 replies 배열에서 제거
-                      const initialReplyCount = comment.replies.length;
-                      const updatedReplies = comment.replies.filter(reply => String(reply.id) !== String(commentId));
+              const payload = {
+                  commentId: Number(commentId),
+                  commentGroupId: Number(targetReply.commentGroupId)
+              };
 
-                      if (updatedReplies.length !== initialReplyCount) {
-                           // 대댓글이 삭제되었으면 부모 댓글 객체를 업데이트된 replies와 함께 추가
-                           acc.push({ ...comment, replies: updatedReplies });
-                      } else {
-                           // 현재 comment의 replies에 삭제하려는 대댓글이 없었으면 comment 객체 그대로 추가
-                           acc.push(comment);
+              await axios.patch(
+                  `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment/${commentId}`,
+                  payload,
+                  {
+                      withCredentials: true,
+                      headers: {
+                          'Content-Type': 'application/json'
                       }
-                       return acc;
                   }
-                   // replies가 없는 부모 댓글 (구조화 로직 상 이 경우는 없어야 함)
-                   // 혹시나 있다면 그대로 추가
-                   acc.push(comment);
-                   return acc;
+              );
 
-              }, []) // 초기값 빈 배열
-          );
+              // 상태 업데이트 - 답글만 제거
+              setComments(prevComments =>
+                  prevComments.map(comment => {
+                      if (String(comment.id) === String(parentWithReply.id)) {
+                          return {
+                              ...comment,
+                              replies: comment.replies.filter(reply => String(reply.id) !== String(commentId))
+                          };
+                      }
+                      return comment;
+                  })
+              );
+
+          } else {
+              // 부모 댓글인 경우 기존 로직 유지
+              if (!parentComment.commentGroupId) {
+                  throw new Error('댓글 그룹 ID를 찾을 수 없습니다.');
+              }
+
+              const payload = {
+                  commentId: Number(commentId),
+                  commentGroupId: Number(parentComment.commentGroupId)
+              };
+
+              await axios.patch(
+                  `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment/${commentId}`,
+                  payload,
+                  {
+                      withCredentials: true,
+                      headers: {
+                          'Content-Type': 'application/json'
+                      }
+                  }
+              );
+
+              // 상태 업데이트 - 부모 댓글과 그 답글들 모두 제거
+              setComments(prevComments =>
+                  prevComments.filter(comment => String(comment.id) !== String(commentId))
+              );
+          }
 
           setShowCommentMenu(null);
-          setShowReplyMenu(null); // 대댓글 메뉴도 닫음
+          setShowReplyMenu(null);
           console.log('handleDeleteComment - 댓글 삭제 성공 (클라이언트 상태 업데이트 완료): ID', commentId);
 
       } catch (error) {
