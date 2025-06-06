@@ -4,6 +4,7 @@
   max-width: 490px;
   margin: 0 auto;
   padding-top: 20px;
+  padding-bottom: 80px;
 }
 
 .topBar {
@@ -157,13 +158,16 @@
   padding-bottom: 18px;
 }
 .commentSection {
+  position: relative;
   margin-top: 18px;
   padding: 0 2px;
+  padding-bottom: 70px;
 }
 .commentList {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  margin-bottom: 20px;
 }
 .commentItem {
   border-bottom: 2px solid #e0e0e0;
@@ -250,28 +254,42 @@
   background: #0052a3;
 }
 .commentInputBox {
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 490px;
+  background-color: white;
+  padding: 10px 20px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  border-top: 1.5px solid #e5e5e5;
-  padding: 12px 0 0 0;
-  margin-top: 18px;
-  background: #fff;
+  gap: 10px;
+  border-top: 1px solid #eee;
+  z-index: 1000;
+  box-sizing: border-box;
 }
 .commentInput {
   flex: 1;
+  padding: 12px;
   border: 1px solid #ddd;
-  border-radius: 18px;
-  padding: 8px 16px;
-  font-size: 1rem;
-  outline: none;
+  border-radius: 20px;
+  font-size: 14px;
   background: #f6f8fa;
 }
 .sendBtn {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0 4px;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+}
+.sendBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .replySection {
   margin-left: 24px;
@@ -470,4 +488,42 @@
   gap: 8px;
   margin-left: auto;
   position: relative;
+}
+
+.replyInputBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 32px;
+  margin-top: 8px;
+  padding: 0 10px;
+}
+
+.replyInputBox .commentInput {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 14px;
+  background: #f6f8fa;
+}
+
+.replyInputBox .sendBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+}
+
+.replyInputBox .sendBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.replyWriteRow {
+  text-align: right;
 } 
