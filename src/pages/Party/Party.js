@@ -41,9 +41,9 @@ const Party = () => {
                 const matchesRes = await axios.get(
                     `${process.env.REACT_APP_AI_API_BASE}/matches`,
                     {
-                        headers: { Authorization: `Bearer ${token}` },
+                        headers: {Authorization: `Bearer ${token}`},
                         withCredentials: true,
-                        params: { date: gameDate }
+                        params: {date: gameDate}
                     }
                 );
 
@@ -73,7 +73,7 @@ const Party = () => {
                 const response = await axios.get(
                     `${process.env.REACT_APP_AI_API_BASE}/match/${gameId}`,
                     {
-                        headers: { Authorization: `Bearer ${token}` },
+                        headers: {Authorization: `Bearer ${token}`},
                         withCredentials: true
                     }
                 );
@@ -95,6 +95,7 @@ const Party = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showApproveModal, setShowApproveModal] = useState(false);
     const [showDenyModal, setShowDenyModal] = useState(false);
+    const [showEndModal, setShowEndModal] = useState(false);
     const [selectedApplicantUserId, setSelectedApplicantUserId] = useState(null);
     const [showCasterbot, setShowCasterbot] = useState(false);
     const [approvalList, setApprovalList] = useState([]);
@@ -147,9 +148,9 @@ const Party = () => {
                     const matchRes = await axios.get(
                         `${process.env.REACT_APP_AI_API_BASE}/matches`,
                         {
-                            headers: { Authorization: `Bearer ${token}` },
+                            headers: {Authorization: `Bearer ${token}`},
                             withCredentials: true,
-                            params: { date: today }
+                            params: {date: today}
                         }
                     );
 
@@ -158,7 +159,7 @@ const Party = () => {
 
                     for (const matchId of matchIds) {
                         const partyListRes = await axios.get(`${twpBase}/party`, {
-                            params: { matchId, deletedAt: null },
+                            params: {matchId, deletedAt: null},
                             withCredentials: true
                         });
 
@@ -437,14 +438,15 @@ const Party = () => {
                                     <div className={styles.myStatusCard}>
                                         <div className={styles.myStatusCardContent}>
                                             <div className={styles.myStatusTagRow}>
-                                              <div className={styles.tagGroup}>
-                                                {myApprovalPartyDetail.partyAges?.map((tag, index) => (
-                                                  <span key={index}
-                                                        className={`${styles.tag} ${index === 2 ? styles.tagHighlight : ''}`}>{tag}</span>
-                                                ))}
-                                                <span className={styles.tagHighlight}>{myApprovalPartyDetail.availableGender}</span>
-                                              </div>
-                                              {/*<div className={styles.terminatedBadge}>직관팟 종료</div>*/}
+                                                <div className={styles.tagGroup}>
+                                                    {myApprovalPartyDetail.partyAges?.map((tag, index) => (
+                                                        <span key={index}
+                                                              className={`${styles.tag} ${index === 2 ? styles.tagHighlight : ''}`}>{tag}</span>
+                                                    ))}
+                                                    <span
+                                                        className={styles.tagHighlight}>{myApprovalPartyDetail.availableGender}</span>
+                                                </div>
+                                                {/*<div className={styles.terminatedBadge}>직관팟 종료</div>*/}
                                             </div>
                                             <div className={styles.myStatusTitle}>
                                                 <strong>{myApprovalPartyDetail.title}</strong>
@@ -530,7 +532,8 @@ const Party = () => {
                                                                         <button
                                                                             className={styles.statusApproved}
                                                                             onClick={() => {
-                                                                                navigate(`/review/party/${party.partyId}`)}}
+                                                                                navigate(`/review/party/${party.partyId}`)
+                                                                            }}
                                                                         >
                                                                             후기 작성
                                                                         </button>
@@ -574,31 +577,17 @@ const Party = () => {
                                             <span
                                                 className={`${styles.tag} ${styles.tagHighlight}`}>{myApprovalPartyDetail.availableGender}</span>
                                             {!myApprovalPartyDetail?.isEnded && (
-                                              <div className={styles.terminateButtonWrapper}>
-                                                <button
-                                                  className={styles.terminateButton}
-                                                  onClick={async (e) => {
-                                                    e.stopPropagation();
-                                                    try {
-                                                      await axios.patch(
-                                                        `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${myApprovalPartyDetail.partyId}/end`,
-                                                        {},
-                                                        { withCredentials: true }
-                                                      );
-                                                      alert("직관팟이 종료되었습니다.");
-                                                      setMyApprovalPartyDetail(prev => ({
-                                                        ...prev,
-                                                        isEnded: true
-                                                      }));
-                                                    } catch (err) {
-                                                      console.error("직관팟 종료 실패:", err);
-                                                      alert("직관팟 종료에 실패했습니다.");
-                                                    }
-                                                  }}
-                                                >
-                                                  직관팟 종료
-                                                </button>
-                                              </div>
+                                                <div className={styles.terminateButtonWrapper}>
+                                                    <button
+                                                        className={styles.terminateButton}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setShowEndModal(true);
+                                                        }}
+                                                    >
+                                                        직관팟 종료
+                                                    </button>
+                                                </div>
                                             )}
                                         </div>
                                         <div className={styles.partyTitle}>{myApprovalPartyDetail.title}</div>
@@ -856,6 +845,34 @@ const Party = () => {
                                     setApprovalList(res.data);
                                 } catch (err) {
                                     console.error("거부 요청 처리 실패:", err);
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    show: showEndModal,
+                    title: '직관팟 종료',
+                    message: '직관팟을 종료하시겠습니까?',
+                    buttons: [
+                        {label: '취소', onClick: () => setShowEndModal(false)},
+                        {
+                            label: '확인',
+                            onClick: async () => {
+                                try {
+                                    await axios.patch(
+                                        `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${myApprovalPartyDetail.partyId}/end`,
+                                        {},
+                                        {withCredentials: true}
+                                    );
+                                    setMyApprovalPartyDetail(prev => ({
+                                        ...prev,
+                                        isEnded: true
+                                    }));
+                                } catch (err) {
+                                    console.error("직관팟 종료 실패:", err);
+                                } finally {
+                                    setShowEndModal(false);
                                 }
                             }
                         }
