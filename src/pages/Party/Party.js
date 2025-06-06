@@ -437,11 +437,14 @@ const Party = () => {
                                     <div className={styles.myStatusCard}>
                                         <div className={styles.myStatusCardContent}>
                                             <div className={styles.myStatusTagRow}>
+                                              <div className={styles.tagGroup}>
                                                 {myApprovalPartyDetail.partyAges?.map((tag, index) => (
-                                                    <span key={index}
-                                                          className={`${styles.tag} ${index === 2 ? styles.tagHighlight : ''}`}>{tag}</span>
+                                                  <span key={index}
+                                                        className={`${styles.tag} ${index === 2 ? styles.tagHighlight : ''}`}>{tag}</span>
                                                 ))}
                                                 <span className={styles.tagHighlight}>{myApprovalPartyDetail.availableGender}</span>
+                                              </div>
+                                              <div className={styles.terminatedBadge}>직관팟 종료</div>
                                             </div>
                                             <div className={styles.myStatusTitle}>
                                                 <strong>{myApprovalPartyDetail.title}</strong>
@@ -570,11 +573,12 @@ const Party = () => {
                                             ))}
                                             <span
                                                 className={`${styles.tag} ${styles.tagHighlight}`}>{myApprovalPartyDetail.availableGender}</span>
-                                            <div className={styles.terminateButtonWrapper}>
-                                              {!myApprovalPartyDetail?.isEnded && (
+                                            {!myApprovalPartyDetail?.isEnded && (
+                                              <div className={styles.terminateButtonWrapper}>
                                                 <button
                                                   className={styles.terminateButton}
-                                                  onClick={async () => {
+                                                  onClick={async (e) => {
+                                                    e.stopPropagation();
                                                     try {
                                                       await axios.patch(
                                                         `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${myApprovalPartyDetail.partyId}/end`,
@@ -594,8 +598,8 @@ const Party = () => {
                                                 >
                                                   직관팟 종료
                                                 </button>
-                                              )}
-                                            </div>
+                                              </div>
+                                            )}
                                         </div>
                                         <div className={styles.partyTitle}>{myApprovalPartyDetail.title}</div>
                                         <div className={styles.partyMeta}>

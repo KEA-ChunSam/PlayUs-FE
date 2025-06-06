@@ -207,6 +207,8 @@
 }
 
 .terminateButtonWrapper {
+    display: flex;
+    align-items: center;
     margin-left: auto;
 }
 
@@ -215,8 +217,9 @@
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 500;
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: background-color 0.2s ease;
@@ -228,6 +231,9 @@
 
 .tags {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
     gap: 0.5rem;
     margin-bottom: 0.3rem;
 }
@@ -385,6 +391,11 @@
 .myStatusList {
     padding: 1rem;
 }
+.tagGroup {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
 
 .myStatusCard {
     background-color: #f9f9f9;
@@ -398,7 +409,8 @@
 
 .myStatusTagRow {
     display: flex;
-    gap: 0.5rem;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 0.3rem;
 }
 
