@@ -17,11 +17,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <ReactQueryProvider>
         <HashRouter>
             <AuthProvider>
-                <SearchProvider>
                     <div className="fullscreen-container">
                         <AppRouter />
                     </div>
-                </SearchProvider>
             </AuthProvider>
         </HashRouter>
     </ReactQueryProvider>
