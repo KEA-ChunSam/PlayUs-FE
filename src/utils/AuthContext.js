@@ -24,6 +24,7 @@ export const AuthProvider = ({ children }) => {
                         return axios(originalRequest);
                     } catch (e) {
                         console.warn("❌ AccessToken 재발급 실패:", e);
+                        setUser(null);
                         navigate("/login");
                         return Promise.reject(error);
                     }

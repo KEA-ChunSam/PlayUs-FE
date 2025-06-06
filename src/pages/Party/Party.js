@@ -155,7 +155,6 @@ const Party = () => {
                     );
 
                     const matchIds = matchRes.data.map(m => m.match_id);
-                    console.log("🕵️ matchId loop", matchIds);
 
                     for (const matchId of matchIds) {
                         const partyListRes = await axios.get(`${twpBase}/party`, {
@@ -166,8 +165,6 @@ const Party = () => {
                         const myParties = partyListRes.data.filter(
                             (p) => p.writerId === loginUserId
                         );
-
-                        console.log("🔍 내 팟 찾은 결과:", myParties);
 
                         if (myParties.length > 0) {
                             const partyId = myParties[0].partyId;
