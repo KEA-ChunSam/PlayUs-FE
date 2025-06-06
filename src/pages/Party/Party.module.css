@@ -206,6 +206,26 @@
     flex: 1;
 }
 
+.terminateButtonWrapper {
+    margin-left: auto;
+}
+
+.terminateButton {
+    background-color: #ff4f4f;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: background-color 0.2s ease;
+}
+
+.terminateButton:hover {
+    background-color: #e04040;
+}
+
 .tags {
     display: flex;
     gap: 0.5rem;

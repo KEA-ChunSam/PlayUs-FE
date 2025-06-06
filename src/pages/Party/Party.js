@@ -132,6 +132,70 @@ const Party = () => {
     }, [partyList]);
 
     useEffect(() => {
+        if (activeTab === 2 && loginUserId) {
+            const fetchMyApprovalPartyDetail = async () => {
+                console.log("🔥 activeTab === 2 진입");
+
+                try {
+                    const twpBase = process.env.REACT_APP_LOCAL_BACKEND_TWP_URI;
+                    const token = document.cookie
+                        .split("; ")
+                        .find((row) => row.startsWith("Access="))
+                        ?.split("=")[1];
+                    const today = new Date().toISOString().split("T")[0];
+
+                    const matchRes = await axios.get(
+                        `${process.env.REACT_APP_AI_API_BASE}/matches`,
+                        {
+                            headers: { Authorization: `Bearer ${token}` },
+                            withCredentials: true,
+                            params: { date: today }
+                        }
+                    );
+
+                    const matchIds = matchRes.data.map(m => m.match_id);
+                    console.log("🕵️ matchId loop", matchIds);
+
+                    for (const matchId of matchIds) {
+                        const partyListRes = await axios.get(`${twpBase}/party`, {
+                            params: { matchId, deletedAt: null },
+                            withCredentials: true
+                        });
+
+                        const myParties = partyListRes.data.filter(
+                            (p) => p.writerId === loginUserId
+                        );
+
+                        console.log("🔍 내 팟 찾은 결과:", myParties);
+
+                        if (myParties.length > 0) {
+                            const partyId = myParties[0].partyId;
+                            const detailRes = await axios.get(`${twpBase}/party/${partyId}`, {
+                                withCredentials: true
+                            });
+
+                            setMyApprovalPartyDetail(detailRes.data);
+
+                            const applicantsRes = await axios.get(`${twpBase}/party/${partyId}/approved-applicants`, {
+                                withCredentials: true
+                            });
+                            setApprovalList(applicantsRes.data);
+                            return;
+                        }
+                    }
+
+                    setMyApprovalPartyDetail(null);
+                    setApprovalList([]);
+                } catch (err) {
+                    console.error("내가 승인한 직관팟 정보 조회 실패:", err);
+                }
+            };
+
+            fetchMyApprovalPartyDetail();
+        }
+    }, [activeTab, loginUserId]);
+
+    useEffect(() => {
         if (activeTab === 0 && matchId) {
             axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party?matchId=${matchId}`, {
                 withCredentials: true
@@ -173,6 +237,11 @@ const Party = () => {
             }
         }
     }, [activeTab, matchId]);
+
+    // Log myApprovalPartyDetail whenever it updates
+    useEffect(() => {
+        console.log("📦 myApprovalPartyDetail 상태:", myApprovalPartyDetail);
+    }, [myApprovalPartyDetail]);
 
     const mapStatusToKey = (status) => {
         switch (status) {
@@ -363,6 +432,43 @@ const Party = () => {
                     {activeTab === 1 && (
                         <div className={styles.approvalSection}>
                             <div className={styles.myStatusList}>
+                                {/* Render my ended approval party card if exists */}
+                                {myApprovalPartyDetail?.isEnded && (
+                                    <div className={styles.myStatusCard}>
+                                        <div className={styles.myStatusCardContent}>
+                                            <div className={styles.myStatusTagRow}>
+                                                {myApprovalPartyDetail.partyAges?.map((tag, index) => (
+                                                    <span key={index}
+                                                          className={`${styles.tag} ${index === 2 ? styles.tagHighlight : ''}`}>{tag}</span>
+                                                ))}
+                                                <span className={styles.tagHighlight}>{myApprovalPartyDetail.availableGender}</span>
+                                            </div>
+                                            <div className={styles.myStatusTitle}>
+                                                <strong>{myApprovalPartyDetail.title}</strong>
+                                            </div>
+                                            <div className={styles.myStatusMeta}>
+                                                <span>{myApprovalPartyDetail.authorName}</span>
+                                                <span>{myApprovalPartyDetail.authorAge}</span>
+                                                <span>{myApprovalPartyDetail.authorGender === 'MALE' ? '남성' : myApprovalPartyDetail.authorGender === 'FEMALE' ? '여성' : '기타'}</span>
+                                            </div>
+                                            <div className={styles.myStatusButtons}>
+                                                <button
+                                                    className={styles.statusApproved}
+                                                    onClick={() => {
+                                                        navigate(`/review/party/${myApprovalPartyDetail.partyId}`);
+                                                    }}
+                                                >
+                                                    후기 작성
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <img
+                                            src={myApprovalPartyDetail.partyThumbnailUrls?.[0] || `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
+                                            alt="썸네일"
+                                            className={styles.thumbnailImg}
+                                        />
+                                    </div>
+                                )}
                                 {myApplications.map((party, idx) => {
                                     const statusKey = mapStatusToKey(party.partyJoinRequestStatus);
                                     return (
@@ -417,13 +523,15 @@ const Party = () => {
                                                                     >
                                                                         채팅방 입장!
                                                                     </button>
-                                                                    <button
-                                                                        className={styles.statusApproved}
-                                                                        onClick={() => {
-                                                                            navigate(`/review/party/${party.partyId}`)}}
-                                                                    >
-                                                                        후기 작성
-                                                                    </button>
+                                                                    {party.isEnded && (
+                                                                        <button
+                                                                            className={styles.statusApproved}
+                                                                            onClick={() => {
+                                                                                navigate(`/review/party/${party.partyId}`)}}
+                                                                        >
+                                                                            후기 작성
+                                                                        </button>
+                                                                    )}
                                                                     <span className={styles.newChatCount}>1</span>
                                                                 </>
                                                             )}
@@ -462,6 +570,32 @@ const Party = () => {
                                             ))}
                                             <span
                                                 className={`${styles.tag} ${styles.tagHighlight}`}>{myApprovalPartyDetail.availableGender}</span>
+                                            <div className={styles.terminateButtonWrapper}>
+                                              {!myApprovalPartyDetail?.isEnded && (
+                                                <button
+                                                  className={styles.terminateButton}
+                                                  onClick={async () => {
+                                                    try {
+                                                      await axios.patch(
+                                                        `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${myApprovalPartyDetail.partyId}/end`,
+                                                        {},
+                                                        { withCredentials: true }
+                                                      );
+                                                      alert("직관팟이 종료되었습니다.");
+                                                      setMyApprovalPartyDetail(prev => ({
+                                                        ...prev,
+                                                        isEnded: true
+                                                      }));
+                                                    } catch (err) {
+                                                      console.error("직관팟 종료 실패:", err);
+                                                      alert("직관팟 종료에 실패했습니다.");
+                                                    }
+                                                  }}
+                                                >
+                                                  직관팟 종료
+                                                </button>
+                                              )}
+                                            </div>
                                         </div>
                                         <div className={styles.partyTitle}>{myApprovalPartyDetail.title}</div>
                                         <div className={styles.partyMeta}>

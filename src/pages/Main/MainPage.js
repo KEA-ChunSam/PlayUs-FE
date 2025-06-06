@@ -101,13 +101,12 @@ export default function MainPage() {
         fetchUserProfileAndFavorites();
     }, []);
 
-    useEffect(() => {
+useEffect(() => {
+    if (loginUserId) {
         const fetchMyApprovalPartyDetail = async () => {
-            if (!loginUserId) return;
             try {
                 const twpBase = process.env.REACT_APP_LOCAL_BACKEND_TWP_URI;
 
-                // 1. 오늘 날짜 기반 경기 정보 가져오기
                 const token = document.cookie
                     .split("; ")
                     .find((row) => row.startsWith("Access="))
@@ -123,10 +122,8 @@ export default function MainPage() {
                     }
                 );
 
-                // 2. 내가 참여 중인 팟을 가져오기 위한 matchId 목록 추출
                 const matchIds = matchRes.data.map(match => match.match_id);
 
-                // 3. 각 matchId에 대해 팟 목록을 가져오고, 내가 쓴 팟 필터링
                 for (const matchId of matchIds) {
                     const partyListRes = await axios.get(`${twpBase}/party`, {
                         params: { matchId, deletedAt: null },
@@ -142,17 +139,22 @@ export default function MainPage() {
                         const detailRes = await axios.get(`${twpBase}/party/${partyId}`, {
                             withCredentials: true
                         });
+
                         setMyApprovalPartyDetail(detailRes.data);
-                        return; // ✅ 하나 찾았으면 더 안 돌고 종료
+                        // If you want to fetch applicants/approvalList, add logic here as needed
+                        return;
                     }
                 }
+
+                setMyApprovalPartyDetail(null);
             } catch (err) {
                 console.error("내가 승인한 직관팟 정보 조회 실패:", err);
             }
         };
 
         fetchMyApprovalPartyDetail();
-    }, [loginUserId]);
+    }
+}, [loginUserId]);
 
     // SSE 구독: 로그인 후 "/home"에 도착할 때 바로 실행
     useEffect(() => {
