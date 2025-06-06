@@ -127,7 +127,11 @@ const Profile = () => {
                 const logoPrefix = teamLogoMap[primaryTeam?.teamId] || 'default';
                 const teamLogo = `TeamLogo/emblem_${logoPrefix}.png`;
 
-                setProfile({...data, teamLogo});
+                setProfile({
+                    ...data,
+                    profileImg: `${process.env.REACT_APP_PRESIGNED_URI}/${data.thumbnailURL}`,
+                    teamLogo
+                });
                 setNickname(data.nickname);
 
                 // Compare logged-in user ID with the profile being viewed
@@ -249,7 +253,7 @@ const Profile = () => {
                                 src={
                                     !profile.profileImg || profile.profileImg.includes('default.png')
                                         ? `${process.env.PUBLIC_URL}/profile/user2.jpg`
-                                        : profile.profileImg
+                                        : encodeURI(profile.profileImg)
                                 }
                                 alt="profile"
                                 className={styles.profileImg}
@@ -457,11 +461,16 @@ const Profile = () => {
                 {showProfileEditModal && (
                     <ProfileEditModal
                         onClose={() => setShowProfileEditModal(false)}
-                        onSubmit={(newNickname) => {
+                        onSubmit={(newNickname, newImageUrl) => {
                             setNickname(newNickname);
-                            setProfile(prev => ({...prev, nickname: newNickname}));
+                            setProfile(prev => ({
+                                ...prev,
+                                nickname: newNickname,
+                                profileImg: newImageUrl || prev.profileImg
+                            }));
                         }}
                         initialNickname={nickname}
+                        initialProfileImage={profile?.profileImg}
                     />
                 )}
             </div>

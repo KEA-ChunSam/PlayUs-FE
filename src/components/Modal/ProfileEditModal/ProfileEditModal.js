@@ -3,15 +3,15 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import styles from './ProfileEditModal.module.css';
 
-const ProfileEditModal = ({ onClose, onSubmit, initialNickname }) => {
+const ProfileEditModal = ({ onClose, onSubmit, initialNickname, initialProfileImage }) => {
     const [nickname, setNickname] = useState(initialNickname);
     const [validationMessage, setValidationMessage] = useState('사용할 수 있는 닉네임입니다.');
     const [isValid, setIsValid] = useState(true);
-    const [profileImage, setProfileImage] = useState(`${process.env.PUBLIC_URL}/profile/user2.jpg`);
+    const [profileImage, setProfileImage] = useState(initialProfileImage || `${process.env.PUBLIC_URL}/profile/user2.jpg`);
     const [objectUrl, setObjectUrl] = useState(null);
-    const [originalFile, setOriginalFile] = useState(null); // 원본 파일 객체 저장
-    const [uploadError, setUploadError] = useState(false); // 업로드 오류 상태
-    const [isImageChanged, setIsImageChanged] = useState(false); // 이미지 변경 여부 체크
+    const [originalFile, setOriginalFile] = useState(null);
+    const [uploadError, setUploadError] = useState(false);
+    const [isImageChanged, setIsImageChanged] = useState(false);
 
     useEffect(() => {
         setNickname(initialNickname);
@@ -108,7 +108,7 @@ const ProfileEditModal = ({ onClose, onSubmit, initialNickname }) => {
                         .catch(reject);
                 });
 
-                thumbnailURL = `${process.env.REACT_APP_PRESIGNED_URI}/${fileName}`;
+                thumbnailURL = `${fileName}`;
             } catch (err) {
                 console.error("이미지 업로드 실패:", err);
                 setUploadError(true);
