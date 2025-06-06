@@ -14,11 +14,21 @@ const getCookie = (name) => {
 
 const PartyMake = () => {
     const location = useLocation();
+    const receivedMatchId = location.state?.matchId;
     const {partyId} = useParams();
     const navigate = useNavigate();
     const isEditMode = location.pathname.includes('/party/edit');
 
     const [step, setStep] = useState(1);
+
+    useEffect(() => {
+        if (receivedMatchId) {
+            console.log("✅ 전달받은 matchId:", receivedMatchId);
+        } else {
+            console.warn("⚠️ matchId가 전달되지 않았습니다.");
+        }
+    }, [receivedMatchId]);
+
     const [partyForm, setPartyForm] = useState({
         title: '',
         partyJoinMethod: '',
@@ -28,7 +38,7 @@ const PartyMake = () => {
         maximumParticipants: '',
         thumbnailImageNameList: [],
         message: '',
-        matchId: 1,
+        matchId: location.state?.matchId || 1,
     });
 
     const [modalVisible, setModalVisible] = useState(false);

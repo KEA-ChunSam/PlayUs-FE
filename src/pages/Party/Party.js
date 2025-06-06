@@ -24,28 +24,67 @@ const Party = () => {
     const [activeTab, setActiveTab] = useState(location.state?.tabIndex || 0);
     const {homeTeam, awayTeam, stadium, mainTime} = location.state || {};
     useEffect(() => {
-        const fetchMatchDetail = async () => {
+        const fetchMatchIdByGameId = async () => {
             try {
-                // Extract access token from document.cookie
                 const token = document.cookie
                     .split('; ')
                     .find(row => row.startsWith('Access='))
                     ?.split('=')[1];
-                // Directly fetch match detail by naver game ID
+
+                // 날짜를 gameId에서 추출 (예: "20250606HHHT02025" → 2025-06-06)
+                const year = gameId.slice(0, 4);
+                const month = gameId.slice(4, 6);
+                const day = gameId.slice(6, 8);
+                const gameDate = `${year}-${month}-${day}`;
+
+                // 전체 경기 목록 가져오기
+                const matchesRes = await axios.get(
+                    `${process.env.REACT_APP_AI_API_BASE}/matches`,
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                        withCredentials: true,
+                        params: { date: gameDate }
+                    }
+                );
+
+                const match = matchesRes.data.find(m => m.game_id === gameId);
+                if (!match) {
+                    console.warn(`⚠️ gameId에 해당하는 match를 찾을 수 없습니다: ${gameId}`);
+                    return;
+                }
+
+                setMatchId(match.match_id);
+                console.log("🔗 [matchId]", match.match_id);
+            } catch (err) {
+                console.error("matchId 조회 실패:", err);
+            }
+        };
+
+        fetchMatchIdByGameId();
+    }, [gameId]);
+    useEffect(() => {
+        const fetchMatchDetail = async () => {
+            try {
+                const token = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('Access='))
+                    ?.split('=')[1];
+
                 const response = await axios.get(
                     `${process.env.REACT_APP_AI_API_BASE}/match/${gameId}`,
                     {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        },
+                        headers: { Authorization: `Bearer ${token}` },
                         withCredentials: true
                     }
                 );
+
                 setMatchDetail(response.data);
+                setMatchId(response.data.matchId);
             } catch (error) {
                 console.error('경기 상세 조회 실패:', error);
             }
         };
+
         fetchMatchDetail();
     }, [gameId]);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -63,7 +102,7 @@ const Party = () => {
     const [myApplications, setMyApplications] = useState([]);
     const [partyList, setPartyList] = useState([]);
     const [originalPartyList, setOriginalPartyList] = useState([]);
-
+    const [matchId, setMatchId] = useState(null);
     // Writer map state and effect
     const [writerMap, setWriterMap] = useState({});
 
@@ -78,7 +117,7 @@ const Party = () => {
             })
                 .then(response => {
                     // Expecting response.data to be an array of writer objects
-                    console.log("👀 Writer API response:", response.data);
+                    // console.log("👀 Writer API response:", response.data);
                     const map = {};
                     response.data.forEach(writer => {
                         // Fallback to writer.id if writer.writerId is not present
@@ -93,25 +132,34 @@ const Party = () => {
     }, [partyList]);
 
     useEffect(() => {
+        if (activeTab === 0 && matchId) {
+            axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party?matchId=${matchId}`, {
+                withCredentials: true
+            })
+                .then(res => {
+                    setPartyList(res.data);
+                    setOriginalPartyList(res.data);
+                })
+                .catch(err => console.error("직관팟 목록 불러오기 실패:", err));
+        }
+
+        if (activeTab === 1) {
+            axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/applied-parties`, {
+                withCredentials: true
+            })
+                .then(res => setMyApplications(res.data))
+                .catch(err => console.error("내 신청 직관팟 불러오기 실패:", err));
+        }
+
         if (activeTab === 2 && partyList.length > 0) {
-            // Insert debug logs before finding myApprovalParty
-            // console.log("🔍 로그인한 유저 ID:", loginUserId);
-            // console.log("🔍 writerMap:", writerMap);
-            // console.log("🔍 partyList:", partyList);
             const myApprovalParty = partyList.find(
-                p => {
-                    // console.log("🔎 검사 중인 팟:", p);
-                    // console.log("🔎 writerMap 매핑:", writerMap[p.writerId]?.id, "vs", loginUserId);
-                    return writerMap[p.writerId]?.id === loginUserId && p.partyJoinMethod === '승인제';
-                }
+                p => writerMap[p.writerId]?.id === loginUserId && p.partyJoinMethod === '승인제'
             );
-            // console.log("✅ 찾은 승인제 팟:", myApprovalParty);
 
             if (myApprovalParty) {
-                axios.get(
-                    `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${myApprovalParty.partyId}/approved-applicants`,
-                    {withCredentials: true}
-                )
+                axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${myApprovalParty.partyId}/approved-applicants`, {
+                    withCredentials: true
+                })
                     .then(res => setApprovalList(res.data))
                     .catch(err => console.error("신청자 목록 불러오기 실패:", err));
 
@@ -121,24 +169,10 @@ const Party = () => {
                     .then(res => setMyApprovalPartyDetail(res.data))
                     .catch(err => console.error("직관팟 상세정보 불러오기 실패:", err));
             } else {
-                console.warn("❗️ 승인제 팟을 찾을 수 없습니다.");
                 setMyApprovalPartyDetail(null);
             }
         }
-        if (activeTab === 1) {
-            axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/applied-parties`, {withCredentials: true})
-                .then(res => setMyApplications(res.data))
-                .catch(err => console.error("내 신청 직관팟 불러오기 실패:", err));
-        }
-        if (activeTab === 0) {
-            axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party?matchId=1`, {withCredentials: true})
-                .then(res => {
-                    setPartyList(res.data);
-                    setOriginalPartyList(res.data);
-                })
-                .catch(err => console.error("직관팟 목록 불러오기 실패:", err));
-        }
-    }, [activeTab]);
+    }, [activeTab, matchId]);
 
     const mapStatusToKey = (status) => {
         switch (status) {
@@ -147,7 +181,7 @@ const Party = () => {
                 return '신청중';
             case 'ACCEPT':
             case '승인됨':
-            case '채팅방 입장!': // add this case here to handle the exact string from backend
+            case '채팅방 입장!':
                 return '채팅방 입장!';
             case 'REFUSE':
             case '거부됨':
@@ -162,7 +196,11 @@ const Party = () => {
     const [loadingChatId, setLoadingChatId] = useState(null);
 
     function newPartyButtonClick() {
-        navigate('/party/newparty');
+        navigate('/party/newparty', {
+            state: {
+                matchId: matchId
+            }
+        });
     }
 
     async function onEnterChat(partyId) {
