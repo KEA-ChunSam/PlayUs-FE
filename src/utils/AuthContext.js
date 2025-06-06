@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }) => {
                     } catch (e) {
                         console.warn("❌ AccessToken 재발급 실패:", e);
                         setUser(null);
+
                         navigate("/login");
                         return Promise.reject(error);
                     }
