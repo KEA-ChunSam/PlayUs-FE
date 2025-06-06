@@ -26,7 +26,14 @@ const TabNav = ({tabs = [], activeTab, onTabChange, onBack}) => {
                 src={`${process.env.PUBLIC_URL}/Button/back.png`}
                 alt="Back"
                 className={styles.backIcon}
-                onClick={() => onBack ? onBack() : navigate(-1)}
+                onClick={() => {
+                       if (onBack) {
+                             onBack();
+                           } else if (window.history.length > 1) {
+                             navigate(-1);
+                           } else {
+                             navigate('/home');
+                           }}}
             />
 
             <div className={styles.tabWrapper} role="tablist" aria-orientation="horizontal">

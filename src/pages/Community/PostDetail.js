@@ -41,35 +41,45 @@ const PostDetail = () => {
   console.log('게시글 작성자 writerId:', getWriterId());
   console.log('isAuthor:', isAuthor());
 
-  const checkProfanity = async (text) => {
-    try {
-      const response = await axios.post(
-          `${process.env.REACT_APP_AI_API_BASE}/detect`,
-        { sentence: text },
-        { headers: { 'Content-Type': 'application/json' } }
-      );
+    const checkProfanity = async (text) => {
+        try {
+            // Extract access token from cookies
+            const token = document.cookie
+                .split('; ')
+                .find(cookie => cookie.startsWith('Access='))
+                ?.split('=')[1];
+            const response = await axios.post(
+                `${process.env.REACT_APP_AI_API_BASE}/detect`,
+                { sentence: text },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    withCredentials: true
+                }
+            );
 
-      let result = response.data?.result || response.data;
+            let result = response.data?.result || response.data;
 
-      if (typeof result === 'string') {
-        result = result
-          .replace(/```json\n/, '')
-          .replace(/`{3,}[\s\S]*$/, '')
-          .trim();
+            if (typeof result === 'string') {
+                result = result
+                    .replace(/```json\n/, '')
+                    .replace(/`{3,}[\s\S]*$/, '')
+                    .trim();
+                result = JSON.parse(result);
+            }
 
-        result = JSON.parse(result);
-      }
-
-      const isCurse = result && (String(result.isCurse || result.is_curse).toLowerCase() === 'true');
-      return {
-        isCurse,
-        words: result.words || [],
-      };
-    } catch (error) {
-      console.error('비속어 감지 실패:', error);
-      return { isCurse: false, words: [] };
-    }
-  };
+            const isCurse = result && (String(result.isCurse || result.is_curse).toLowerCase() === 'true');
+            return {
+                isCurse,
+                words: result.words || [],
+            };
+        } catch (error) {
+            console.error('비속어 필터링 오류:', error);
+            return { isCurse: false, words: [] };
+        }
+    };
 
   const fetchPost = async () => {
     const teamParam = team || post?.team;
@@ -184,12 +194,60 @@ const PostDetail = () => {
             // 모든 닉네임 정보가 로딩될 때까지 대기
             const processedComments = (await Promise.all(fetchNicknamePromises)).filter(comment => comment !== null);
 
-            console.log('11. 최종 처리된 댓글 데이터:', processedComments.map(c => ({
-                id: c.id,
-                content: c.content,
-                답글수: c.replies.length,
-                답글들: c.replies.map(r => ({ id: r.id, content: r.content }))
-            })));
+    const handleDelete = async () => {
+        if (!postId) {
+            alert('postId가 없습니다.');
+            return;
+        }
+        if (!window.confirm('게시글을 삭제하시겠습니까?')) return;
+
+        try {
+            const response = await axios.delete(
+                `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/${teamParam}/${postId}`,
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            if (response.data) {
+                alert('게시글이 삭제되었습니다.');
+                // 현재 보고 있는 팀의 게시판으로 돌아가기
+                const currentTeam = team || post?.team;
+                if (!currentTeam) {
+                    console.error('팀 정보가 없습니다.');
+                    navigate('/community');
+                    return;
+                }
+                navigate(`/community/post/${currentTeam}`);
+            }
+        } catch (error) {
+            console.error('Error deleting post:', error);
+            if (error.response) {
+                console.error('Error response:', error.response.data);
+                if (error.response.status === 403) {
+                    alert('게시글을 삭제할 권한이 없습니다.');
+                } else {
+                    alert('게시글 삭제 중 오류가 발생했습니다.');
+                }
+            } else {
+                alert('게시글 삭제 중 오류가 발생했습니다.');
+            }
+        }
+    };
+
+    const handleBackToList = () => {
+        // 현재 보고 있는 팀의 게시판으로 돌아가기
+        const currentTeam = team || post?.team;
+        if (!currentTeam) {
+            console.error('팀 정보가 없습니다.');
+            navigate('/community');
+            return;
+        }
+        navigate(`/community/post/${currentTeam}`);
+    };
 
             postData.comments = processedComments;
         } else {
@@ -692,7 +750,6 @@ useEffect(() => {
                }
            );
 
-           // 상태 직접 업데이트 (재조회 없이)
            setComments(prevComments =>
                prevComments.map(comment => {
                    if (String(comment.id) === String(commentId) && comment.replies) { // 해당 부모 댓글을 찾고 replies가 있는지 확인
@@ -1116,6 +1173,7 @@ useEffect(() => {
           )}
       </div>
   );
+
 };
 
 export default PostDetail; 

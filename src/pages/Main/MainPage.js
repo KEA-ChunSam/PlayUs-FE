@@ -1,5 +1,7 @@
 import axios from "axios";
 import React, {useEffect, useState, useRef} from "react";
+import { useAuth} from "../../utils/AuthContext";
+import { useNavigate } from "react-router-dom";
 import styles from "./MainPage.module.css";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import CasterbotModal from "../Chatbot/CasterbotModal";
@@ -9,6 +11,8 @@ import DummyMatchData from "../../components/DummyData/DummyMatchData";
 import {teamInfoMap} from "../../utils/teamInfoMap";
 
 export default function MainPage() {
+    const { user } = useAuth();
+    const loginUserId = user?.id;
     const [showCasterbot, setShowCasterbot] = useState(false);
     const [teams2, setTeams2] = useState([]);
     const [activeTeamIndex, setActiveTeamIndex] = useState(0);
@@ -19,44 +23,49 @@ export default function MainPage() {
 
     const [favoriteMap, setFavoriteMap] = useState({});
     const [selectedFavorites, setSelectedFavorites] = useState([]);
+    const [allMatches, setAllMatches] = useState([]);
+    const [myApprovalPartyDetail, setMyApprovalPartyDetail] = useState(null);
+    const today = new Date().toISOString().split("T")[0];
 
     const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
     const sseUrl = `${baseUrl}/user/notifications/connect`;
+
+    const navigate = useNavigate();
 
     // Reference to hold EventSource instance
     const eventSourceRef = useRef(null);
 
     function setupEventHandlers(es) {
-      // 서버가 전송하는 이벤트를 받을 때 처리
-      es.onmessage = (e) => {
-        const text = e.data;
-        if (text.trim().startsWith("{")) {
-          try {
-            const notification = JSON.parse(text);
-            console.log("새 알림 도착:", notification);
-            // TODO: 받은 알림을 상태나 Context에 저장하여 화면에 반영
-          } catch (err) {
-            console.error("JSON 파싱 중 오류:", err);
-          }
-        } else {
-          console.log("SSE 비-JSON 메시지:", text);
-        }
-      };
-
-      es.onerror = (err) => {
-        console.error("SSE 연결 오류:", err);
-          if (es.readyState === EventSource.CLOSED) {
-                  console.log("SSE 연결이 닫혔습니다. 5초 후 재연결 시도...");
-                  setTimeout(() => {
-                        if (eventSourceRef.current === es) {
-                              const newEs = new EventSource(sseUrl, { withCredentials: true });
-                              eventSourceRef.current = newEs;
-                              // 이벤트 핸들러 재설정
-                                  setupEventHandlers(newEs);
-                            }
-                      }, 5000);
+        // 서버가 전송하는 이벤트를 받을 때 처리
+        es.onmessage = (e) => {
+            const text = e.data;
+            if (text.trim().startsWith("{")) {
+                try {
+                    const notification = JSON.parse(text);
+                    console.log("새 알림 도착:", notification);
+                    // TODO: 받은 알림을 상태나 Context에 저장하여 화면에 반영
+                } catch (err) {
+                    console.error("JSON 파싱 중 오류:", err);
                 }
-      };
+            } else {
+                console.log("SSE 비-JSON 메시지:", text);
+            }
+        };
+
+        es.onerror = (err) => {
+            console.error("SSE 연결 오류:", err);
+            if (es.readyState === EventSource.CLOSED) {
+                console.log("SSE 연결이 닫혔습니다. 5초 후 재연결 시도...");
+                setTimeout(() => {
+                    if (eventSourceRef.current === es) {
+                        const newEs = new EventSource(sseUrl, { withCredentials: true });
+                        eventSourceRef.current = newEs;
+                        // 이벤트 핸들러 재설정
+                        setupEventHandlers(newEs);
+                    }
+                }, 5000);
+            }
+        };
     }
 
     useEffect(() => {
@@ -92,20 +101,75 @@ export default function MainPage() {
         fetchUserProfileAndFavorites();
     }, []);
 
+useEffect(() => {
+    if (loginUserId) {
+        const fetchMyApprovalPartyDetail = async () => {
+            try {
+                const twpBase = process.env.REACT_APP_LOCAL_BACKEND_TWP_URI;
+
+                const token = document.cookie
+                    .split("; ")
+                    .find((row) => row.startsWith("Access="))
+                    ?.split("=")[1];
+                const today = new Date().toISOString().split("T")[0];
+
+                const matchRes = await axios.get(
+                    `${process.env.REACT_APP_AI_API_BASE}/matches`,
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                        withCredentials: true,
+                        params: { date: today }
+                    }
+                );
+
+                const matchIds = matchRes.data.map(match => match.match_id);
+
+                for (const matchId of matchIds) {
+                    const partyListRes = await axios.get(`${twpBase}/party`, {
+                        params: { matchId, deletedAt: null },
+                        withCredentials: true
+                    });
+
+                    const myParties = partyListRes.data.filter(
+                        (p) => p.writerId === loginUserId
+                    );
+
+                    if (myParties.length > 0) {
+                        const partyId = myParties[0].partyId;
+                        const detailRes = await axios.get(`${twpBase}/party/${partyId}`, {
+                            withCredentials: true
+                        });
+
+                        setMyApprovalPartyDetail(detailRes.data);
+                        // If you want to fetch applicants/approvalList, add logic here as needed
+                        return;
+                    }
+                }
+
+                setMyApprovalPartyDetail(null);
+            } catch (err) {
+                console.error("내가 승인한 직관팟 정보 조회 실패:", err);
+            }
+        };
+
+        fetchMyApprovalPartyDetail();
+    }
+}, [loginUserId]);
+
     // SSE 구독: 로그인 후 "/home"에 도착할 때 바로 실행
     useEffect(() => {
-      // 브라우저 기본 EventSource는 쿠키에 들어있는 JWT를 자동으로 포함
-      const es = new EventSource(sseUrl, { withCredentials: true });
-      eventSourceRef.current = es;
+        // 브라우저 기본 EventSource는 쿠키에 들어있는 JWT를 자동으로 포함
+        const es = new EventSource(sseUrl, { withCredentials: true });
+        eventSourceRef.current = es;
 
-      setupEventHandlers(es);
+        setupEventHandlers(es);
 
-      // 컴포넌트 언마운트 시에는 EventSource 닫기
-      return () => {
-        if (eventSourceRef.current) {
-          eventSourceRef.current.close();
-        }
-      };
+        // 컴포넌트 언마운트 시에는 EventSource 닫기
+        return () => {
+            if (eventSourceRef.current) {
+                eventSourceRef.current.close();
+            }
+        };
     }, []);
 
     const handleOpenModal = () => {
@@ -137,31 +201,61 @@ export default function MainPage() {
         }
     };
 
-    // const { schedule, posts, parties } = sampleData[selectedTeam];
+    // Fetch today's matches
+    useEffect(() => {
+        const fetchTodayMatches = async () => {
+            try {
+                const token = document.cookie
+                    .split("; ")
+                    .find((row) => row.startsWith("Access="))
+                    ?.split("=")[1];
+                const res = await axios.get(
+                    `${process.env.REACT_APP_AI_API_BASE}/matches`,
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                        withCredentials: true,
+                        params: { date: today },
+                    }
+                );
+                setAllMatches(res.data);
+            } catch (err) {
+                console.error("오늘 경기 조회 실패:", err);
+            }
+        };
+        fetchTodayMatches();
+    }, [today]);
 
-    // Schedule extraction logic
-    const currentMatch = DummyMatchData[selectedTeam]?.schedule
+    const todaySchedule = React.useMemo(() => {
+        if (!selectedTeam || allMatches.length === 0) return null;
+        return (
+            allMatches.find(
+                (m) =>
+                    m.home_team_name === selectedTeam ||
+                    m.away_team_name === selectedTeam
+            ) || null
+        );
+    }, [allMatches, selectedTeam]);
+
+    const scheduleForSection = todaySchedule
         ? {
-            home_team_name: DummyMatchData[selectedTeam].schedule.home,
-            away_team_name: DummyMatchData[selectedTeam].schedule.away,
-            home_score: DummyMatchData[selectedTeam].schedule.score?.[0],
-            away_score: DummyMatchData[selectedTeam].schedule.score?.[1],
-        }
-        : null;
-    const schedule = currentMatch
-        ? {
-            home: currentMatch.home_team_name,
-            away: currentMatch.away_team_name,
+            home: todaySchedule.home_team_name,
+            away: todaySchedule.away_team_name,
             status:
-                currentMatch.home_score != null && currentMatch.away_score != null
+                todaySchedule.status_code === "RESULT"
                     ? "종료"
-                    : "예정",
+                    : todaySchedule.status_code === "STARTED"
+                        ? "경기중"
+                        : "경기전",
             score: [
-                currentMatch.home_score ?? 0,
-                currentMatch.away_score ?? 0,
+                todaySchedule.away_team_score ?? 0,
+                todaySchedule.home_team_score ?? 0,
             ],
         }
         : null;
+
+    const onEnterChat = (chatRoomId) => {
+        navigate(`/chat/party/${chatRoomId}`);
+    };
 
     return (
         <div className={styles.main_page}>
@@ -173,8 +267,8 @@ export default function MainPage() {
             />
             <div>
                 <h2 className={styles.sectionTitle}>오늘의 일정</h2>
-                {schedule ? (
-                    <ScheduleSection schedule={schedule}/>
+                {scheduleForSection ? (
+                    <ScheduleSection schedule={scheduleForSection} />
                 ) : (
                     <p className={styles.noContentText}>해당 팀의 경기가 없습니다.</p>
                 )}
@@ -188,6 +282,63 @@ export default function MainPage() {
                 {/*)}*/}
             </div>
             <h2 className={styles.sectionTitleWithMargin}>나의 직관팟</h2>
+            {myApprovalPartyDetail && (
+                <div
+                    className={styles.partyCard}
+                    onClick={() => onEnterChat(myApprovalPartyDetail.partyId)}
+                    style={{ cursor: "pointer" }}
+                >
+                    <img
+                        src={myApprovalPartyDetail.partyThumbnailUrls?.[0] || `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
+                        alt="직관팟 썸네일"
+                        className={styles.playerImg}
+                    />
+                    <div className={styles.partyContent}>
+                        <div className={styles.tags}>
+                            <span className={styles.tag}>{myApprovalPartyDetail.partyJoinMethod}</span>
+                            {myApprovalPartyDetail.partyAges?.map((tag, index) => (
+                                <span
+                                    key={index}
+                                    className={`${styles.tag} ${index === 2 ? styles.tagHighlight : ''}`}
+                                >
+                        {tag}
+                      </span>
+                            ))}
+                            <span className={`${styles.tag} ${styles.tagHighlight}`}>
+                      {myApprovalPartyDetail.availableGender}
+                    </span>
+                        </div>
+                        <div className={styles.partyTitle}>{myApprovalPartyDetail.title}</div>
+                        <div className={styles.partyMeta}>
+                            <span>{myApprovalPartyDetail.authorName || '작성자'}</span>
+                            <span>{myApprovalPartyDetail.authorAge || '나이'}</span>
+                            <span>
+                      {myApprovalPartyDetail.authorGender === 'MALE'
+                          ? '남성'
+                          : myApprovalPartyDetail.authorGender === 'FEMALE'
+                              ? '여성'
+                              : '기타'}
+                    </span>
+                            <span>· {myApprovalPartyDetail.matchDate}</span>
+                        </div>
+
+                        <div className={styles.partyStatus}>
+                            <div className={styles.avatars}>
+                                {myApprovalPartyDetail.userThumbnailUrls?.slice(0, 1).map((url, i) => (
+                                    <img
+                                        key={i}
+                                        src={url || `${process.env.PUBLIC_URL}/Logo/profile.png`}
+                                        alt="프로필"
+                                    />
+                                ))}
+                            </div>
+                            <div className={styles.slot}>
+                                {myApprovalPartyDetail.currentParticipantsCount}/{myApprovalPartyDetail.maximumParticipantsCount}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* TODO: 이후 ISSUE에서 TWP SERVICE merge 이후 적용 예정 */}
             {/*{parties.length > 0 ? (*/}
             {/*    parties.map((party, i) => <MyPartyCard key={i} {...party} />)*/}

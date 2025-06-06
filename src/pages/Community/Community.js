@@ -40,6 +40,7 @@ const teams = [
 ];
 
 const Community = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
@@ -211,7 +212,7 @@ const Community = () => {
     };
   }, [showModal]);
 
-  const handlePostClick = (postId, team) => {
+  const handlePostClick = (team, postId) => {
     navigate(`/community/post/${team}/${postId}`);
   };
 
@@ -244,7 +245,7 @@ const Community = () => {
       alert('팀을 선택해주세요.');
       return;
     }
-    
+
     // teamInfoMapCommunity에서 선택한 팀 정보 찾기
     const selectedTeamInfo = teamInfoMapCommunity.find(team => team.teamId === tempTeam);
     if (!selectedTeamInfo) {
@@ -308,8 +309,8 @@ const Community = () => {
     const normalize = v => (v || '').replace(/_/g, '').toUpperCase();
     const normalizedPostTeam = normalize(post.team);
     const normalizedSelectedTeam = normalize(selectedTeam);
-    console.log('팀 비교:', { 
-      postTeam: post.team, 
+    console.log('팀 비교:', {
+      postTeam: post.team,
       normalizedPostTeam,
       selectedTeam,
       normalizedSelectedTeam,
@@ -350,7 +351,7 @@ const Community = () => {
               time={post.time}
               author={post.author}
               image={post.image}
-              onClick={() => handlePostClick(post.id || post.postId, post.team)}
+              onClick={() => handlePostClick(post.team, post.id || post.postId)}
             />
           ))
         )}

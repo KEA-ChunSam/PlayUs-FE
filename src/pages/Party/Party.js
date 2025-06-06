@@ -3,17 +3,90 @@ import React, {useEffect, useState} from 'react';
 import {useAuth} from '../../utils/AuthContext';
 import axios from 'axios';
 import CasterbotModal from '../../pages/Chatbot/CasterbotModal';
-import {useLocation, useNavigate} from 'react-router-dom';
+import {useLocation, useNavigate, useParams} from 'react-router-dom';
+import {teamInfoMapBig} from '../../utils/teamInfoMap';
 import TabNav from "../../components/TabNav/TabNav";
 import styles from './Party.module.css';
 import Modal from '../../components/Modal/Modal';
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 
+const getTeamLogoByName = (teamName) => {
+    const team = teamInfoMapBig.find(item => item.name === teamName);
+    return team ? team.logo : `${process.env.PUBLIC_URL}/Logo/TeamLogo/default.png`;
+};
+
 const Party = () => {
     const {user} = useAuth();
     const loginUserId = user?.id;
+    const {gameId} = useParams(); // matchId is actually gameId
     const location = useLocation();
+    const [matchDetail, setMatchDetail] = useState(null);
     const [activeTab, setActiveTab] = useState(location.state?.tabIndex || 0);
+    const {homeTeam, awayTeam, stadium, mainTime} = location.state || {};
+    useEffect(() => {
+        const fetchMatchIdByGameId = async () => {
+            try {
+                const token = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('Access='))
+                    ?.split('=')[1];
+
+                // 날짜를 gameId에서 추출 (예: "20250606HHHT02025" → 2025-06-06)
+                const year = gameId.slice(0, 4);
+                const month = gameId.slice(4, 6);
+                const day = gameId.slice(6, 8);
+                const gameDate = `${year}-${month}-${day}`;
+
+                // 전체 경기 목록 가져오기
+                const matchesRes = await axios.get(
+                    `${process.env.REACT_APP_AI_API_BASE}/matches`,
+                    {
+                        headers: {Authorization: `Bearer ${token}`},
+                        withCredentials: true,
+                        params: {date: gameDate}
+                    }
+                );
+
+                const match = matchesRes.data.find(m => m.game_id === gameId);
+                if (!match) {
+                    console.warn(`⚠️ gameId에 해당하는 match를 찾을 수 없습니다: ${gameId}`);
+                    return;
+                }
+
+                setMatchId(match.match_id);
+                console.log("🔗 [matchId]", match.match_id);
+            } catch (err) {
+                console.error("matchId 조회 실패:", err);
+            }
+        };
+
+        fetchMatchIdByGameId();
+    }, [gameId]);
+    useEffect(() => {
+        const fetchMatchDetail = async () => {
+            try {
+                const token = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('Access='))
+                    ?.split('=')[1];
+
+                const response = await axios.get(
+                    `${process.env.REACT_APP_AI_API_BASE}/match/${gameId}`,
+                    {
+                        headers: {Authorization: `Bearer ${token}`},
+                        withCredentials: true
+                    }
+                );
+
+                setMatchDetail(response.data);
+                setMatchId(response.data.matchId);
+            } catch (error) {
+                console.error('경기 상세 조회 실패:', error);
+            }
+        };
+
+        fetchMatchDetail();
+    }, [gameId]);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [selectedApplyType, setSelectedApplyType] = useState('');
     const [selectedGender, setSelectedGender] = useState('');
@@ -22,6 +95,7 @@ const Party = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showApproveModal, setShowApproveModal] = useState(false);
     const [showDenyModal, setShowDenyModal] = useState(false);
+    const [showEndModal, setShowEndModal] = useState(false);
     const [selectedApplicantUserId, setSelectedApplicantUserId] = useState(null);
     const [showCasterbot, setShowCasterbot] = useState(false);
     const [approvalList, setApprovalList] = useState([]);
@@ -29,7 +103,7 @@ const Party = () => {
     const [myApplications, setMyApplications] = useState([]);
     const [partyList, setPartyList] = useState([]);
     const [originalPartyList, setOriginalPartyList] = useState([]);
-
+    const [matchId, setMatchId] = useState(null);
     // Writer map state and effect
     const [writerMap, setWriterMap] = useState({});
 
@@ -44,7 +118,7 @@ const Party = () => {
             })
                 .then(response => {
                     // Expecting response.data to be an array of writer objects
-                    console.log("👀 Writer API response:", response.data);
+                    // console.log("👀 Writer API response:", response.data);
                     const map = {};
                     response.data.forEach(writer => {
                         // Fallback to writer.id if writer.writerId is not present
@@ -59,25 +133,95 @@ const Party = () => {
     }, [partyList]);
 
     useEffect(() => {
-        if (activeTab === 2 && partyList.length > 0) {
-            // Insert debug logs before finding myApprovalParty
-            // console.log("🔍 로그인한 유저 ID:", loginUserId);
-            // console.log("🔍 writerMap:", writerMap);
-            // console.log("🔍 partyList:", partyList);
-            const myApprovalParty = partyList.find(
-                p => {
-                    // console.log("🔎 검사 중인 팟:", p);
-                    // console.log("🔎 writerMap 매핑:", writerMap[p.writerId]?.id, "vs", loginUserId);
-                    return writerMap[p.writerId]?.id === loginUserId && p.partyJoinMethod === '승인제';
+        if (activeTab === 2 && loginUserId) {
+            const fetchMyApprovalPartyDetail = async () => {
+                console.log("🔥 activeTab === 2 진입");
+
+                try {
+                    const twpBase = process.env.REACT_APP_LOCAL_BACKEND_TWP_URI;
+                    const token = document.cookie
+                        .split("; ")
+                        .find((row) => row.startsWith("Access="))
+                        ?.split("=")[1];
+                    const today = new Date().toISOString().split("T")[0];
+
+                    const matchRes = await axios.get(
+                        `${process.env.REACT_APP_AI_API_BASE}/matches`,
+                        {
+                            headers: {Authorization: `Bearer ${token}`},
+                            withCredentials: true,
+                            params: {date: today}
+                        }
+                    );
+
+                    const matchIds = matchRes.data.map(m => m.match_id);
+
+                    for (const matchId of matchIds) {
+                        const partyListRes = await axios.get(`${twpBase}/party`, {
+                            params: {matchId, deletedAt: null},
+                            withCredentials: true
+                        });
+
+                        const myParties = partyListRes.data.filter(
+                            (p) => p.writerId === loginUserId
+                        );
+
+                        if (myParties.length > 0) {
+                            const partyId = myParties[0].partyId;
+                            const detailRes = await axios.get(`${twpBase}/party/${partyId}`, {
+                                withCredentials: true
+                            });
+
+                            setMyApprovalPartyDetail(detailRes.data);
+
+                            const applicantsRes = await axios.get(`${twpBase}/party/${partyId}/approved-applicants`, {
+                                withCredentials: true
+                            });
+                            setApprovalList(applicantsRes.data);
+                            return;
+                        }
+                    }
+
+                    setMyApprovalPartyDetail(null);
+                    setApprovalList([]);
+                } catch (err) {
+                    console.error("내가 승인한 직관팟 정보 조회 실패:", err);
                 }
+            };
+
+            fetchMyApprovalPartyDetail();
+        }
+    }, [activeTab, loginUserId]);
+
+    useEffect(() => {
+        if (activeTab === 0 && matchId) {
+            axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party?matchId=${matchId}`, {
+                withCredentials: true
+            })
+                .then(res => {
+                    setPartyList(res.data);
+                    setOriginalPartyList(res.data);
+                })
+                .catch(err => console.error("직관팟 목록 불러오기 실패:", err));
+        }
+
+        if (activeTab === 1) {
+            axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/applied-parties`, {
+                withCredentials: true
+            })
+                .then(res => setMyApplications(res.data))
+                .catch(err => console.error("내 신청 직관팟 불러오기 실패:", err));
+        }
+
+        if (activeTab === 2 && partyList.length > 0) {
+            const myApprovalParty = partyList.find(
+                p => writerMap[p.writerId]?.id === loginUserId && p.partyJoinMethod === '승인제'
             );
-            // console.log("✅ 찾은 승인제 팟:", myApprovalParty);
 
             if (myApprovalParty) {
-                axios.get(
-                    `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${myApprovalParty.partyId}/approved-applicants`,
-                    {withCredentials: true}
-                )
+                axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${myApprovalParty.partyId}/approved-applicants`, {
+                    withCredentials: true
+                })
                     .then(res => setApprovalList(res.data))
                     .catch(err => console.error("신청자 목록 불러오기 실패:", err));
 
@@ -87,24 +231,15 @@ const Party = () => {
                     .then(res => setMyApprovalPartyDetail(res.data))
                     .catch(err => console.error("직관팟 상세정보 불러오기 실패:", err));
             } else {
-                console.warn("❗️ 승인제 팟을 찾을 수 없습니다.");
                 setMyApprovalPartyDetail(null);
             }
         }
-        if (activeTab === 1) {
-            axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/applied-parties`, {withCredentials: true})
-                .then(res => setMyApplications(res.data))
-                .catch(err => console.error("내 신청 직관팟 불러오기 실패:", err));
-        }
-        if (activeTab === 0) {
-            axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party?matchId=1`, {withCredentials: true})
-                .then(res => {
-                    setPartyList(res.data);
-                    setOriginalPartyList(res.data);
-                })
-                .catch(err => console.error("직관팟 목록 불러오기 실패:", err));
-        }
-    }, [activeTab]);
+    }, [activeTab, matchId]);
+
+    // Log myApprovalPartyDetail whenever it updates
+    useEffect(() => {
+        console.log("📦 myApprovalPartyDetail 상태:", myApprovalPartyDetail);
+    }, [myApprovalPartyDetail]);
 
     const mapStatusToKey = (status) => {
         switch (status) {
@@ -113,7 +248,7 @@ const Party = () => {
                 return '신청중';
             case 'ACCEPT':
             case '승인됨':
-            case '채팅방 입장!': // add this case here to handle the exact string from backend
+            case '채팅방 입장!':
                 return '채팅방 입장!';
             case 'REFUSE':
             case '거부됨':
@@ -128,7 +263,11 @@ const Party = () => {
     const [loadingChatId, setLoadingChatId] = useState(null);
 
     function newPartyButtonClick() {
-        navigate('/party/newparty');
+        navigate('/party/newparty', {
+            state: {
+                matchId: matchId
+            }
+        });
     }
 
     async function onEnterChat(partyId) {
@@ -136,7 +275,7 @@ const Party = () => {
             setLoadingChatId(partyId);
             const res = await axios.get(
                 `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}`,
-                { withCredentials: true }
+                {withCredentials: true}
             );
             const chatRoomId = res.data.chatRoomId;
 
@@ -148,7 +287,7 @@ const Party = () => {
 
             navigate(
                 `/chat/party/${chatRoomId}`,
-                { state: { partyId } }
+                {state: {partyId}}
             );
         } catch (err) {
             console.error("채팅방 ID 조회 실패:", err);
@@ -166,23 +305,57 @@ const Party = () => {
                     {/* 직관팟 입장시 접근하는 직관팟 구하기 서브메뉴*/}
                     {activeTab === 0 && (
                         <div className={styles.approvalSection}>
-                            <div className={styles.matchHeader}>
-                                <div className={styles.teamBox}>
-                                    <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/HH.png`} alt="한화"
-                                         className={styles.teamLogo}/>
-                                    <span className={styles.teamName}>한화 이글스</span>
+                            {matchDetail && (
+                                <div className={styles.matchHeader}>
+                                    <div className={styles.teamBox}>
+                                        <img
+                                            src={getTeamLogoByName(matchDetail.away.team_name)}
+                                            alt={`${matchDetail.away.team_name} 로고`}
+                                            className={styles.teamLogo}
+                                        />
+                                        <span className={styles.teamName}>{matchDetail.away.team_name}</span>
+                                        <div className={styles.pitcherCount}>
+                                            {matchDetail.away.starter && `선발투수 - ${matchDetail.away.starter}`}
+                                        </div>
+                                    </div>
+                                    <div className={styles.vsBlock}>
+                                        <div className={styles.vsText}>VS</div>
+                                        <div className={styles.location}>{stadium || matchDetail.stadium}</div>
+                                        <div className={styles.time}>
+                                            {mainTime ||
+                                                new Date(matchDetail.game_date_time).toLocaleTimeString('ko-KR', {
+                                                    timeZone: 'Asia/Seoul',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}
+                                        </div>
+                                        <div className={styles.matchBadgeArea}>
+                                      <span className={styles.matchBadge}>
+                                        {matchDetail.statusCode === "RESULT"
+                                            ? "경기종료"
+                                            : matchDetail.statusCode === "READY"
+                                                ? "경기전"
+                                                : matchDetail.statusCode === "STARTED"
+                                                    ? "LIVE!"
+                                                    : matchDetail.statusCode === "BEFORE"
+                                                        ? "경기전"
+                                                        : ""}
+                                      </span>
+                                        </div>
+                                    </div>
+                                    <div className={styles.teamBox}>
+                                        <img
+                                            src={getTeamLogoByName(matchDetail.home.team_name)}
+                                            alt={`${matchDetail.home.team_name} 로고`}
+                                            className={styles.teamLogo}
+                                        />
+                                        <span className={styles.teamName}>{matchDetail.home.team_name}</span>
+                                        <div className={styles.pitcherCount}>
+                                            {matchDetail.home.starter && `선발투수 - ${matchDetail.home.starter}`}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className={styles.vsBlock}>
-                                    <div className={styles.vsText}>VS</div>
-                                    <div className={styles.location}>수원</div>
-                                    <div className={styles.time}>18:30</div>
-                                </div>
-                                <div className={styles.teamBox}>
-                                    <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/KT.png`} alt="KT"
-                                         className={styles.teamLogo}/>
-                                    <span className={styles.teamName}>KT 위즈</span>
-                                </div>
-                            </div>
+                            )}
                             <div className={styles.titleRow}>
                                 <h3 className={styles.title}>직관 팟 구해요!</h3>
                                 <div className={styles.buttons}>
@@ -257,6 +430,47 @@ const Party = () => {
                     {activeTab === 1 && (
                         <div className={styles.approvalSection}>
                             <div className={styles.myStatusList}>
+                                {/* Render my ended approval party card if exists */}
+                                {myApprovalPartyDetail?.isEnded && (
+                                    <div className={styles.myStatusCard}>
+                                        <div className={styles.myStatusCardContent}>
+                                            <div className={styles.myStatusTagRow}>
+                                                <div className={styles.tagGroup}>
+                                                    {myApprovalPartyDetail.partyAges?.map((tag, index) => (
+                                                        <span key={index}
+                                                              className={`${styles.tag} ${index === 2 ? styles.tagHighlight : ''}`}>{tag}</span>
+                                                    ))}
+                                                    <span
+                                                        className={styles.tagHighlight}>{myApprovalPartyDetail.availableGender}</span>
+                                                </div>
+                                                {/*<div className={styles.terminatedBadge}>직관팟 종료</div>*/}
+                                            </div>
+                                            <div className={styles.myStatusTitle}>
+                                                <strong>{myApprovalPartyDetail.title}</strong>
+                                            </div>
+                                            <div className={styles.myStatusMeta}>
+                                                <span>{myApprovalPartyDetail.authorName}</span>
+                                                <span>{myApprovalPartyDetail.authorAge}</span>
+                                                <span>{myApprovalPartyDetail.authorGender === 'MALE' ? '남성' : myApprovalPartyDetail.authorGender === 'FEMALE' ? '여성' : '기타'}</span>
+                                            </div>
+                                            <div className={styles.myStatusButtons}>
+                                                <button
+                                                    className={styles.statusApproved}
+                                                    onClick={() => {
+                                                        navigate(`/review/party/${myApprovalPartyDetail.partyId}`);
+                                                    }}
+                                                >
+                                                    후기 작성
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <img
+                                            src={myApprovalPartyDetail.partyThumbnailUrls?.[0] || `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
+                                            alt="썸네일"
+                                            className={styles.thumbnailImg}
+                                        />
+                                    </div>
+                                )}
                                 {myApplications.map((party, idx) => {
                                     const statusKey = mapStatusToKey(party.partyJoinRequestStatus);
                                     return (
@@ -302,7 +516,7 @@ const Party = () => {
                                                     {statusKey === '채팅방 입장!' && (
                                                         <div className={styles.chatButtonWrapper}>
                                                             {loadingChatId === party.partyId ? (
-                                                                <div className={styles.skeletonChatButton} />
+                                                                <div className={styles.skeletonChatButton}/>
                                                             ) : (
                                                                 <>
                                                                     <button
@@ -311,6 +525,16 @@ const Party = () => {
                                                                     >
                                                                         채팅방 입장!
                                                                     </button>
+                                                                    {party.isEnded && (
+                                                                        <button
+                                                                            className={styles.statusApproved}
+                                                                            onClick={() => {
+                                                                                navigate(`/review/party/${party.partyId}`)
+                                                                            }}
+                                                                        >
+                                                                            후기 작성
+                                                                        </button>
+                                                                    )}
                                                                     <span className={styles.newChatCount}>1</span>
                                                                 </>
                                                             )}
@@ -349,6 +573,19 @@ const Party = () => {
                                             ))}
                                             <span
                                                 className={`${styles.tag} ${styles.tagHighlight}`}>{myApprovalPartyDetail.availableGender}</span>
+                                            {!myApprovalPartyDetail?.isEnded && (
+                                                <div className={styles.terminateButtonWrapper}>
+                                                    <button
+                                                        className={styles.terminateButton}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setShowEndModal(true);
+                                                        }}
+                                                    >
+                                                        직관팟 종료
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                         <div className={styles.partyTitle}>{myApprovalPartyDetail.title}</div>
                                         <div className={styles.partyMeta}>
@@ -504,7 +741,7 @@ const Party = () => {
                     title: '신청 취소',
                     message: '정말 취소하시겠습니까?',
                     buttons: [
-                        { label: '취소', onClick: () => setShowCancelModal(false) },
+                        {label: '취소', onClick: () => setShowCancelModal(false)},
                         {
                             label: '확인',
                             onClick: async () => {
@@ -519,7 +756,7 @@ const Party = () => {
                                     await axios.patch(
                                         `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}/cancel`,
                                         {},
-                                        { withCredentials: true }
+                                        {withCredentials: true}
                                     );
 
                                     // 신청 목록에서 제거
@@ -551,7 +788,7 @@ const Party = () => {
                     title: '승인하기',
                     message: '참가 요청을 승인하시겠습니까?',
                     buttons: [
-                        { label: '취소', onClick: () => setShowApproveModal(false) },
+                        {label: '취소', onClick: () => setShowApproveModal(false)},
                         {
                             label: '확인',
                             onClick: async () => {
@@ -562,7 +799,7 @@ const Party = () => {
                                             applicantUserId: selectedApplicantUserId,
                                             isApproved: true
                                         },
-                                        { withCredentials: true }
+                                        {withCredentials: true}
                                     );
                                     setShowApproveModal(false);
                                     setSelectedApplicantUserId(null);
@@ -583,7 +820,7 @@ const Party = () => {
                     title: '삭제하기',
                     message: '참가 요청을 거부하시겠습니까?',
                     buttons: [
-                        { label: '취소', onClick: () => setShowDenyModal(false) },
+                        {label: '취소', onClick: () => setShowDenyModal(false)},
                         {
                             label: '확인',
                             onClick: async () => {
@@ -594,7 +831,7 @@ const Party = () => {
                                             applicantUserId: selectedApplicantUserId,
                                             isApproved: false
                                         },
-                                        { withCredentials: true }
+                                        {withCredentials: true}
                                     );
                                     setShowDenyModal(false);
                                     setSelectedApplicantUserId(null);
@@ -605,6 +842,34 @@ const Party = () => {
                                     setApprovalList(res.data);
                                 } catch (err) {
                                     console.error("거부 요청 처리 실패:", err);
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    show: showEndModal,
+                    title: '직관팟 종료',
+                    message: '직관팟을 종료하시겠습니까?',
+                    buttons: [
+                        {label: '취소', onClick: () => setShowEndModal(false)},
+                        {
+                            label: '확인',
+                            onClick: async () => {
+                                try {
+                                    await axios.patch(
+                                        `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${myApprovalPartyDetail.partyId}/end`,
+                                        {},
+                                        {withCredentials: true}
+                                    );
+                                    setMyApprovalPartyDetail(prev => ({
+                                        ...prev,
+                                        isEnded: true
+                                    }));
+                                } catch (err) {
+                                    console.error("직관팟 종료 실패:", err);
+                                } finally {
+                                    setShowEndModal(false);
                                 }
                             }
                         }

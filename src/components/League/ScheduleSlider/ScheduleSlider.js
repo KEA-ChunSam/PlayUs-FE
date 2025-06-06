@@ -1,5 +1,6 @@
 // 경기 일정 날짜 선택 컴포넌트
 import React, {useEffect, useRef, useState} from 'react';
+import axios from 'axios';
 import styles from './ScheduleSlider.module.css';
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -31,10 +32,30 @@ export default function ScheduleSlider({initialDate = new Date(), onDateSelect})
         setBaseDate(newDate);
     };
 
-    const handleDateSelect = (date) => {
+    const handleDateSelect = async (date) => {
+        setBaseDate(date);
         setSelectedDate(date);
         if (onDateSelect) {
-            onDateSelect(date);
+            try {
+                const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                const token = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('Access='))
+                    ?.split('=')[1];
+                const response = await axios.get(
+                    `${process.env.REACT_APP_AI_API_BASE}/matches`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        },
+                        withCredentials: true,
+                        params: { date: formattedDate }
+                    }
+                );
+                onDateSelect(response.data);
+            } catch (error) {
+                console.error('경기 정보 조회 실패:', error);
+            }
         }
     };
 

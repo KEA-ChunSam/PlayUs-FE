@@ -197,3 +197,94 @@
     width: 34px;
     height: 24px;
 }
+
+/* section 2 */
+.partyCard {
+    display: flex;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    overflow: hidden;
+    padding: 1rem;
+}
+
+.playerImg {
+    width: 7rem;
+    height: 7rem;
+    align-self: center;
+    border-radius: 8px;
+    object-fit: cover;
+    margin: 0 1.5rem 0 0;
+}
+
+.partyContent {
+    flex: 1;
+}
+
+.tags {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+
+.tag,
+.tagHighlight {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    background-color: #e0e0e0;
+}
+
+.tagHighlight[data-gender='남자만'] {
+    background-color: #4fafff;
+    color: #fff;
+}
+
+.tagHighlight[data-gender='여자만'] {
+    background-color: #ff4f70;
+    color: #fff;
+}
+
+.tagHighlight[data-gender='상관없음'] {
+    background-color: #e0e0e0;
+    color: #000;
+}
+
+.partyTitle {
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+}
+
+.partyMeta {
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.partyStatus {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.avatars {
+    display: flex;
+    /*gap: -6px;*/
+    margin-right: 0.5rem;
+    width: 1.7rem;
+}
+
+.avatars img {
+    margin-left: -6px; /* 첫 번째 이미지 외에 오버랩 적용 */
+}
+
+.avatars img:first-child {
+    margin-left: 0; /* 첫 번째 이미지는 마진 없음 */
+}
+
+.slot {
+    font-size: 0.85rem;
+    color: #333;
+}
+/* end of section 2 */

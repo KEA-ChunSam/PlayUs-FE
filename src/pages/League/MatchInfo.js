@@ -1,8 +1,10 @@
 // 경기 정보 및 AI 시뮬레이션 페이지
 import TabNav from '../../components/TabNav/TabNav';
 import styles from './MatchInfo.module.css';
-import React, {useState, useEffect} from "react";
-// import {useNavigate} from "react-router-dom";
+import React, {useEffect, useState} from "react";
+import {useLocation, useParams} from 'react-router-dom';
+import {teamInfoMapBig} from "../../utils/teamInfoMap";
+// import {useNavigate} from "react-router-dom";ㄱ
 import SubTabNav from "../../components/TabNav/SubTabNav";
 import LineupDraggableList from '../../components/DragNDrop/LineupDraggableList';
 import RecordsSection from "../../components/GameLogData/RecordsSection";
@@ -11,7 +13,16 @@ import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import axios from 'axios';
 import Modal from "../../components/Modal/Modal";
 
+const getTeamLogoByName = (teamName) => {
+    const team = teamInfoMapBig.find(item => item.name === teamName);
+    return team ? team.logo : `${process.env.PUBLIC_URL}/Logo/TeamLogo/default.png`;
+};
+
 function MatchInfo() {
+    const {gameId} = useParams();
+    const location = useLocation();
+    const {homeTeam, awayTeam, stadium, mainTime} = location.state || {};
+    const [matchDetail, setMatchDetail] = useState(null);
     const [activeTab, setActiveTab] = useState(0);
     const [activeSubTab, setActiveSubTab] = useState(0);
     const tabLabels = ["경기 정보", "AI 시뮬레이터"];
@@ -21,6 +32,32 @@ function MatchInfo() {
     // const navigate = useNavigate();
 
     const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchMatchDetail = async () => {
+            try {
+                // Extract access token from document.cookie
+                const token = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('Access='))
+                    ?.split('=')[1];
+                // Directly fetch match detail by naver game ID
+                const response = await axios.get(
+                    `${process.env.REACT_APP_AI_API_BASE}/match/${gameId}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        },
+                        withCredentials: true
+                    }
+                );
+                setMatchDetail(response.data);
+            } catch (error) {
+                console.error('경기 상세 조회 실패:', error);
+            }
+        };
+        fetchMatchDetail();
+    }, [gameId]);
 
     const [homeBatters, setHomeBatters] = useState([
         {id: '1', name: '김태연', position: '좌익수', hand: '우타'},
@@ -51,6 +88,13 @@ function MatchInfo() {
         {id: '12', name: '김병준', position: '좌익수', hand: '좌타'}
     ]);
     const [simulationResult, setSimulationResult] = useState([]);
+
+    const calculatePercentage = (value1, value2, defaultValue = 50) => {
+        const num1 = parseFloat(value1) || 0;
+        const num2 = parseFloat(value2) || 0;
+        const sum = num1 + num2;
+        return sum > 0 ? (num1 / sum) * 100 : defaultValue;
+    };
 
     async function startSimulate() {
         const requestData = {
@@ -85,9 +129,22 @@ function MatchInfo() {
         try {
             setActiveTab(1);
             setIsLoading(true); // 시작 시 로딩 ON
-            const response = await axios.post(`${process.env.REACT_APP_AI_API_BASE}/simulate`, requestData, {
-                headers: {'Content-Type': 'application/json'}
-            });
+            // Extract access token from document.cookie
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('Access='))
+                ?.split('=')[1];
+            const response = await axios.post(
+                `${process.env.REACT_APP_AI_API_BASE}/simulate`,
+                requestData,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    withCredentials: true
+                }
+            );
 
             try {
                 const parsed = JSON.parse(response.data.result);
@@ -112,107 +169,249 @@ function MatchInfo() {
             {/* 경기 정보 서브메뉴 */}
             {activeTab === 0 && (
                 <div>
-                    <section className={styles.teamsSection}>
-                        <div className={styles.team}>
-                            <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/HH.png`} alt="한화 이글스 로고"
-                                 className={styles.teamLogo}/>
-                            <span className={styles.teamName}>한화 이글스</span>
-                            <div className={styles.pitcherCount}>선발투수-와이스</div>
-                        </div>
-                        <div className={styles.matchBox}>
-                            <div className={styles.matchPark}>수원</div>
-                            <div className={styles.matchTime}>18:30</div>
-                            <div className={styles.matchBadgeArea}>
-                                <span className={styles.matchBadge}>경기전</span>
+                    {matchDetail && (
+                        <section className={styles.teamsSection}>
+                            {/* Away Team on Left */}
+                            <div className={styles.team}>
+                                <img
+                                    src={getTeamLogoByName(awayTeam || matchDetail.away.team_name)}
+                                    alt={`${awayTeam || matchDetail.away.team_name} 로고`}
+                                    className={styles.teamLogo}
+                                />
+                                <span className={styles.teamName}>{awayTeam || matchDetail.away.team_name}</span>
+                                <div className={styles.pitcherCount}>
+                                    {matchDetail.away.starter && `선발투수 - ${matchDetail.away.starter}`}
+                                </div>
                             </div>
-                        </div>
 
-                        <div className={styles.team}>
-                            <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/KT.png`} alt="KT 위즈 로고"
-                                 className={styles.teamLogo}/>
-                            <span className={styles.teamName}>KT 위즈</span>
-                            <div className={styles.pitcherCount}>선발투수-쿠에바스</div>
-                        </div>
-                    </section>
-                    <section className={styles.vsRecordSection}>
-                        <h2 className={styles.sectionTitle}>상대전적</h2>
-                        <div className={styles.metricValues}>
-                            <span className={styles.metricValueLeft}>1승 1무 3패</span>
-                            <div className={styles.metricBar}>
-                                <div className={styles.progressLeft} style={{width: '20%'}}></div>
-                                <div className={styles.progressDraw} style={{width: '15%'}}></div>
-                                <div className={styles.progressRight} style={{width: '65%'}}></div>
+                            {/* Center Box: Park, Time, Status */}
+                            <div className={styles.matchBox}>
+                                <div className={styles.matchPark}>{stadium || matchDetail.stadium}</div>
+                                <div className={styles.matchTime}>
+                                    {mainTime ||
+                                        new Date(matchDetail.game_date_time).toLocaleTimeString('ko-KR', {
+                                            timeZone: 'Asia/Seoul',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                </div>
+                                <div className={styles.matchBadgeArea}>
+                          <span className={styles.matchBadge}>
+                            {matchDetail.status_code === 'RESULT'
+                                ? '경기종료'
+                                : matchDetail.status_code === 'STARTED'
+                                    ? '경기중'
+                                    : '경기전'}
+                          </span>
+                                </div>
                             </div>
-                            <span className={styles.metricValueRight}>3승 1무 1패</span>
-                        </div>
-                    </section>
 
-                    <section className={styles.recentSection}>
-                        <h2 className={styles.sectionTitle}>최근 5경기</h2>
-                        <div className={styles.metricsRow}>
-                            <div className={styles.metric}>
-                                <span className={styles.metricLabel}>타율</span>
-                                <div className={styles.metricValues}>
-                                    <span className={styles.metricValueLeft}>0.233</span>
-                                    <div className={styles.metricBar}>
-                                        <div className={styles.metricBarLeft} style={{width: '40%'}}></div>
-                                        <div className={styles.metricBarRight} style={{width: '60%'}}></div>
-                                    </div>
-                                    <span className={styles.metricValueRight}>0.345</span>
+                            {/* Home Team on Right */}
+                            <div className={styles.team}>
+                                <img
+                                    src={getTeamLogoByName(homeTeam || matchDetail.home.team_name)}
+                                    alt={`${homeTeam || matchDetail.home.team_name} 로고`}
+                                    className={styles.teamLogo}
+                                />
+                                <span className={styles.teamName}>{homeTeam || matchDetail.home.team_name}</span>
+                                <div className={styles.pitcherCount}>
+                                    {matchDetail.home.starter && `선발투수 - ${matchDetail.home.starter}`}
                                 </div>
                             </div>
-                            <div className={styles.metric}>
-                                <span className={styles.metricLabel}>평균자책점</span>
+                        </section>
+                    )}
+                    {matchDetail && (
+                        <>
+                            <section className={styles.vsRecordSection}>
+                                <h2 className={styles.sectionTitle}>상대전적</h2>
                                 <div className={styles.metricValues}>
-                                    <span className={styles.metricValueLeft}>3.21</span>
+                          <span className={styles.metricValueLeft}>
+                            {matchDetail.season_vs_result.home_win}승 {matchDetail.season_vs_result.home_draw}무 {matchDetail.season_vs_result.home_lose}패
+                          </span>
                                     <div className={styles.metricBar}>
-                                        <div className={styles.metricBarLeft} style={{width: '55%'}}></div>
-                                        <div className={styles.metricBarRight} style={{width: '45%'}}></div>
+                                        <div
+                                            className={styles.progressLeft}
+                                            style={{
+                                                width: `${
+                                                    (matchDetail.season_vs_result.home_win + matchDetail.season_vs_result.away_win) > 0
+                                                        ? (matchDetail.season_vs_result.home_win /
+                                                            (matchDetail.season_vs_result.home_win + matchDetail.season_vs_result.away_win) *
+                                                            100)
+                                                        : 50
+                                                }%`
+                                            }}
+                                        ></div>
+                                        <div
+                                            className={styles.progressRight}
+                                            style={{
+                                                width: `${
+                                                    matchDetail.season_vs_result.away_win /
+                                                    (matchDetail.season_vs_result.home_win + matchDetail.season_vs_result.away_win) *
+                                                    100
+                                                }%`
+                                            }}
+                                        ></div>
                                     </div>
-                                    <span className={styles.metricValueRight}>2.01</span>
+                                    <span className={styles.metricValueRight}>
+                            {matchDetail.season_vs_result.away_win}승 {matchDetail.season_vs_result.away_draw}무 {matchDetail.season_vs_result.away_lose}패
+                          </span>
                                 </div>
-                            </div>
-                            <div className={styles.metric}>
-                                <span className={styles.metricLabel}>승무패</span>
-                                <div className={styles.metricValues}>
-                                    <span className={styles.metricValueLeft}>1승 1무 3패</span>
-                                    <div className={styles.metricBar}>
-                                        <div className={styles.metricBarLeft} style={{width: '30%'}}></div>
-                                        <div className={styles.metricBarRight} style={{width: '70%'}}></div>
+                            </section>
+
+                            <section className={styles.recentSection}>
+                                <h2 className={styles.sectionTitle}>최근 5경기</h2>
+                                <div className={styles.metricsRow}>
+                                    {/* Batting Average */}
+                                    <div className={styles.metric}>
+                                        <span className={styles.metricLabel}>타율</span>
+                                        <div className={styles.metricValues}>
+                                            <span
+                                                className={styles.metricValueLeft}>{matchDetail.home.recent_batting_average}</span>
+                                            <div className={styles.metricBar}>
+                                                <div
+                                                    className={styles.metricBarLeft}
+                                                    style={{
+                                                        width: `${calculatePercentage(matchDetail.home.recent_batting_average, matchDetail.away.recent_batting_average)}%`
+                                                    }}
+                                                ></div>
+                                                <div
+                                                    className={styles.metricBarRight}
+                                                    style={{
+                                                        width: `${calculatePercentage(matchDetail.away.recent_batting_average, matchDetail.home.recent_batting_average)}%`
+                                                    }}
+                                                ></div>
+                                            </div>
+                                            <span
+                                                className={styles.metricValueRight}>{matchDetail.away.recent_batting_average}</span>
+                                        </div>
                                     </div>
-                                    <span className={styles.metricValueRight}>4승 0무 1패</span>
+                                    {/* ERA */}
+                                    <div className={styles.metric}>
+                                        <span className={styles.metricLabel}>평균자책점</span>
+                                        <div className={styles.metricValues}>
+                                            <span
+                                                className={styles.metricValueLeft}>{matchDetail.home.recent_era}</span>
+                                            <div className={styles.metricBar}>
+                                                <div
+                                                    className={styles.metricBarLeft}
+                                                    style={{
+                                                        width: `${
+                                                            (parseFloat(matchDetail.away.recent_era) /
+                                                                (parseFloat(matchDetail.home.recent_era) +
+                                                                    parseFloat(matchDetail.away.recent_era))) *
+                                                            100
+                                                        }%`
+                                                    }}
+                                                ></div>
+                                                <div
+                                                    className={styles.metricBarRight}
+                                                    style={{
+                                                        width: `${
+                                                            (parseFloat(matchDetail.home.recent_era) /
+                                                                (parseFloat(matchDetail.home.recent_era) +
+                                                                    parseFloat(matchDetail.away.recent_era))) *
+                                                            100
+                                                        }%`
+                                                    }}
+                                                ></div>
+                                            </div>
+                                            <span
+                                                className={styles.metricValueRight}>{matchDetail.away.recent_era}</span>
+                                        </div>
+                                    </div>
+                                    {/* Win-Draw-Lose */}
+                                    <div className={styles.metric}>
+                                        <span className={styles.metricLabel}>승무패</span>
+                                        <div className={styles.metricValues}>
+                              <span className={styles.metricValueLeft}>
+                                {matchDetail.home.recent_record.win}승 {matchDetail.home.recent_record.draw}무 {matchDetail.home.recent_record.lose}패
+                              </span>
+                                            <div className={styles.metricBar}>
+                                                <div
+                                                    className={styles.metricBarLeft}
+                                                    style={{
+                                                        width: `${
+                                                            (matchDetail.home.recent_record.win /
+                                                                (matchDetail.home.recent_record.win + matchDetail.away.recent_record.win)) * 100
+                                                        }%`
+                                                    }}
+                                                ></div>
+                                                <div
+                                                    className={styles.metricBarRight}
+                                                    style={{
+                                                        width: `${
+                                                            (matchDetail.away.recent_record.win /
+                                                                (matchDetail.home.recent_record.win + matchDetail.away.recent_record.win)) * 100
+                                                        }%`
+                                                    }}
+                                                ></div>
+                                            </div>
+                                            <span className={styles.metricValueRight}>
+                                {matchDetail.away.recent_record.win}승 {matchDetail.away.recent_record.draw}무 {matchDetail.away.recent_record.lose}패
+                              </span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    </section>
+                            </section>
+                        </>
+                    )}
                 </div>
             )}
             {/* AI 시뮬레이터 서브메뉴 */}
             {activeTab === 1 && (
                 <div className={styles.contents}>
                     {/*<p className={styles.simTitle}>시뮬레이팅할 팀을 선택해 주세요.</p>*/}
-                    <section className={styles.teamsSection}>
-                        <div className={styles.team}>
-                            <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/HH.png`} alt="한화 이글스 로고"
-                                 className={styles.teamLogo}/>
-                            <span className={styles.teamName}>한화 이글스</span>
-                            <div className={styles.pitcherCount}>선발투수-와이스</div>
-                        </div>
-                        <div className={styles.matchBox}>
-                            <div className={styles.matchPark}>수원</div>
-                            <div className={styles.matchTime}>18:30</div>
-                            <div className={styles.matchBadgeArea}>
-                                <span className={styles.matchBadge}>경기전</span>
+                    {matchDetail && (
+                        <section className={styles.teamsSection}>
+                            {/* Away Team on Left */}
+                            <div className={styles.team}>
+                                <img
+                                    src={getTeamLogoByName(awayTeam || matchDetail.away.team_name)}
+                                    alt={`${awayTeam || matchDetail.away.team_name} 로고`}
+                                    className={styles.teamLogo}
+                                />
+                                <span className={styles.teamName}>{awayTeam || matchDetail.away.team_name}</span>
+                                <div className={styles.pitcherCount}>
+                                    {matchDetail.away.starter && `선발투수 - ${matchDetail.away.starter}`}
+                                </div>
                             </div>
-                        </div>
 
-                        <div className={styles.team}>
-                            <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo_Big/KT.png`} alt="KT 위즈 로고"
-                                 className={styles.teamLogo}/>
-                            <span className={styles.teamName}>KT 위즈</span>
-                            <div className={styles.pitcherCount}>선발투수-쿠에바스</div>
-                        </div>
-                    </section>
+                            {/* Center Box: Park, Time, Status */}
+                            <div className={styles.matchBox}>
+                                <div className={styles.matchPark}>{stadium || matchDetail.stadium}</div>
+                                <div className={styles.matchTime}>
+                                    {mainTime ||
+                                        new Date(matchDetail.game_date_time).toLocaleTimeString('ko-KR', {
+                                            timeZone: 'Asia/Seoul',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                </div>
+                                <div className={styles.matchBadgeArea}>
+                          <span className={styles.matchBadge}>
+                            {matchDetail.status_code === 'RESULT'
+                                ? '경기종료'
+                                : matchDetail.status_code === 'STARTED'
+                                    ? '경기중'
+                                    : '경기전'}
+                          </span>
+                                </div>
+                            </div>
+
+                            {/* Home Team on Right */}
+                            <div className={styles.team}>
+                                <img
+                                    src={getTeamLogoByName(homeTeam || matchDetail.home.team_name)}
+                                    alt={`${homeTeam || matchDetail.home.team_name} 로고`}
+                                    className={styles.teamLogo}
+                                />
+                                <span className={styles.teamName}>{homeTeam || matchDetail.home.team_name}</span>
+                                <div className={styles.pitcherCount}>
+                                    {matchDetail.home.starter && `선발투수 - ${matchDetail.home.starter}`}
+                                </div>
+                            </div>
+                        </section>
+                    )}
                     <button className={styles.simStart} onClick={startSimulate}>시뮬레이션 시작!</button>
 
                     <SubTabNav tabs={subTabLabels} onTabChange={setActiveSubTab}/>
