@@ -9,13 +9,16 @@ import AppRouter from "./routes/AppRouter";
 import { SearchProvider } from "./components/SearchContext"; 
 import { AuthProvider } from "./utils/AuthContext";
 import ReactQueryProvider from "./QueryClientProvider";
+import {HashRouter} from "react-router-dom";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
     <ReactQueryProvider>
-        <AuthProvider>
-            <div className="fullscreen-container">
-                <AppRouter/>
-            </div>
-        </AuthProvider>
+        <HashRouter>
+            <AuthProvider>
+                <div className="fullscreen-container">
+                    <AppRouter />
+                </div>
+            </AuthProvider>
+        </HashRouter>
     </ReactQueryProvider>
 );
