@@ -444,7 +444,7 @@ const Party = () => {
                                                 ))}
                                                 <span className={styles.tagHighlight}>{myApprovalPartyDetail.availableGender}</span>
                                               </div>
-                                              <div className={styles.terminatedBadge}>직관팟 종료</div>
+                                              {/*<div className={styles.terminatedBadge}>직관팟 종료</div>*/}
                                             </div>
                                             <div className={styles.myStatusTitle}>
                                                 <strong>{myApprovalPartyDetail.title}</strong>
