@@ -106,28 +106,51 @@ export default function MainPage() {
             if (!loginUserId) return;
             try {
                 const twpBase = process.env.REACT_APP_LOCAL_BACKEND_TWP_URI;
-                const listRes = await axios.get(
-                    `${twpBase}/party`,
+
+                // 1. 오늘 날짜 기반 경기 정보 가져오기
+                const token = document.cookie
+                    .split("; ")
+                    .find((row) => row.startsWith("Access="))
+                    ?.split("=")[1];
+                const today = new Date().toISOString().split("T")[0];
+
+                const matchRes = await axios.get(
+                    `${process.env.REACT_APP_AI_API_BASE}/matches`,
                     {
-                        params: { matchId: 1, deletedAt: null },
-                        withCredentials: true
+                        headers: { Authorization: `Bearer ${token}` },
+                        withCredentials: true,
+                        params: { date: today }
                     }
                 );
-                const myParties = listRes.data.filter(
-                    (p) => p.writerId === loginUserId
-                );
-                if (myParties.length > 0) {
-                    const partyId = myParties[0].partyId;
-                    const detailRes = await axios.get(
-                        `${twpBase}/party/${partyId}`,
-                        { withCredentials: true }
+
+                // 2. 내가 참여 중인 팟을 가져오기 위한 matchId 목록 추출
+                const matchIds = matchRes.data.map(match => match.match_id);
+
+                // 3. 각 matchId에 대해 팟 목록을 가져오고, 내가 쓴 팟 필터링
+                for (const matchId of matchIds) {
+                    const partyListRes = await axios.get(`${twpBase}/party`, {
+                        params: { matchId, deletedAt: null },
+                        withCredentials: true
+                    });
+
+                    const myParties = partyListRes.data.filter(
+                        (p) => p.writerId === loginUserId
                     );
-                    setMyApprovalPartyDetail(detailRes.data);
+
+                    if (myParties.length > 0) {
+                        const partyId = myParties[0].partyId;
+                        const detailRes = await axios.get(`${twpBase}/party/${partyId}`, {
+                            withCredentials: true
+                        });
+                        setMyApprovalPartyDetail(detailRes.data);
+                        return; // ✅ 하나 찾았으면 더 안 돌고 종료
+                    }
                 }
             } catch (err) {
                 console.error("내가 승인한 직관팟 정보 조회 실패:", err);
             }
         };
+
         fetchMyApprovalPartyDetail();
     }, [loginUserId]);
 
