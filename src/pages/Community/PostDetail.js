@@ -81,12 +81,6 @@ const PostDetail = () => {
         );
         let postData = { ...res.data, id: res.data.postId || res.data.id };
 
-        console.log('=== 댓글 데이터 디버깅 ===');
-        console.log('1. 백엔드로부터 받은 원본 postData:', res.data);
-        console.log('2. 댓글 배열 존재 여부:', !!postData.comments);
-        console.log('3. 댓글 배열 타입:', Array.isArray(postData.comments) ? 'Array' : typeof postData.comments);
-        console.log('4. 댓글 개수:', postData.comments?.length || 0);
-
         // User#숫자 처리
         const match = postData.writerNickname && postData.writerNickname.match(/^User#(\d+)$/);
         if (match) {
