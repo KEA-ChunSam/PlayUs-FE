@@ -268,18 +268,16 @@ useEffect(() => {
           if (replyTo !== null && replyTo !== undefined && replyTo !== '') {
               parentComment = comments.find(c => String(c.id) === String(replyTo));
               if (parentComment) {
-                  // 부모 댓글의 commentGroupId를 사용 (백엔드 로직에 따라 부모 댓글 ID를 전달)
                   if (!parentComment.commentGroupId) {
-                       // 부모 댓글 자체가 최상위 댓글일 경우 commentGroupId는 자신의 ID와 같음
-                       payload.commentGroupId = Number(parentComment.id);
-                  } else {
-                       // 부모 댓글이 다른 댓글의 답글인 경우, 그 부모의 commentGroupId를 사용
-                       payload.commentGroupId = Number(parentComment.commentGroupId);
+                      console.error('부모 댓글에 commentGroupId가 없습니다:', parentComment);
+                      alert('답글 작성에 실패했습니다. 부모 댓글 정보를 확인할 수 없습니다.');
+                      return;
                   }
+                  payload.commentGroupId = Number(parentComment.commentGroupId);
 
-                   console.log('답글 작성 - 부모 댓글 정보 및 Payload:', {
+                  console.log('답글 작성 - 부모 댓글 정보 및 Payload:', {
                       parentCommentId: parentComment.id,
-                      parentCommentGroupIdFromParent: parentComment.commentGroupId,
+                      parentCommentGroupId: parentComment.commentGroupId,
                       payloadCommentGroupId: payload.commentGroupId,
                       payload
                   });
@@ -291,17 +289,8 @@ useEffect(() => {
               }
           }
 
-          // 입력 필드 초기화 (서버 응답 전에 미리 초기화)
-          if (replyTo) {
-              setReplyInputValue({ ...replyInputValue, [String(replyTo)]: '' });
-              setReplyTo(null);
-          } else {
-              setComment("");
-          }
-
           const requestUrl = `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment`;
           console.log('실제 요청 URL:', requestUrl);
-          // Log the payload here, regardless of whether it's a reply or new comment
           console.log('댓글/답글 전송 payload:', payload);
 
           const response = await axios.post(
@@ -314,22 +303,90 @@ useEffect(() => {
                   }
               }
           );
-
           console.log('서버 응답:', response.data);
 
           const newCommentData = response.data;
 
-          // 작성 성공 후 새 댓글/답글의 ID를 받아 URL 해시로 붙여 새로고침
-          if (newCommentData && newCommentData.commentId) {
-              // comment-${id} 형식으로 ID를 사용한다고 가정
-              // 실제 댓글/답글 요소의 ID가 이 형식과 일치해야 스크롤됩니다.
-              const newCommentId = newCommentData.commentId;
-              window.location.href = window.location.pathname + `#comment-${newCommentId}`;
-               // window.location.reload() 대신 href 변경 사용 (해시 포함 시)
-          } else {
-               // 새 댓글/답글 ID를 받지 못한 경우 일반 새로고침
-               window.location.reload();
+          let writerNickname = newCommentData.writerNickname || newCommentData.author;
+          let authorId = newCommentData.writerId || newCommentData.authorId;
+          let profileImg = newCommentData.profileImg || newCommentData.writerProfileImage;
+
+          const match = writerNickname && String(writerNickname).match(/^User#(\d+)$/);
+          if (match) {
+              const idFromNickname = match[1];
+              authorId = authorId || idFromNickname;
+              if (authorId) {
+                  try {
+                      const userRes = await axios.get(
+                          `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile/${authorId}`,
+                          { withCredentials: true }
+                      );
+                      writerNickname = userRes.data.nickname;
+                      profileImg = userRes.data.profileImageUrl || profileImg;
+                  } catch (e) {
+                      console.error('프로필 API 실패:', e);
+                  }
+              }
           }
+
+          const processedNewComment = {
+              ...newCommentData,
+              id: newCommentData.commentId,
+              commentGroupId: newCommentData.commentGroupId,
+              postId: newCommentData.postId,
+              content: newCommentData.content,
+              author: writerNickname,
+              authorId: authorId,
+              time: newCommentData.time,
+              profileImg: profileImg,
+              replies: newCommentData.reComments || []
+          };
+
+          console.log('handleAddComment - 서버 응답 데이터 (newCommentData):', newCommentData);
+          console.log('handleAddComment - 프론트 상태 추가될 데이터 (processedNewComment):', processedNewComment);
+
+          // 상태 업데이트
+          if (replyTo) {
+              // 답글인 경우: 해당 부모 댓글의 replies 배열에 추가
+              setComments(prevComments => {
+                   const nextComments = prevComments.map(comment => {
+                       // 상태 업데이트 시에는 백엔드 응답의 commentGroupId를 사용하여 부모 댓글을 찾음
+                       // 백엔드가 답글의 commentGroupId에 부모 댓글의 ID를 담아준다고 가정
+                       if (String(comment.id) === String(newCommentData.commentGroupId)) {
+                            // 해당 부모 댓글의 replies 배열에 새로 생성된 답글 추가
+                           const updatedReplies = [...(comment.replies || []), processedNewComment];
+                           // 시간순으로 정렬 (선택 사항, 필요시 주석 해제)
+                           // updatedReplies.sort((a, b) => new Date(a.time) - new Date(b.time));
+                           return {
+                               ...comment,
+                               replies: updatedReplies,
+                           };
+                       }
+                       return comment;
+                   });
+                   console.log('handleAddComment - 답글 상태 업데이트 후 comments:', nextComments);
+                   return nextComments;
+              });
+
+          } else {
+              // 일반 댓글인 경우: 댓글 목록의 마지막에 추가
+               setComments(prevComments => {
+                   const nextComments = [...prevComments, processedNewComment];
+                   console.log('handleAddComment - 댓글 상태 업데이트 후 comments:', nextComments);
+                   return nextComments;
+               });
+          }
+
+           // 입력 필드 초기화 및 replyTo 초기화
+           if (replyTo) {
+               setReplyInputValue({ ...replyInputValue, [String(replyTo)]: '' });
+               setReplyTo(null);
+           } else {
+               setComment("");
+           }
+
+           // 댓글/답글 작성 성공 후 전체 데이터 다시 불러오기
+           await fetchPost();
 
       } catch (error) {
           console.error('댓글 작성 중 오류:', error);
