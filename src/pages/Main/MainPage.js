@@ -101,35 +101,60 @@ export default function MainPage() {
         fetchUserProfileAndFavorites();
     }, []);
 
-    useEffect(() => {
+useEffect(() => {
+    if (loginUserId) {
         const fetchMyApprovalPartyDetail = async () => {
-            if (!loginUserId) return;
             try {
                 const twpBase = process.env.REACT_APP_LOCAL_BACKEND_TWP_URI;
-                const listRes = await axios.get(
-                    `${twpBase}/party`,
+
+                const token = document.cookie
+                    .split("; ")
+                    .find((row) => row.startsWith("Access="))
+                    ?.split("=")[1];
+                const today = new Date().toISOString().split("T")[0];
+
+                const matchRes = await axios.get(
+                    `${process.env.REACT_APP_AI_API_BASE}/matches`,
                     {
-                        params: { matchId: 1, deletedAt: null },
-                        withCredentials: true
+                        headers: { Authorization: `Bearer ${token}` },
+                        withCredentials: true,
+                        params: { date: today }
                     }
                 );
-                const myParties = listRes.data.filter(
-                    (p) => p.writerId === loginUserId
-                );
-                if (myParties.length > 0) {
-                    const partyId = myParties[0].partyId;
-                    const detailRes = await axios.get(
-                        `${twpBase}/party/${partyId}`,
-                        { withCredentials: true }
+
+                const matchIds = matchRes.data.map(match => match.match_id);
+
+                for (const matchId of matchIds) {
+                    const partyListRes = await axios.get(`${twpBase}/party`, {
+                        params: { matchId, deletedAt: null },
+                        withCredentials: true
+                    });
+
+                    const myParties = partyListRes.data.filter(
+                        (p) => p.writerId === loginUserId
                     );
-                    setMyApprovalPartyDetail(detailRes.data);
+
+                    if (myParties.length > 0) {
+                        const partyId = myParties[0].partyId;
+                        const detailRes = await axios.get(`${twpBase}/party/${partyId}`, {
+                            withCredentials: true
+                        });
+
+                        setMyApprovalPartyDetail(detailRes.data);
+                        // If you want to fetch applicants/approvalList, add logic here as needed
+                        return;
+                    }
                 }
+
+                setMyApprovalPartyDetail(null);
             } catch (err) {
                 console.error("내가 승인한 직관팟 정보 조회 실패:", err);
             }
         };
+
         fetchMyApprovalPartyDetail();
-    }, [loginUserId]);
+    }
+}, [loginUserId]);
 
     // SSE 구독: 로그인 후 "/home"에 도착할 때 바로 실행
     useEffect(() => {

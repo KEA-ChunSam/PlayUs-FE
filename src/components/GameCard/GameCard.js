@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 
 const GameCard = ({
                       matchId,
-                      time,
+                      // time,
                       homeTeam,
                       awayTeam,
                       stadium,
@@ -43,7 +43,7 @@ const GameCard = ({
     return (
         <div className={styles.card}>
             <div className={styles.timeBlock}>
-                <span className={styles.time}>{time}</span>
+                {/*<span className={styles.time}>{time}</span>*/}
                 <div className={styles.teamRow}>
                     <img src={awayLogo} alt={awayTeam} className={styles.logo}/>
                     <span className={styles.teamName}>
@@ -108,7 +108,7 @@ export default GameCard;
 
 GameCard.propTypes = {
     matchId: PropTypes.number,
-    time: PropTypes.string.isRequired,
+    // time: PropTypes.string.isRequired,
     homeTeam: PropTypes.string.isRequired,
     awayTeam: PropTypes.string.isRequired,
     stadium: PropTypes.string.isRequired,
