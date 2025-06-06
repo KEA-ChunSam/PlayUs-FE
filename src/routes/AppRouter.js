@@ -27,87 +27,87 @@ import Community from '../pages/Community/Community';
 
 function AppRouter() {
     return (
-        <Router>
-            <Routes>
-                {/* 로그인 & 회원가입 */}
-                <Route path="/" element={<Splash/>}/>
-                <Route path="/login" element={<Login/>}/>
-                <Route path="/choice-team" element={<TeamChoice/>}/>
-                <Route path="/setprofile" element={<SetProfile/>}/>
-                <Route path="/login-complete" element={<LoginComplete/>}/>
-                {/* 메인 화면 */}
-                <Route path="/home" element={<MobileView/>}>
-                    <Route index element={<MainPage/>}/>
-                </Route>
-                {/* 커뮤니티 */}
-                <Route path="/community/post/:team" element={<MobileView/>}>
-                    <Route index element={<Community/>}/>
-                </Route>
-                <Route path="/community/post/:team/:postId" element={<MobileView/>}>
-                    <Route index element={<PostDetail />} />
-                </Route>
-                {/* 일정 & 직관팟 */}
-                {/* 일정 메인 */}
-                <Route path="/schedule" element={<MobileView/>}>
-                    <Route index element={<Schedule/>}/>
-                </Route>
-                <Route path="/newpost" element={<MobileView />}>
-                    <Route index element={<NewPost />} />
-                </Route>
-                <Route path="/search" element={<MobileView />}>
-                    <Route index element={<SearchResultPage />} />
-                </Route>
-                {/* 경기 정보 */}
-                <Route path="/schedule/:gameId" element={<MobileView/>}>
-                    <Route index element={<MatchInfo/>}/>
-                </Route>
-                {/* 직관팟 목록 */}
-                <Route path="/party/:gameId" element={<MobileView/>}>
-                    <Route index element={<Party/>}/>
-                </Route>
-                {/* 직관팟 상세 */}
-                <Route path="/party/matchid/:partyId" element={<MobileView/>}>
-                    <Route index element={<PartyDetail/>}/>
-                </Route>
-                {/* 직관팟 만들기 */}
-                <Route path="/party/newparty" element={<MobileView/>}>
-                    <Route index element={<PartyMake/>}/>
-                </Route>
-                {/* 직관팟 수정하기 */}
-                <Route path="/party/edit/:partyId" element={<MobileView/>}>
-                    <Route index element={<PartyMake mode="edit" />} />
-                </Route>
-                {/* 직관팟 신청하기 */}
-                <Route path="/party/applyparty/:partyId" element={<MobileView/>}>
-                    <Route index element={<PartyApply/>}/>
-                </Route>
-                {/* 직관팟 입장 시 채팅방 */}
-                <Route path="/chat/party/:chatRoomId" element={<MobileView/>}>
-                    <Route index element={<Chatting/>}/>
-                </Route>
-                {/* 직관팟 후기 페이지 */}
-                <Route path="/review/party/:partyId" element={<MobileView/>}>
-                    <Route index element={<ReviewParty/>}/>
-                </Route>
-                {/* 프로필 & 직관일지 */}
-                {/* 프로필 메인 & 타 사용자 프로필 */}
-                <Route path="/profile/:userId" element={<MobileView/>}>
-                    <Route index element={<Profile/>}/>
-                </Route>
-                {/* 직관일지 목록 */}
-                <Route path="/diary/list/:id" element={<MobileView/>}>
-                    <Route index element={<DiaryList/>}/>
-                </Route>
-                {/* 직관일지 작성 */}
-                <Route path="/diary/newdiary" element={<MobileView/>}>
-                    <Route index element={<NewDiary/>}/>
-                </Route>
-                {/* 직관일지 상세 */}
-                <Route path="/diary/:tag/:id" element={<MobileView/>}>
-                    <Route index element={<DiaryDetail/>}/>
-                </Route>
-            </Routes>
-        </Router>
+        // <Router>
+        <Routes>
+            {/* 로그인 & 회원가입 */}
+            <Route path="/" element={<Splash/>}/>
+            <Route path="/login" element={<Login/>}/>
+            <Route path="/choice-team" element={<TeamChoice/>}/>
+            <Route path="/setprofile" element={<SetProfile/>}/>
+            <Route path="/login-complete" element={<LoginComplete/>}/>
+            {/* 메인 화면 */}
+            <Route path="/home" element={<MobileView/>}>
+                <Route index element={<MainPage/>}/>
+            </Route>
+            {/* 커뮤니티 */}
+            <Route path="/community/post/:team" element={<MobileView/>}>
+                <Route index element={<Community/>}/>
+            </Route>
+            <Route path="/community/post/:team/:postId" element={<MobileView/>}>
+                <Route index element={<PostDetail />} />
+            </Route>
+            {/* 일정 & 직관팟 */}
+            {/* 일정 메인 */}
+            <Route path="/schedule" element={<MobileView/>}>
+                <Route index element={<Schedule/>}/>
+            </Route>
+            <Route path="/newpost" element={<MobileView />}>
+                <Route index element={<NewPost />} />
+            </Route>
+            <Route path="/search" element={<MobileView />}>
+                <Route index element={<SearchResultPage />} />
+            </Route>
+            {/* 경기 정보 */}
+            <Route path="/schedule/:gameId" element={<MobileView/>}>
+                <Route index element={<MatchInfo/>}/>
+            </Route>
+            {/* 직관팟 목록 */}
+            <Route path="/party/:gameId" element={<MobileView/>}>
+                <Route index element={<Party/>}/>
+            </Route>
+            {/* 직관팟 상세 */}
+            <Route path="/party/matchid/:partyId" element={<MobileView/>}>
+                <Route index element={<PartyDetail/>}/>
+            </Route>
+            {/* 직관팟 만들기 */}
+            <Route path="/party/newparty" element={<MobileView/>}>
+                <Route index element={<PartyMake/>}/>
+            </Route>
+            {/* 직관팟 수정하기 */}
+            <Route path="/party/edit/:partyId" element={<MobileView/>}>
+                <Route index element={<PartyMake mode="edit" />} />
+            </Route>
+            {/* 직관팟 신청하기 */}
+            <Route path="/party/applyparty/:partyId" element={<MobileView/>}>
+                <Route index element={<PartyApply/>}/>
+            </Route>
+            {/* 직관팟 입장 시 채팅방 */}
+            <Route path="/chat/party/:chatRoomId" element={<MobileView/>}>
+                <Route index element={<Chatting/>}/>
+            </Route>
+            {/* 직관팟 후기 페이지 */}
+            <Route path="/review/party/:partyId" element={<MobileView/>}>
+                <Route index element={<ReviewParty/>}/>
+            </Route>
+            {/* 프로필 & 직관일지 */}
+            {/* 프로필 메인 & 타 사용자 프로필 */}
+            <Route path="/profile/:userId" element={<MobileView/>}>
+                <Route index element={<Profile/>}/>
+            </Route>
+            {/* 직관일지 목록 */}
+            <Route path="/diary/list/:id" element={<MobileView/>}>
+                <Route index element={<DiaryList/>}/>
+            </Route>
+            {/* 직관일지 작성 */}
+            <Route path="/diary/newdiary" element={<MobileView/>}>
+                <Route index element={<NewDiary/>}/>
+            </Route>
+            {/* 직관일지 상세 */}
+            <Route path="/diary/:tag/:id" element={<MobileView/>}>
+                <Route index element={<DiaryDetail/>}/>
+            </Route>
+        </Routes>
+        // </Router>
     );
 }
 
