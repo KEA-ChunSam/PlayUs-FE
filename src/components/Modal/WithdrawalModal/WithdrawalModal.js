@@ -19,12 +19,12 @@ const WithdrawalModal = ({nickname, onCancel, onWithdraw}) => {
                 credentials: 'include'
             });
 
-            if (!res.ok) throw new Error('탈퇴 실패');
-
-            console.log('회원 탈퇴 완료');
-            window.location.href = '/login';
-        } catch (err) {
-            console.error('회원 탈퇴 중 오류 발생:', err);
+            if (res.status === 200) {
+                window.location.href = '/login';
+            } else {
+                throw new Error('탈퇴 실패');
+            }
+        } catch (error) {
             alert('회원 탈퇴에 실패했습니다. 다시 시도해주세요.');
         }
     }

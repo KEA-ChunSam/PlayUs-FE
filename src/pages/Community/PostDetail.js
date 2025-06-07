@@ -1,3 +1,4 @@
+
 import React, {useEffect, useRef, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import styles from './PostDetail.module.css';
@@ -37,9 +38,6 @@ const PostDetail = () => {
 
   const isAuthor = () =>
     currentUser?.id && getWriterId() && String(currentUser.id) === String(getWriterId());
-  console.log('내 userId:', currentUser?.id);
-  console.log('게시글 작성자 writerId:', getWriterId());
-  console.log('isAuthor:', isAuthor());
 
     const checkProfanity = async (text) => {
         try {
@@ -111,7 +109,7 @@ const PostDetail = () => {
 
         // 댓글 데이터 구조화 (commentGroupId를 기준으로 그룹화하고 각 그룹의 첫 댓글을 부모로 간주)
         if (postData.comments && Array.isArray(postData.comments)) {
-            console.log('5. 댓글 구조화 시작 전 원본 댓글 배열:', postData.comments);
+
             
             // 1차 순회: 댓글과 답글 처리
             const fetchNicknamePromises = postData.comments.map(async comment => {
@@ -251,15 +249,11 @@ const PostDetail = () => {
 
             postData.comments = processedComments;
         } else {
-            console.log('12. 댓글 데이터가 없거나 배열이 아님');
             postData.comments = [];
         }
 
         setPost(postData);
         setComments(postData.comments || []);
-
-        console.log('13. 상태 업데이트 완료 - comments 길이:', postData.comments.length);
-        console.log('=== 댓글 데이터 디버깅 종료 ===');
 
     } catch (error) {
         console.error('Error fetching post:', error);
@@ -271,7 +265,6 @@ const PostDetail = () => {
 
 useEffect(() => {
     if (postId && team) {
-        console.log('fetchPost 호출 전 - postId:', postId, 'team:', team);
     fetchPost();
     }
     // eslint-disable-next-line
@@ -280,7 +273,6 @@ useEffect(() => {
 
   // 댓글 작성자 확인 함수 (authorId 기반)
   const isCommentAuthor = (authorId) => {
-      // console.log('isCommentAuthor called', { authorId, currentUserId: currentUser?.id });
       if (authorId !== undefined && authorId !== null && currentUser?.id !== undefined && currentUser?.id !== null) {
           return String(authorId) === String(currentUser.id);
       }
@@ -293,7 +285,6 @@ useEffect(() => {
 
   // 새로운 댓글/답글을 로컬 상태에 추가하는 헬퍼 함수
   const handleUpdateCommentsStateAfterAdd = (prevComments, replyTo, newComment) => {
-      console.log('handleUpdateCommentsStateAfterAdd called', { replyTo, newComment });
 
       // 답글인 경우: 해당 부모 댓글의 replies 배열에 추가
       if (replyTo !== null && replyTo !== undefined && replyTo !== '') {
@@ -303,9 +294,6 @@ useEffect(() => {
               if (String(comment.id) === String(replyTo) || String(comment.id) === String(newComment.commentGroupId)) {
                    // 해당 부모 댓글의 replies 배열에 새로 생성된 답글 추가
                   const updatedReplies = [...(comment.replies || []), newComment];
-                  // 시간순으로 정렬 (선택 사항, 필요시 주석 해제)
-                  // updatedReplies.sort((a, b) => new Date(a.time) - new Date(b.time));
-                  console.log('handleAddComment - 답글 상태 업데이트 후 comments:', updatedReplies);
                   return {
                       ...comment,
                       replies: updatedReplies,
@@ -318,9 +306,6 @@ useEffect(() => {
       } else {
           // 일반 댓글인 경우: 댓글 목록의 마지막에 추가
            const nextComments = [...prevComments, newComment];
-           // 시간순으로 정렬 (선택 사항, 필요시 주석 해제)
-           // nextComments.sort((a, b) => new Date(a.time) - new Date(b.time));
-           console.log('handleAddComment - 댓글 상태 업데이트 후 comments:', nextComments);
            return nextComments;
       }
   };
@@ -360,12 +345,7 @@ useEffect(() => {
                   }
                   payload.commentGroupId = Number(parentComment.commentGroupId);
 
-                  console.log('답글 작성 - 부모 댓글 정보 및 Payload:', {
-                      parentCommentId: parentComment.id,
-                      parentCommentGroupId: parentComment.commentGroupId,
-                      payloadCommentGroupId: payload.commentGroupId,
-                      payload
-                  });
+                  
 
               } else {
                   console.error('답글 작성 실패 - 부모 댓글을 찾을 수 없음 (replyTo ID:', replyTo, ')');
@@ -375,8 +355,7 @@ useEffect(() => {
           }
 
           const requestUrl = `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment`;
-          console.log('실제 요청 URL:', requestUrl);
-          console.log('댓글/답글 전송 payload:', payload);
+          
 
           const response = await axios.post(
               requestUrl,
@@ -388,7 +367,7 @@ useEffect(() => {
                   }
               }
           );
-          console.log('서버 응답:', response.data);
+          
 
           const newCommentData = response.data;
 
@@ -467,9 +446,6 @@ useEffect(() => {
 
   // 댓글 수정
   const handleEditComment = async (commentId, content) => {
-      console.log('handleEditComment id:', commentId);
-      console.log('handleEditComment content:', content);
-      console.log('Type of setEditingContent:', typeof setEditingContent);
       if (isSubmitting) return;
       try {
           setIsSubmitting(true);
@@ -506,7 +482,6 @@ useEffect(() => {
               commentGroupId: Number(targetComment.commentGroupId), // 찾은 댓글의 commentGroupId 사용
               content: content
           };
-          console.log('수정 payload:', payload);
           const response = await axios.put(
               `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment/${commentId}`,
               payload,
@@ -555,7 +530,7 @@ useEffect(() => {
 
   // 댓글 삭제
   const handleDeleteComment = async (commentId) => {
-      console.log('handleDeleteComment - 삭제 시도 Comment ID:', commentId);
+     
       if (!window.confirm('댓글을 삭제하시겠습니까?')) return;
       try {
           // 부모 댓글인지 답글인지 확인
@@ -639,7 +614,7 @@ useEffect(() => {
 
           setShowCommentMenu(null);
           setShowReplyMenu(null);
-          console.log('handleDeleteComment - 댓글 삭제 성공 (클라이언트 상태 업데이트 완료): ID', commentId);
+        
 
       } catch (error) {
           console.error('댓글 삭제 중 오류:', error);
@@ -649,19 +624,12 @@ useEffect(() => {
 
 
   const handleEditReply = (commentId, replyId, content) => {
-      console.log('handleEditReply parentCommentId:', commentId, 'replyId:', replyId);
-      console.log('handleEditReply content:', content);
-      console.log('Type of setEditingCommentId:', typeof setEditingCommentId);
-      console.log('Type of setEditingContent:', typeof setEditingContent);
       setEditingCommentId(`${commentId}_${replyId}`);
       setEditingContent(content);
       setShowReplyMenu(null);
   };
 
   const handleSaveEditReply = async (commentId, replyId) => {
-      console.log('handleSaveEditReply parentCommentId:', commentId, 'replyId:', replyId); // commentId는 부모 ID
-      console.log('Type of setEditingCommentId:', typeof setEditingCommentId);
-      console.log('Type of setEditingContent:', typeof setEditingContent);
       if (isSubmitting) return;
       try {
           setIsSubmitting(true);
@@ -691,7 +659,7 @@ useEffect(() => {
               commentGroupId: Number(targetReply.commentGroupId), // 찾은 대댓글의 commentGroupId 사용
               content: editingContent
           };
-          console.log('대댓글 수정 payload:', payload);
+         
           const response = await axios.put(
               `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/comment/${replyId}`,
               payload,
@@ -734,7 +702,6 @@ useEffect(() => {
   };
 
   const handleDeleteReply = async (commentId, replyId) => {
-      console.log('handleDeleteReply - 삭제 시도 Parent Comment ID:', commentId, 'Reply ID:', replyId);
       if (!window.confirm('답글을 삭제하시겠습니까?')) return;
       try {
            // comments 배열(구조화된 상태)에서 해당 대댓글 찾기
@@ -780,7 +747,7 @@ useEffect(() => {
            );
 
            setShowReplyMenu(null);
-           console.log('handleDeleteReply - 답글 삭제 성공 (클라이언트 상태 업데이트 완료): Reply ID', replyId);
+        
 
        } catch (error) {
            console.error('대댓글 삭제 중 오류:', error);
@@ -890,16 +857,12 @@ useEffect(() => {
   const teamParam = team || post?.team;
   const teamInfo = getTeamInfo(teamParam);
 
-  if (post) {
-      console.log('상세 post.team:', post.team);
-      console.log('상세 teamInfo:', teamInfo);
-  }
 
   if (!post) {
       return <div>로딩 중...</div>;
   }
 
-  console.log('5. 현재 comments 상태 변수 (렌더링 직전):', comments); // 5. 렌더링 시점의 상태 확인
+
 
   return (
       <div className={styles.detailWrapper}>
@@ -989,8 +952,7 @@ useEffect(() => {
                                                   <div 
                                                       className={styles.menuItem} 
                                                        onClick={() => {
-                                                          console.log("수정하기 클릭, c.content:", c.content);
-                                                          console.log("Type of setEditingContent inside onClick:", typeof setEditingContent);
+                                                          
                                                            setEditingCommentId(c.id);
                                                            setEditingContent(c.content);
                                                            setShowCommentMenu(null);
@@ -1015,15 +977,11 @@ useEffect(() => {
                                   <input
                                       value={editingContent}
                                       onChange={e => {
-                                          console.log("input onChange - editingContent:", editingContent, "c.content:", c.content, "e.target.value:", e.target.value);
-                                          console.log("Type of setEditingContent inside input onChange:", typeof setEditingContent);
                                           setEditingContent(e.target.value);
                                       }}
                                   />
                                   <button 
                                       onClick={() => {
-                                          console.log("저장 클릭 - editingContent:", editingContent);
-                                          console.log("Type of setEditingContent inside save onClick:", typeof setEditingContent);
                                       handleEditComment(c.id, editingContent);
                                       }}
                                   >

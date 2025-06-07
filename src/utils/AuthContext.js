@@ -18,12 +18,12 @@ export const AuthProvider = ({ children }) => {
                 if (error.response?.status === 401 && !originalRequest._retry) {
                     originalRequest._retry = true;
                     try {
-                        console.log("🔄 AccessToken 만료됨, 재발급 시도 중...");
+                        // AccessToken 만료됨, 재발급 시도 중...
                         const res = await axios.post(`${baseUrl}/user/auth/reissue`, {}, { withCredentials: true });
-                        console.log("✅ AccessToken 재발급 성공:", res);
+                        // AccessToken 재발급 성공
                         return axios(originalRequest);
                     } catch (e) {
-                        console.warn("❌ AccessToken 재발급 실패:", e);
+                        // AccessToken 재발급 실패
                         setUser(null);
 
                         navigate("/login");
@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
                 const userData = await fetchMyInfo();
                 setUser(userData);
             } catch (err) {
-                console.error("사용자 정보 불러오기 실패", err);
+                // 사용자 정보 불러오기 실패
             }
         };
         loadUser();

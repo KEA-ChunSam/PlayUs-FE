@@ -1,6 +1,9 @@
+
+/* global describe, test, expect */
 /* eslint-env jest */
 import { render, screen } from '@testing-library/react';
 import AppRouter from './routes/AppRouter';
+import { HashRouter } from 'react-router-dom';
 import React from 'react';
 import { HashRouter } from 'react-router-dom';
 

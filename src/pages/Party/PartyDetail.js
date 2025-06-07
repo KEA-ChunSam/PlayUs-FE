@@ -30,7 +30,7 @@ const PartyDetail = () => {
                 const res = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile`, {withCredentials: true});
                 setUser(res.data);
             } catch (err) {
-                console.error("로그인 사용자 정보 불러오기 실패", err);
+                // 로그인 사용자 정보 불러오기 실패
             }
         };
         fetchUser();
@@ -45,7 +45,7 @@ const PartyDetail = () => {
                 const data = response.data;
                 setParty(data);
             } catch (error) {
-                console.error(error);
+                // 에러 처리
             }
         };
         fetchParty();
@@ -60,7 +60,7 @@ const PartyDetail = () => {
                     });
                     setWriter(response.data[0]);
                 } catch (error) {
-                    console.error('작성자 정보 로드 실패:', error);
+                    // 작성자 정보 로드 실패
                 }
             };
             fetchWriter();
@@ -68,10 +68,10 @@ const PartyDetail = () => {
     }, [party?.writerId]);
 
     async function applyParty() {
-        // console.log("✅ applyParty 함수 호출됨");
+        
 
         try {
-            // console.log("✅ 현재 partyJoinMethod:", party?.partyJoinMethod);
+            
             if (party?.partyJoinMethod === "선착순") {
                 const res = await axios.post(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}/apply/fcfs`, {
                     partyId: partyId
@@ -79,19 +79,19 @@ const PartyDetail = () => {
                     withCredentials: true
                 });
 
-                // console.log("✅ 신청 결과:", res.data);
+                
                 if (res.data && typeof res.data.partyJoinRequestStatus !== "undefined") {
-                    // console.log("✅ party_join_request_status:", res.data.partyJoinRequestStatus);
+                    // Status check is handled without explicit action here.
                 }
 
                 setShowApplyModal(true);
-                // console.log("✅ 모달 상태 변경됨 (showApplyModal=true)");
+                
             } else {
-                // console.log("✅ 승인제 파티입니다. 승인 요청 페이지로 이동");
-                navigate(`/party/applyParty/${partyId}`);
+                
+                navigate(`/party/request/${partyId}`);
             }
         } catch (error) {
-            // console.error('❌ 신청 실패:', error.response?.data || error);
+            // 신청 실패
             setShowErrorModal(true);
         }
     }
@@ -206,7 +206,7 @@ const PartyDetail = () => {
                                             setShowModal(false);
                                             setShowDeleteModal(true);
                                         } catch (error) {
-                                            console.error('삭제 실패:', error);
+                                            // 삭제 실패
                                         }
                                     }
                                 }
