@@ -7,7 +7,6 @@ import Modal from "../../components/Modal/Modal";
 import CasterbotModal from "../Chatbot/CasterbotModal";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import axios from 'axios';
-import { getTeamTagFromKoreanName } from "../../utils/teamInfoMap";
 
 const DiaryDetail = () => {
     const {tag, id} = useParams();
@@ -21,7 +20,7 @@ const DiaryDetail = () => {
     const tabLabels = ["나의 직관일지"];
 
     function handleBack() {
-        navigate('/diary/list');
+        navigate('/diary/list/1');
     }
 
     useEffect(() => {
@@ -98,7 +97,17 @@ const DiaryDetail = () => {
                 </div>
 
                 <div className={styles.imageWrapper}>
-                    <img src={diary.image || `${process.env.PUBLIC_URL}/exImage.png`} alt="diary" className={styles.image}/>
+                    <img
+                        src={
+                            diary.image
+                                ? diary.image.startsWith('blob:')
+                                    ? diary.image
+                                    : `${process.env.REACT_APP_PRESIGNED_URI}/${diary.image}`
+                                : `${process.env.PUBLIC_URL}/exImage.png`
+                        }
+                        alt="diary"
+                        className={styles.image}
+                    />
                 </div>
 
                 <div className={styles.content}>

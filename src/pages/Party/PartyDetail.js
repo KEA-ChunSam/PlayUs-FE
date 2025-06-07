@@ -134,8 +134,19 @@ const PartyDetail = () => {
                                     )}
                                 </div>
                             )}
-                            <img src={`${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`} alt="player"
-                                 className={styles.partyImage}/>
+                            <img
+                              src={
+                                party.partyThumbnailUrls?.[0]
+                                  ? `${process.env.REACT_APP_PRESIGNED_URI.replace(/\/$/, '')}/${party.partyThumbnailUrls[0]}`
+                                  : `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`
+                              }
+                              alt="party thumbnail"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`;
+                              }}
+                              className={styles.partyImage}
+                            />
                             <div className={styles.partySummary}>
                                 <div className={styles.tags}>
                                     {/* 현재 신청방식, 신청나이, 신청성별은 null로 지정됨 -> 백엔드 수정 필요 */}
@@ -164,7 +175,19 @@ const PartyDetail = () => {
                                     {/* user-service 백엔드 단에서 presigned image 로직 적용 필요 */}
                                     <div className={styles.avatars}>
                                         {party.userThumbnailUrls && party.userThumbnailUrls.map((url, i) => (
-                                            <img key={i} src={url} alt="profile"/>
+                                            <img
+                                                key={i}
+                                                src={
+                                                    url
+                                                        ? `${process.env.REACT_APP_PRESIGNED_URI.replace(/\/$/, '')}/${url}`
+                                                        : `${process.env.PUBLIC_URL}/Logo/default-profile.png`
+                                                }
+                                                alt="profile"
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.src = `${process.env.PUBLIC_URL}/Logo/default-profile.png`;
+                                                }}
+                                            />
                                         ))}
                                     </div>
                                     <span

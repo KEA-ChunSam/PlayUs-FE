@@ -60,7 +60,7 @@ const PartyMake = () => {
                 ageGroup: party.partyAges || [],
                 minimumParticipants: party.minimumParticipantsCount?.toString() || '',
                 maximumParticipants: party.maximumParticipantsCount?.toString() || '',
-                thumbnailImageNameList: [],
+                thumbnailImageNameList: party.thumbnailImageNameList?.length ? party.thumbnailImageNameList : (party.partyThumbnailUrls || []),
                 message: party.message || '',
                 matchId: party.matchId || 1,
             });
@@ -121,7 +121,40 @@ const PartyMake = () => {
             return;
         }
 
-        const uploadedFileNames = ["default.png"];
+        const uploadedFileNames = [];
+
+        for (const file of partyForm.thumbnailImageNameList) {
+            if (file instanceof File) {
+                const uuid = crypto.randomUUID();
+                const imageFileName = `party/${uuid}_${file.name}`;
+
+                try {
+                    const presignedRes = await axios.post(
+                        `${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/presigned-url`,
+                        { imageFileName },
+                        { withCredentials: true }
+                    );
+
+                    const presignedUrl = presignedRes.data.presignedUrl;
+
+                    const uploadRes = await fetch(presignedUrl, {
+                        method: 'PUT',
+                        body: file,
+                    });
+
+                    if (!uploadRes.ok) throw new Error('이미지 업로드 실패');
+
+                    uploadedFileNames.push(imageFileName);
+                } catch (uploadErr) {
+                    console.error("이미지 업로드 실패:", uploadErr);
+                    setModalMessage("이미지 업로드 중 오류가 발생했습니다.");
+                    setModalVisible(true);
+                    return;
+                }
+            } else {
+                uploadedFileNames.push(file); // 기존 이미지일 경우 그대로 추가
+            }
+        }
 
         const payload = {
             ...(isEditMode && {
@@ -134,7 +167,7 @@ const PartyMake = () => {
             ageGroup: partyForm.ageGroup,
             minimumParticipants: parseInt(partyForm.minimumParticipants),
             maximumParticipants: parseInt(partyForm.maximumParticipants),
-            thumbnailImageNameList: uploadedFileNames, // This field is still named thumbnailUrl in payload
+            thumbnailImageNameList: uploadedFileNames,
             message: partyForm.message,
             matchId: partyForm.matchId,
         };

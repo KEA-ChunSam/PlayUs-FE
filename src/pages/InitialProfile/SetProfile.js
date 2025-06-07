@@ -87,7 +87,7 @@ const SetProfile = () => {
                     .catch(reject);
                 });
 
-                thumbnailURL = `${process.env.REACT_APP_PRESIGNED_URI}/${fileName}`;
+                thumbnailURL = fileName;
             } catch (err) {
                 console.error("이미지 업로드 실패:", err);
                 setShowModal(true);
