@@ -8,7 +8,7 @@ import CasterbotModal from "../Chatbot/CasterbotModal";
 import TeamTabNav from "../../components/TeamTabNav/TeamTabNav";
 import ScheduleSection from "./ScheduleSection";
 import DummyMatchData from "../../components/DummyData/DummyMatchData";
-import {teamInfoMap} from "../../utils/teamInfoMap";
+import {teamInfoMap, teamInfoMapCommunity} from "../../utils/teamInfoMap";
 
 export default function MainPage() {
     const { user } = useAuth();
@@ -26,6 +26,9 @@ export default function MainPage() {
     const [allMatches, setAllMatches] = useState([]);
     const [myApprovalPartyDetail, setMyApprovalPartyDetail] = useState(null);
     const today = new Date().toISOString().split("T")[0];
+
+    // 인기 포스트 상태
+    const [popularPosts, setPopularPosts] = useState([]);
 
     const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
     const sseUrl = `${baseUrl}/user/notifications/connect`;
@@ -100,6 +103,31 @@ export default function MainPage() {
 
         fetchUserProfileAndFavorites();
     }, []);
+
+    // 인기 포스트 가져오기 (선호 팀 변경 또는 탭 변경 시)
+    useEffect(() => {
+        const fetchPopularPosts = async () => {
+            try {
+                const selectedTeamId = selectedFavorites[activeTeamIndex];
+                const teamInfo = teamInfoMapCommunity.find(info => info.id === selectedTeamId);
+                if (!teamInfo) return;
+
+                const res = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/${teamInfo.teamId}`, {
+                    withCredentials: true,
+                });
+
+                const posts = res.data;
+                const sorted = posts.sort((a, b) => b.view - a.view);
+                setPopularPosts(sorted.slice(0, 1)); // top 1
+            } catch (err) {
+                console.error("팀별 게시글 가져오기 실패:", err);
+            }
+        };
+
+        if (selectedFavorites.length > 0) {
+            fetchPopularPosts();
+        }
+    }, [selectedFavorites, activeTeamIndex]);
 
 useEffect(() => {
     if (loginUserId) {
@@ -272,14 +300,35 @@ useEffect(() => {
                 ) : (
                     <p className={styles.noContentText}>해당 팀의 경기가 없습니다.</p>
                 )}
-
                 <h2 className={styles.sectionTitleWithMargin}>인기 포스트</h2>
-                {/* TODO: 이후 ISSUE에서 커뮤니티 Service 수정 시 적용 예정 */}
-                {/*{posts.length > 0 ? (*/}
-                {/*    posts.map((post, i) => <PopularPost key={i} {...post} />)*/}
-                {/*) : (*/}
-                {/*    <p className={styles.noContentText}>게시글이 없습니다.</p>*/}
-                {/*)}*/}
+                {popularPosts.length > 0 ? (
+                    popularPosts.map((post, i) => (
+                        <div
+                            key={i}
+                            className={styles.partyCard}
+                            onClick={() => navigate(`/community/post/${post.teamTag}/${post.postId}`)}
+                            style={{ cursor: "pointer" }}
+                        >
+                            <img
+                                src={
+                                    post.image
+                                        ? `${post.image}`
+                                        : `${process.env.PUBLIC_URL}/Logo/defaultpost.png`
+                                }
+                                alt="게시글 썸네일"
+                                className={styles.playerImg}
+                            />
+                            <div className={styles.partyContent}>
+                                <div className={styles.partyTitle}>{post.title}</div>
+                                <div className={styles.partyMeta}>
+                                    <span>작성자: {post.writerNickname}</span>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <p className={styles.noContentText}>게시글이 없습니다.</p>
+                )}
             </div>
             <h2 className={styles.sectionTitleWithMargin}>나의 직관팟</h2>
             {myApprovalPartyDetail && (
