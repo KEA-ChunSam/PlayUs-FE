@@ -382,7 +382,7 @@ const PostDetail = () => {
                 newCommentData.profileImg ||
                 newCommentData.writerProfileImage ||
                 newCommentData.thumbnailURL || // added
-                profileImg;
+                null;
             // Convert relative URLs to full URLs
             if (
                 profileImg &&
