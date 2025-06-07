@@ -289,7 +289,11 @@ useEffect(() => {
                     style={{ cursor: "pointer" }}
                 >
                     <img
-                        src={myApprovalPartyDetail.partyThumbnailUrls?.[0] || `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
+                        src={
+                            myApprovalPartyDetail.partyThumbnailUrls?.[0]
+                                ? `${process.env.REACT_APP_PRESIGNED_URI}/${myApprovalPartyDetail.partyThumbnailUrls[0]}`
+                                : `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`
+                        }
                         alt="직관팟 썸네일"
                         className={styles.playerImg}
                     />
@@ -327,7 +331,11 @@ useEffect(() => {
                                 {myApprovalPartyDetail.userThumbnailUrls?.slice(0, 1).map((url, i) => (
                                     <img
                                         key={i}
-                                        src={url || `${process.env.PUBLIC_URL}/Logo/profile.png`}
+                                        src={
+                                            url
+                                                ? `${process.env.REACT_APP_PRESIGNED_URI}/${url}`
+                                                : `${process.env.PUBLIC_URL}/Logo/profile.png`
+                                        }
                                         alt="프로필"
                                     />
                                 ))}

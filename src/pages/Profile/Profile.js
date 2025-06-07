@@ -88,7 +88,9 @@ const Profile = () => {
                         teamLogo: teamData?.logo || `${process.env.PUBLIC_URL}/exImage.png`,
                     };
                 });
-                setRecentDiaries(data);
+                // Sort diaries by most recent date first
+                const sortedData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
+                setRecentDiaries(sortedData);
             } catch (error) {
                 console.error('최근 직관일지 불러오기 실패:', error);
             }
@@ -318,7 +320,11 @@ const Profile = () => {
                                         {recentDiaries.slice(0, 2).map((entry, idx) => (
                                             <li key={idx} className={styles.journalItem}>
                                                 {entry.image && (
-                                                    <img src={entry.image} alt="entry" className={styles.entryImg}/>
+                                                    <img
+                                                        src={`${process.env.REACT_APP_PRESIGNED_URI}/${entry.image}`}
+                                                        alt="entry"
+                                                        className={styles.entryImg}
+                                                    />
                                                 )}
                                                 <span className={styles.entryTitle}>{entry.title}</span>
                                                 <span className={styles.entryDate}>

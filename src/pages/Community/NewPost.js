@@ -89,8 +89,18 @@ const NewPost = () => {
         e.preventDefault();
         
         // 비속어 감지
-        const hasProfanity = await checkProfanity(title) || await checkProfanity(content);
-        if (hasProfanity) {
+        const profanityResultTitle = await checkProfanity(title);
+        const profanityResultContent = await checkProfanity(content);
+
+        const isProfane = profanityResultTitle.isCurse || profanityResultContent.isCurse;
+
+        if (isProfane) {
+            const words = [
+                ...(profanityResultTitle.words || []),
+                ...(profanityResultContent.words || [])
+            ].join(', ');
+            setProfanityMessage(words);
+            setShowAbsModal(true);
             return;
         }
 
@@ -202,13 +212,42 @@ const NewPost = () => {
                 }
             } else {
                 // 새 게시글 작성 시 필요한 정보만 전송
+                let uploadedImageUrl = null;
+                if (imageFile) {
+                    try {
+                        const presignedResponse = await axios.post(
+                            `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/presigned-url`,
+                            {
+                                imageFileName: `community/${imageFile.name}`
+                            },
+                            {
+                                withCredentials: true,
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            }
+                        );
+                        const presignedUrl = presignedResponse.data?.presignedUrl;
+                        if (presignedUrl) {
+                            await axios.put(presignedUrl, imageFile, {
+                                headers: {
+                                    'Content-Type': imageFile.type
+                                }
+                            });
+                            uploadedImageUrl = presignedUrl.split('?')[0];
+                        }
+                    } catch (error) {
+                        console.error('이미지 업로드 실패:', error);
+                        alert('이미지 업로드 중 문제가 발생했습니다.');
+                        return;
+                    }
+                }
                 const postData = {
                     title,
                     content,
-                    image: image || null,
-                    date: new Date().toISOString(),  // twpDate 대신 date 사용
-                    isSecret: false,
-                    teamId: parseInt(teamInfo.id)  // teamId만 전송
+                    image: uploadedImageUrl, // 이 시점에서 uploadedImageUrl은 presigned URL이 없는 경우 null이 아님
+                    twpDate: new Date().toISOString().split('T')[0],  // yyyy-MM-dd 형식으로 변경
+                    isSecret: false
                 };
                 console.log('최종 postData(작성):', postData);
                 const response = await axios.post(
@@ -221,7 +260,7 @@ const NewPost = () => {
                         }
                     }
                 );
-                
+
                 if (!response.data) {
                     throw new Error('서버 응답이 없습니다.');
                 }

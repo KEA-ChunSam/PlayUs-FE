@@ -376,8 +376,12 @@ const Party = () => {
                                             onClick={() => navigate(`/party/matchid/${party.partyId}`)}
                                         >
                                             <img
-                                                src={party.partyThumbnailUrls?.[0] || `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
-                                                alt="직관팟 썸네일" className={styles.playerImg}/>
+                                                src={party.partyThumbnailUrls?.[0]
+                                                    ? `${process.env.REACT_APP_PRESIGNED_URI}/${party.partyThumbnailUrls[0]}`
+                                                    : `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
+                                                alt="직관팟 썸네일"
+                                                className={styles.playerImg}
+                                            />
                                             <div className={styles.partyContent}>
                                                 <div className={styles.tags}>
                                                     <span className={styles.tag}>{party.partyJoinMethod}</span>
@@ -411,9 +415,13 @@ const Party = () => {
                                                 <div className={styles.partyStatus}>
                                                     <div className={styles.avatars}>
                                                         {party.userThumbnailUrls?.slice(0, 1).map((url, i) => (
-                                                            <img key={i}
-                                                                 src={url || `${process.env.PUBLIC_URL}/Logo/profile.png`}
-                                                                 alt="프로필"/>
+                                                            <img
+                                                                key={i}
+                                                                src={party.userThumbnailUrls?.[0]
+                                                                    ? `${process.env.REACT_APP_PRESIGNED_URI}/${party.userThumbnailUrls[0]}`
+                                                                    : `${process.env.PUBLIC_URL}/Logo/profile.png`}
+                                                                alt="프로필"
+                                                            />
                                                         ))}
                                                     </div>
                                                     <div
@@ -465,7 +473,9 @@ const Party = () => {
                                             </div>
                                         </div>
                                         <img
-                                            src={myApprovalPartyDetail.partyThumbnailUrls?.[0] || `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
+                                            src={myApprovalPartyDetail.partyThumbnailUrls?.[0]
+                                                ? `${process.env.REACT_APP_PRESIGNED_URI}/${myApprovalPartyDetail.partyThumbnailUrls[0]}`
+                                                : `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
                                             alt="썸네일"
                                             className={styles.thumbnailImg}
                                         />
@@ -560,7 +570,9 @@ const Party = () => {
                             {myApprovalPartyDetail && (
                                 <div className={styles.partyCard}>
                                     <img
-                                        src={myApprovalPartyDetail.partyThumbnailUrls?.[0] || `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
+                                        src={myApprovalPartyDetail.partyThumbnailUrls?.[0]
+                                            ? `${process.env.REACT_APP_PRESIGNED_URI}/${myApprovalPartyDetail.partyThumbnailUrls[0]}`
+                                            : `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
                                         alt="직관팟 썸네일"
                                         className={styles.playerImg}
                                     />
@@ -594,9 +606,11 @@ const Party = () => {
                                         <div className={styles.partyStatus}>
                                             <div className={styles.avatars}>
                                                 {myApprovalPartyDetail.userThumbnailUrls?.slice(0, 1).map((url, i) => (
-                                                    <img key={i}
-                                                         src={url || `${process.env.PUBLIC_URL}/Logo/profile.png`}
-                                                         alt="프로필"/>
+                                                    <img
+                                                        key={i}
+                                                        src={url ? `${process.env.REACT_APP_PRESIGNED_URI}/${url}` : `${process.env.PUBLIC_URL}/Logo/profile.png`}
+                                                        alt="프로필"
+                                                    />
                                                 ))}
                                             </div>
                                             <div className={styles.slot}>
@@ -613,7 +627,7 @@ const Party = () => {
                                     approvalList.map((user, idx) => (
                                         <div key={idx} className={styles.approvalCard}>
                                             <img
-                                                src={user.thumbnailUrl || `${process.env.PUBLIC_URL}/Logo/profile.png`}
+                                                src={user.thumbnailUrl ? `${process.env.REACT_APP_PRESIGNED_URI}/${user.thumbnailUrl}` : `${process.env.PUBLIC_URL}/Logo/profile.png`}
                                                 alt="신청자"
                                                 className={styles.userAvatar}
                                             />
