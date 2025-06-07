@@ -89,7 +89,12 @@ const Profile = () => {
                         formattedDate = entry.date;
                     } else {
                         console.warn('Unexpected date format:', entry.date);
-                        return;
+                        try {
+                            formattedDate = new Date(entry.date).toISOString().split('T')[0];
+                        } catch (e) {
+                            console.error('Date parsing failed:', entry.date, e);
+                            return;
+                        }
                     }
 
                     const key = new Date(formattedDate).toLocaleDateString('sv-SE');
