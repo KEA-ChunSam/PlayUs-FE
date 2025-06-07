@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Doughnut} from 'react-chartjs-2';
 import {ArcElement, Chart as ChartJS, Legend, Tooltip} from 'chart.js';
-import dummyDiaries from '../../components/DummyData/dummyDiaries';
 import {useNavigate, useParams} from 'react-router-dom';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -13,35 +12,23 @@ import WithdrawalModal from '../../components/Modal/WithdrawalModal/WithdrawalMo
 import CasterbotModal from "../Chatbot/CasterbotModal";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import axios from "axios";
+import {teamInfoMapCommunity} from "../../utils/teamInfoMap";
 
 // 팀 정보 맵 (예시, 실제 데이터는 프로젝트에서 적절히 import/정의 필요)
-const teamInfoMapCommunity = [
-    {teamId: 1, name: 'NC 다이노스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_NC.png`},
-    {teamId: 2, name: '삼성 라이온즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SS.png`},
-    {teamId: 3, name: '두산 베어스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_OB.png`},
-    {teamId: 4, name: '한화 이글스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HH.png`},
-    {teamId: 5, name: 'KIA 타이거즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HT.png`},
-    {teamId: 6, name: 'KT 위즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`},
-    {teamId: 7, name: '롯데 자이언츠', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LT.png`},
-    {teamId: 8, name: 'LG 트윈스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LG.png`},
-    {teamId: 9, name: 'SSG 랜더스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SK.png`},
-    {teamId: 10, name: '키움 히어로즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
-];
+// const teamInfoMapCommunity = [
+//     {teamId: 1, name: 'NC 다이노스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_NC.png`},
+//     {teamId: 2, name: '삼성 라이온즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SS.png`},
+//     {teamId: 3, name: '두산 베어스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_OB.png`},
+//     {teamId: 4, name: '한화 이글스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HH.png`},
+//     {teamId: 5, name: 'KIA 타이거즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HT.png`},
+//     {teamId: 6, name: 'KT 위즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png`},
+//     {teamId: 7, name: '롯데 자이언츠', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LT.png`},
+//     {teamId: 8, name: 'LG 트윈스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LG.png`},
+//     {teamId: 9, name: 'SSG 랜더스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SK.png`},
+//     {teamId: 10, name: '키움 히어로즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png`}
+// ];
 
 ChartJS.register(ArcElement, Tooltip, Legend);
-const storedDiaries = JSON.parse(localStorage.getItem('customDiaries')) || [];
-const allDiaries = [...storedDiaries, ...dummyDiaries];
-
-const mergedLogs = allDiaries.reduce((acc, entry) => {
-    const dateKey = entry.date.replace(/\./g, '-');
-    if (entry.teamLogo) {
-        const logoMatch = entry.teamLogo.match(/emblem_(.*?)\.png$/);
-        if (logoMatch) {
-            acc[dateKey] = `${logoMatch[1]}.png`;
-        }
-    }
-    return acc;
-}, {});
 
 const journalEntries = [
     {date: '2025.03.03', title: '비와서 경기 종료..', image: `${process.env.PUBLIC_URL}/exImage.png`},
@@ -54,6 +41,7 @@ const Profile = () => {
     // 최근 커뮤니티 게시글 state
     const [recentPosts, setRecentPosts] = useState([]);
     // 최근 직관일지 fetch
+    const [calendarLogs, setCalendarLogs] = useState({});
 
     // const [searchParams] = useSearchParams();
     // const userId = searchParams.get('userId');
@@ -91,6 +79,30 @@ const Profile = () => {
                 // Sort diaries by most recent date first
                 const sortedData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
                 setRecentDiaries(sortedData);
+
+                // calendarLogs logic
+                const calendarMap = {};
+                sortedData.forEach(entry => {
+                    let formattedDate;
+                    if (entry.date.includes('.')) {
+                        const [year, month, day] = entry.date.split('.').map(str => str.padStart(2, '0'));
+                        formattedDate = `${year}-${month}-${day}`;
+                    } else if (entry.date.includes('-')) {
+                        formattedDate = entry.date;
+                    } else {
+                        console.warn('Unexpected date format:', entry.date);
+                        return;
+                    }
+
+                    const key = new Date(formattedDate).toLocaleDateString('sv-SE');
+                    if (entry.teamLogo) {
+                        const logoMatch = entry.teamLogo.match(/emblem_(.*?)\.png$/);
+                        if (logoMatch) {
+                            calendarMap[key] = `emblem_${logoMatch[1]}.png`;
+                        }
+                    }
+                });
+                setCalendarLogs(calendarMap);
             } catch (error) {
                 console.error('최근 직관일지 불러오기 실패:', error);
             }
@@ -204,10 +216,10 @@ const Profile = () => {
     const tileContent = ({date, view}) => {
         if (view === 'month') {
             const key = date.toLocaleDateString('sv-SE');
-            if (mergedLogs[key]) {
+            if (calendarLogs[key]) {
                 return (
                     <div className={styles.logoWrapper}>
-                        <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_${mergedLogs[key]}`} alt="logo"
+                        <img src={`${process.env.PUBLIC_URL}/Logo/TeamLogo/${calendarLogs[key]}`} alt="logo"
                              className={styles.teamLogo}/>
                     </div>
                 );
