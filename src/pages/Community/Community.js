@@ -77,7 +77,9 @@ const Community = () => {
                 const favorites = Array.isArray(res.data.favoriteTeams) ? res.data.favoriteTeams : [];
 
                 const sorted = [...favorites].sort((a, b) => a.displayOrder - b.displayOrder);
-
+                if (sorted.length === 0) {
+                    throw new Error('선호팀이 없습니다.');
+                }
                 const firstTeamId = sorted[0].teamId;
 
                 // teamInfoMapCommunity에서 해당 ID의 팀 정보 찾기
