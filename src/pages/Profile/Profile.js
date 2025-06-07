@@ -74,9 +74,7 @@ const Profile = () => {
                     },
                     withCredentials: true,
                 });
-                // Log the full result to verify backend response
-                console.log('diary response:', response.data);
-
+                // diary response
                 const data = response.data.map(entry => {
                     const teamData = teamInfoMapCommunity.find(team => team.teamId === entry.TeamName);
                     return {
@@ -90,7 +88,7 @@ const Profile = () => {
                 });
                 setRecentDiaries(data);
             } catch (error) {
-                console.error('최근 직관일지 불러오기 실패:', error);
+                // 최근 직관일지 불러오기 실패
             }
         };
 
@@ -137,7 +135,7 @@ const Profile = () => {
                     setIsMine(true);
                 }
             } catch (err) {
-                console.error('프로필 불러오기 오류:', err);
+                // 프로필 불러오기 오류
                 setError('프로필을 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.');
             }
         };
@@ -156,7 +154,7 @@ const Profile = () => {
                 });
                 setRecentPosts(res.data);
             } catch (err) {
-                console.error('커뮤니티 게시글 불러오기 실패:', err);
+                // 커뮤니티 게시글 불러오기 실패
             }
         };
 
@@ -171,7 +169,7 @@ const Profile = () => {
     const [showFinalModal, setShowFinalModal] = useState(false);
     const navigate = useNavigate();
     const handleLogout = () => {
-        console.log('로그아웃 확인됨');
+        // 로그아웃 확인됨
         setShowLogoutModal(false);
         navigate('/login');
     };

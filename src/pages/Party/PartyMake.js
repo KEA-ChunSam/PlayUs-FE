@@ -21,13 +21,7 @@ const PartyMake = () => {
 
     const [step, setStep] = useState(1);
 
-    useEffect(() => {
-        if (receivedMatchId) {
-            console.log("✅ 전달받은 matchId:", receivedMatchId);
-        } else {
-            console.warn("⚠️ matchId가 전달되지 않았습니다.");
-        }
-    }, [receivedMatchId]);
+    const [partyName, setPartyName] = useState('');
 
     const [partyForm, setPartyForm] = useState({
         title: '',
@@ -47,6 +41,14 @@ const PartyMake = () => {
     const [redirectId, setRedirectId] = useState(null);
 
     const imageFileRef = useRef();
+
+    useEffect(() => {
+        if (receivedMatchId) {
+            // matchId 전달 확인
+        } else {
+            // matchId 없음 경고
+        }
+    }, [receivedMatchId]);
 
     useEffect(() => {
         if (isEditMode && location.state) {
@@ -105,7 +107,7 @@ const PartyMake = () => {
                 words: result.words || [],
             };
         } catch (error) {
-            console.error('비속어 필터링 오류:', error);
+            // 비속어 필터링 오류 처리
             return { isCurse: false, words: [] };
         }
     };

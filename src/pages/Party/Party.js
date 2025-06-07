@@ -54,7 +54,6 @@ const Party = () => {
                 }
 
                 setMatchId(match.match_id);
-                console.log("🔗 [matchId]", match.match_id);
             } catch (err) {
                 console.error("matchId 조회 실패:", err);
             }
@@ -118,7 +117,6 @@ const Party = () => {
             })
                 .then(response => {
                     // Expecting response.data to be an array of writer objects
-                    // console.log("👀 Writer API response:", response.data);
                     const map = {};
                     response.data.forEach(writer => {
                         // Fallback to writer.id if writer.writerId is not present
@@ -135,8 +133,6 @@ const Party = () => {
     useEffect(() => {
         if (activeTab === 2 && loginUserId) {
             const fetchMyApprovalPartyDetail = async () => {
-                console.log("🔥 activeTab === 2 진입");
-
                 try {
                     const twpBase = process.env.REACT_APP_LOCAL_BACKEND_TWP_URI;
                     const token = document.cookie
@@ -295,6 +291,18 @@ const Party = () => {
         }
     }
 
+    const fetchWriter = async (writerId) => {
+        try {
+            const response = await axios.post(`${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/api/writers`, [writerId], {
+                withCredentials: true
+            });
+            // Writer API response
+            return response.data[0];
+        } catch (error) {
+            console.error("Error fetching writer info:", error);
+            return null;
+        }
+    };
 
     return (
         <>
