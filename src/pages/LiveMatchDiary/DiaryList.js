@@ -50,13 +50,14 @@ const DiaryList = () => {
                         id: entry.postId,
                         title: entry.title,
                         date: entry.twpDate || entry.date,
-                        image: entry.thumbnail || null,
+                        image: entry.thumbnail ? `${process.env.REACT_APP_PRESIGNED_URI}/${entry.thumbnail}` : null,
                         // image: `${process.env.PUBLIC_URL}/exImage.png` || null, // 임시 이미지
                         team: teamData?.name || '',
                         teamLogo: teamData?.logo || `${process.env.PUBLIC_URL}/exImage.png`,
                         content: '',
                     };
                 });
+                data.sort((a, b) => new Date(b.date) - new Date(a.date));
                 setDiaries(data);
                 setTotalPages(Math.ceil(data.length / 8));
 

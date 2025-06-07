@@ -14,9 +14,9 @@ const NewDiary = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { userId } = useParams();
-    useEffect(() => {
-        console.log('🧭 location.state:', location.state);
-    }, []);
+    // useEffect(() => {
+    //     console.log('🧭 location.state:', location.state);
+    // }, []);
     const isEditing = !!location.state;
     const postId = isEditing ? location.state?.id : null;
     // Enhanced team/tag initialization for editing mode
@@ -62,17 +62,47 @@ const NewDiary = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        let imageFileName = null;
+
+        if (imageFile) {
+            try {
+                const uuid = crypto.randomUUID();
+                imageFileName = `diary/${uuid}_${imageFile.name}`;
+                // Inserted log statements
+                console.log("🧾 imageFile 객체:", imageFile);
+                console.log("📛 imageFile.name:", imageFile?.name);
+                console.log("📦 최종 imageFileName:", imageFileName);
+
+                const presignedRes = await axios.post(
+                    `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/presigned-url`,
+                    { imageFileName },
+                    { withCredentials: true }
+                );
+
+                await fetch(presignedRes.data.presignedUrl, {
+                    method: 'PUT',
+                    body: imageFile
+                });
+            } catch (err) {
+                console.error("이미지 업로드 실패:", err);
+                setModalTitle('오류');
+                setModalMessage('이미지 업로드에 실패했습니다.');
+                setShowModal(true);
+                return;
+            }
+        }
+
         const postData = {
             title,
             content,
-            image: imageFile,
+            image: imageFileName,
             twpDate: isEditing ? location.state?.twpDate : new Date().toISOString().split('T')[0],
             isSecret: true
         };
 
         try {
             if (isEditing && postId && teamTag) {
-                await axios.patch(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/live-match-diary/${teamTag}/${postId}`, postData, {
+                await axios.put(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/live-match-diary/${teamTag}/${postId}`, postData, {
                     withCredentials: true
                 });
             } else {
@@ -92,7 +122,7 @@ const NewDiary = () => {
     };
 
     const handleCancel = () => {
-        navigate('/diary/list');
+        navigate('/diary/list/1');
     };
 
     return (
@@ -106,7 +136,15 @@ const NewDiary = () => {
                 <form className={styles.body} onSubmit={handleSubmit}>
                     <label className={styles.imageUpload}>
                         {image ? (
-                            <img src={image} alt="preview" className={styles.preview}/>
+                            <img
+                              src={
+                                image?.startsWith('blob:')
+                                  ? image
+                                  : `${process.env.REACT_APP_PRESIGNED_URI}/${image}`
+                              }
+                              alt="preview"
+                              className={styles.preview}
+                            />
                         ) : (
                             <span>사진/동영상</span>
                         )}
