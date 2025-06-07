@@ -466,7 +466,9 @@ const Profile = () => {
                             setProfile(prev => ({
                                 ...prev,
                                 nickname: newNickname,
-                                profileImg: newImageUrl || prev.profileImg
+                                profileImg: newImageUrl
+                                    ? `${process.env.REACT_APP_PRESIGNED_URI}/${newImageUrl}`
+                                    : prev.profileImg
                             }));
                         }}
                         initialNickname={nickname}

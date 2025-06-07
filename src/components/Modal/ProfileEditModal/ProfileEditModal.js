@@ -60,6 +60,12 @@ const ProfileEditModal = ({ onClose, onSubmit, initialNickname, initialProfileIm
     const handleSubmit = async () => {
         if (!isValid) return;
 
+        // 변경사항이 없으면 API 호출 없이 모달만 닫기
+        if (!isImageChanged && nickname === initialNickname) {
+            onClose();
+            return;
+        }
+
         let thumbnailURL = null;
 
         // 이미지가 변경되었을 경우에만 이미지 업로드 수행
@@ -121,9 +127,10 @@ const ProfileEditModal = ({ onClose, onSubmit, initialNickname, initialProfileIm
         try {
             // 닉네임만 변경하는 경우
             if (!thumbnailURL) {
+                thumbnailURL = initialProfileImage?.replace(`${process.env.REACT_APP_PRESIGNED_URI}/`, '');
                 const res = await axios.put(
-                    `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/nickname`,
-                    { nickname },
+                    `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile`,
+                    { nickname, thumbnailURL },
                     { withCredentials: true }
                 );
 
