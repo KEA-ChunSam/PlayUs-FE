@@ -393,10 +393,20 @@ const PostDetail = () => {
             // 현재 로그인한 사용자의 정보를 우선적으로 사용
             let writerNickname = currentUser?.nickname || newCommentData.writerNickname || newCommentData.author;
             let authorId = currentUser?.id || newCommentData.userId; // 현재 로그인한 사용자의 ID를 우선
-            let profileImg = currentUser?.profileImageUrl || newCommentData.profileImg || newCommentData.writerProfileImage;
-            // if (profileImg && !profileImg.startsWith('http') && !profileImg.startsWith('data:')) {
-            //     profileImg = `${process.env.REACT_APP_PRESIGNED_URI}/${profileImg}`;
-            // }
+            let profileImg =
+                currentUser?.profileImageUrl ||
+                newCommentData.profileImg ||
+                newCommentData.writerProfileImage ||
+                newCommentData.thumbnailURL || // added
+                profileImg;
+            // Convert relative URLs to full URLs
+            if (
+                profileImg &&
+                !profileImg.startsWith('http') &&
+                !profileImg.startsWith('data:')
+            ) {
+                profileImg = `${process.env.REACT_APP_PRESIGNED_URI}/${profileImg}`;
+            }
             let content = newCommentData.content; // 백엔드 응답에서 content 가져옴
             let time = newCommentData.time; // 백엔드 응답에서 time 가져옴
 
@@ -424,10 +434,20 @@ const PostDetail = () => {
             // 백엔드 응답에 닉네임/이미지가 이미 있다면 위의 profile API 호출은 필요 없습니다.
             // 백엔드 응답을 믿고 그 정보를 바로 사용하는 것이 가장 빠릅니다.
             writerNickname = currentUser?.nickname || newCommentData.writerNickname || newCommentData.author || writerNickname; // 최종 닉네임 결정
-            profileImg = currentUser?.profileImageUrl || newCommentData.profileImg || newCommentData.writerProfileImage || profileImg;
-            // if (profileImg && !profileImg.startsWith('http') && !profileImg.startsWith('data:')) {
-            //     profileImg = `${process.env.REACT_APP_PRESIGNED_URI}/${profileImg}`;
-            // }
+            profileImg =
+                currentUser?.profileImageUrl ||
+                newCommentData.profileImg ||
+                newCommentData.writerProfileImage ||
+                newCommentData.thumbnailURL || // added
+                profileImg;
+            // Convert relative URLs to full URLs again in case profileImg changed above
+            if (
+                profileImg &&
+                !profileImg.startsWith('http') &&
+                !profileImg.startsWith('data:')
+            ) {
+                profileImg = `${process.env.REACT_APP_PRESIGNED_URI}/${profileImg}`;
+            }
 
 
             // 프론트 상태에 맞게 새로 생성된 댓글/답글 데이터 구조화
