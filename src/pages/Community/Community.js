@@ -8,36 +8,7 @@ import axios from 'axios';
 import { teamInfoMapCommunity } from '../../utils/teamInfoMap';
 // import Modal from '../../components/Modal/Modal';
 
-const initialPosts = [
-  {
-    id: 1,
-    title: '비와서 경기 종료',
-    time: '18:36',
-    date: new Date().toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    }).replace(/\. /g, '.').replace('.', ''),
-    author: '이플립스',
-    image: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HH.png`,
-    team: 'hanwha',
-    teamName: '한화 이글스',
-    timestamp: Date.now()
-  }
-];
 
-const teams = [
-  { id: 'hanwha', name: '한화 이글스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HH.png` },
-  { id: 'lg', name: 'LG 트윈스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LG.png` },
-  { id: 'kt', name: 'KT 위즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_KT.png` },
-  { id: 'ssg', name: 'SSG 랜더스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SK.png` },
-  { id: 'nc', name: 'NC 다이노스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_NC.png` },
-  { id: 'doosan', name: '두산 베어스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_OB.png` },
-  { id: 'kia', name: 'KIA 타이거즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HT.png` },
-  { id: 'samsung', name: '삼성 라이온즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_SS.png` },
-  { id: 'lotte', name: '롯데 자이언츠', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LT.png` },
-  { id: 'kiwoom', name: '키움 히어로즈', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_WO.png` },
-];
 
 const Community = () => {
   const navigate = useNavigate();
@@ -52,6 +23,7 @@ const Community = () => {
   const [showCasterbot, setShowCasterbot] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [showPostMenu, setShowPostMenu] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const getTeamInfo = (teamId) => {
     if (!teamId) return null;
