@@ -81,7 +81,7 @@ const NewPost = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         // 비속어 감지
         const profanityResultTitle = await checkProfanity(title);
         const profanityResultContent = await checkProfanity(content);
@@ -153,7 +153,9 @@ const NewPost = () => {
 
         try {
             setIsSubmitting(true);
-            
+
+            // teamInfoMapCommunity에서 id(숫자)와 name을 찾아 team 객체 구성
+
             const teamInfo = teamInfoMapCommunity.find(t => t.teamId === team);
             if (!teamInfo) {
                 alert('팀 정보를 찾을 수 없습니다.');
@@ -225,10 +227,10 @@ const NewPost = () => {
                     } catch (error) {
                         console.error('이미지 업로드 실패:', error);
                         alert('이미지 업로드 중 문제가 발생했습니다.');
+                        setIsSubmitting(false);
                         return;
                     }
                 }
-              
                 const postData = {
                     title,
                     content,
@@ -272,12 +274,13 @@ const NewPost = () => {
             } else {
                 alert(`게시글 저장 중 오류가 발생했습니다: ${error.message}`);
             }
+            navigate(`/community/post/${team}`);
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const handleCancel = () => {
+    const handleClose = () => {
         if (isEditing && postId) {
             navigate(`/community/post/${team}/${postId}`);
         } else {
@@ -285,93 +288,84 @@ const NewPost = () => {
         }
     };
 
-    const handleOpenAbsModal = (message) => {
-        setProfanityMessage(message);
-        setShowAbsModal(true);
-    };
-
-    const handleCloseAbsModal = () => {
-        setShowAbsModal(false);
-    };
-
-    const handleCasterbotButtonClick = () => {
-        setShowCasterbot(true);
-    };
-
-    const handleCasterbotClose = () => {
-        setShowCasterbot(false);
-    };
-
-    const teamInfo = teamInfoMapCommunity.find(t => t.teamId === team);
-    const currentTeamName = teamInfo ? teamInfo.name : '알 수 없음';
+    if (!team || !teamName) {
+        return <div>팀 정보가 없습니다. 메인으로 돌아가세요.</div>;
+    }
 
     return (
         <div className={styles.container}>
-            <header className={styles.header}>
-                <button onClick={handleCancel} className={styles.backButton}>
+            <div className={styles.header}>
+                <span className={styles.headerTitle}>{isEditing ? '게시글 수정' : '게시글 작성'}</span>
+                <button className={styles.closeButton} onClick={handleClose}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M15 18L9 12L15 6" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M18 6L6 18M6 6L18 18" stroke="#111" strokeWidth="2" strokeLinecap="round"
+                              strokeLinejoin="round"/>
                     </svg>
                 </button>
-                <span className={styles.headerTitle}>{isEditing ? '게시글 수정' : '새 게시글 작성'}</span>
-            </header>
-            <main className={styles.mainContent}>
-                <form onSubmit={handleSubmit} className={styles.form}>
-                    <div className={styles.teamInfo}>
-                        <img src={teamInfo?.logo} alt="팀 로고" className={styles.teamLogo} />
-                        <span className={styles.teamName}>{currentTeamName}</span>
-                    </div>
+            </div>
+            <form className={styles.form} onSubmit={handleSubmit}>
+                <label className={styles.imageUpload}>
+                    {image ? (
+                        <img src={image} alt="preview" className={styles.preview}/>
+                    ) : (
+                        <span>사진/동영상</span>
+                    )}
+                    <input type="file" accept="image/*" onChange={handleImageChange} hidden/>
+                </label>
+                <div className={styles.formGroup}>
                     <input
                         type="text"
-                        placeholder="제목"
+                        className={styles.input}
+                        placeholder="제목을 입력하세요"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className={styles.titleInput}
                         required
                     />
+                </div>
+                <div className={styles.formGroup}>
                     <textarea
-                        placeholder="내용을 입력하세요."
+                        className={styles.textarea}
+                        placeholder="내용을 입력하세요"
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        className={styles.contentInput}
-                        rows="10"
                         required
                     />
-                    <div className={styles.imageUploadContainer}>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            id="imageUpload"
-                            className={styles.imageUploadInput}
-                        />
-                        <label htmlFor="imageUpload" className={styles.imageUploadLabel}>
-                            {image ? '이미지 변경' : '이미지 추가'}
-                        </label>
-                        {image && (
-                            <div className={styles.imagePreviewContainer}>
-                                <img src={image} alt="미리보기" className={styles.imagePreview} />
-                                <button type="button" onClick={() => setImage(null)} className={styles.removeImageButton}>X</button>
-                            </div>
-                        )}
-                    </div>
-                    <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
-                        {isEditing ? '수정 완료' : '작성 완료'}
+                    <div className={styles.charCount}>{content.length}/1000</div>
+                </div>
+                <div className={styles.formActions}>
+                    <button type="submit" className={styles.submitButton}>
+                        {isEditing ? '게시글 수정하기' : '게시글 등록하기'}
                     </button>
-                </form>
-            </main>
+                </div>
+            </form>
             {showAbsModal && (
-                <Modal show={showAbsModal} onClose={handleCloseAbsModal} title="비속어 감지">
-                    <p>{profanityMessage}</p>
-                </Modal>
+                <Modal
+                    title="ABS봇이 작동중입니다."
+                    message={
+                        <>
+                            ABS봇이 부적절한 키워드를 감지했습니다.
+                            <br/>
+                            작성글을 수정해 주세요.
+                            <br/>
+                            <br />
+                            감지된 단어: {profanityMessage}
+                        </>
+                    }
+                    buttons={[
+                        {
+                            label: '확인',
+                            onClick: () => setShowAbsModal(false)
+                        }
+                    ]}
+                />
             )}
-            <CasterbotButton onClick={handleCasterbotButtonClick} />
+            <CasterbotButton onClick={() => setShowCasterbot(true)}/>
 
             {showCasterbot && (
-                <CasterbotModal onClose={handleCasterbotClose}/>
+                <CasterbotModal onClose={() => setShowCasterbot(false)}/>
             )}
         </div>
     );
 };
 
-export default NewPost; 
+export default NewPost;
