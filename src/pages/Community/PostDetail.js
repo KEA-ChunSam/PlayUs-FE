@@ -473,18 +473,6 @@ const PostDetail = () => {
     return currentUser?.id && String(currentUser.id) === String(authorId);
   };
 
-  const handleUpdateCommentsStateAfterAdd = (prevComments, replyTo, newComment) => {
-    if (replyTo) {
-      return prevComments.map(comment =>
-        comment.id === replyTo.commentId
-          ? { ...comment, replies: [...(comment.replies || []), { ...newComment, parentId: replyTo.commentId }] }
-          : comment
-      );
-    } else {
-      return [...prevComments, newComment];
-    }
-  };
-
   const getTeamLogo = (teamId) => {
     const team = teamInfoMapCommunity.find(t => t.teamId.toUpperCase() === teamId.toUpperCase());
     return team ? team.logo : '';
