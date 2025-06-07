@@ -232,7 +232,7 @@ const PostDetail = () => {
         let newCommentData = {
             content: comment,
             postId: Number(postId),
-            teamId: teamInfoMapCommunity.find(t => t.teamId === team)?.id, // teamId를 숫자로 변환
+            teamId: teamInfoMapCommunity.find(t => t.teamId === team)?.id || null,
             writerNickname: currentUser?.nickname || currentUser?.name || '익명',
             writerProfileImage: currentUser?.profileImage || null
         };
