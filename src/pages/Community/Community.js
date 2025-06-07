@@ -26,6 +26,7 @@ const initialPosts = [
     }
 ];
 
+
 const teams = [
     {id: 'hanwha', name: '한화 이글스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_HH.png`},
     {id: 'lg', name: 'LG 트윈스', logo: `${process.env.PUBLIC_URL}/Logo/TeamLogo/emblem_LG.png`},
@@ -40,6 +41,7 @@ const teams = [
 ];
 
 const Community = () => {
+
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();

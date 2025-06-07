@@ -1,3 +1,4 @@
+
 import React, {useEffect, useRef, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import styles from './PostDetail.module.css';
@@ -9,37 +10,34 @@ import {teamInfoMapCommunity} from '../../utils/teamInfoMap';
 import {useAuth} from '../../utils/AuthContext';
 
 const PostDetail = () => {
-    const {postId, team} = useParams();
-    const navigate = useNavigate();
-    const [post, setPost] = useState(null);
-    const [showCommentMenu, setShowCommentMenu] = useState(null); // 댓글 삼점바(댓글 id)
-    const [showReplyMenu, setShowReplyMenu] = useState(null); // 대댓글 삼점바(댓글id_대댓글id)
-    const [comment, setComment] = useState("");
-    const [replyInputValue, setReplyInputValue] = useState({}); // 답글 입력값을 댓글 id별로 분리
-    const [comments, setComments] = useState([]);
-    const [replyTo, setReplyTo] = useState(null); // 대댓글 대상
-    const commentInputRef = useRef(null); // 입력창 참조
-    const [editingCommentId, setEditingCommentId] = useState(null);
-    const [editingContent, setEditingContent] = useState("");
-    const [showMenu, setShowMenu] = useState(false);
-    const [showCasterbot, setShowCasterbot] = useState(false);
-    const [showAbsModal, setShowAbsModal] = useState(false);
-    const [profanityMessage] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const {user: currentUser} = useAuth();
+  const { postId, team } = useParams();
+  const navigate = useNavigate();
+  const [post, setPost] = useState(null);
+  const [showCommentMenu, setShowCommentMenu] = useState(null); // 댓글 삼점바(댓글 id)
+  const [showReplyMenu, setShowReplyMenu] = useState(null); // 대댓글 삼점바(댓글id_대댓글id)
+  const [comment, setComment] = useState("");
+  const [replyInputValue, setReplyInputValue] = useState({}); // 답글 입력값을 댓글 id별로 분리
+  const [comments, setComments] = useState([]);
+  const [replyTo, setReplyTo] = useState(null); // 대댓글 대상
+  const commentInputRef = useRef(null); // 입력창 참조
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingContent, setEditingContent] = useState("");
+  const [showMenu, setShowMenu] = useState(false);
+  const [showCasterbot, setShowCasterbot] = useState(false);
+  const [showAbsModal, setShowAbsModal] = useState(false);
+  const [profanityMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user: currentUser } = useAuth();
 
-    const getWriterId = () => {
-        if (post?._writerId) return String(post._writerId);
-        if (post?.writerId) return String(post.writerId);
-        const match = post?.writerNickname && post.writerNickname.match(/^User#(\d+)$/);
-        return match ? match[1] : undefined;
-    };
+  const getWriterId = () => {
+    if (post?._writerId) return String(post._writerId);
+    if (post?.writerId) return String(post.writerId);
+    const match = post?.writerNickname && post.writerNickname.match(/^User#(\d+)$/);
+    return match ? match[1] : undefined;
+  };
 
-    const isAuthor = () =>
-        currentUser?.id && getWriterId() && String(currentUser.id) === String(getWriterId());
-    console.log('내 userId:', currentUser?.id);
-    console.log('게시글 작성자 writerId:', getWriterId());
-    console.log('isAuthor:', isAuthor());
+  const isAuthor = () =>
+    currentUser?.id && getWriterId() && String(currentUser.id) === String(getWriterId());
 
     const checkProfanity = async (text) => {
         try {
@@ -109,9 +107,19 @@ const PostDetail = () => {
                 postData._writerId = postData.writerId;
             }
 
-            // 댓글 데이터 구조화 (commentGroupId를 기준으로 그룹화하고 각 그룹의 첫 댓글을 부모로 간주)
-            if (postData.comments && Array.isArray(postData.comments)) {
-                console.log('5. 댓글 구조화 시작 전 원본 댓글 배열:', postData.comments);
+        // 댓글 데이터 구조화 (commentGroupId를 기준으로 그룹화하고 각 그룹의 첫 댓글을 부모로 간주)
+        if (postData.comments && Array.isArray(postData.comments)) {
+
+            
+            // 1차 순회: 댓글과 답글 처리
+            const fetchNicknamePromises = postData.comments.map(async comment => {
+                const commentId = comment.commentId || comment.id;
+                const commentGroupId = comment.commentGroupId;
+
+                if (commentId === undefined || commentId === null) {
+                    console.warn('댓글에 필수 필드(id)가 없습니다:', comment);
+                    return null;
+                }
 
                 // 1차 순회: 댓글과 답글 처리
                 const fetchNicknamePromises = postData.comments.map(async comment => {
@@ -924,11 +932,6 @@ const PostDetail = () => {
 
     const teamParam = team || post?.team;
     const teamInfo = getTeamInfo(teamParam);
-
-    if (post) {
-        console.log('상세 post.team:', post.team);
-        console.log('상세 teamInfo:', teamInfo);
-    }
 
     if (!post) {
         return <div>로딩 중...</div>;
