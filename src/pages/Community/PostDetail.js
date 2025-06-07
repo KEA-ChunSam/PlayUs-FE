@@ -30,7 +30,7 @@ const PostDetail = () => {
 
     const [showPostMenu, setShowPostMenu] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [deleteTarget, setDeleteTarget] = useState({ type: null, id: null, parentId: null });
+    const [deleteTarget, setDeleteTarget] = useState({type: null, id: null, parentId: null});
 
     const getWriterId = () => {
         if (post?._writerId) return String(post._writerId);
@@ -206,61 +206,6 @@ const PostDetail = () => {
 
                 // 모든 닉네임 정보가 로딩될 때까지 대기
                 const processedComments = (await Promise.all(fetchNicknamePromises)).filter(comment => comment !== null);
-
-                const handleDelete = async () => {
-                    if (!postId) {
-                        alert('postId가 없습니다.');
-                        return;
-                    }
-                    // if (!window.confirm('게시글을 삭제하시겠습니까?')) return;
-
-                    try {
-                        const response = await axios.delete(
-                            `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/${teamParam}/${postId}`,
-                            {
-                                withCredentials: true,
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                }
-                            }
-                        );
-
-                        if (response.data) {
-                            alert('게시글이 삭제되었습니다.');
-                            // 현재 보고 있는 팀의 게시판으로 돌아가기
-                            const currentTeam = team || post?.team;
-                            if (!currentTeam) {
-                                console.error('팀 정보가 없습니다.');
-                                navigate('/community');
-                                return;
-                            }
-                            navigate(`/community/post/${currentTeam}`);
-                        }
-                    } catch (error) {
-                        console.error('Error deleting post:', error);
-                        if (error.response) {
-                            console.error('Error response:', error.response.data);
-                            if (error.response.status === 403) {
-                                alert('게시글을 삭제할 권한이 없습니다.');
-                            } else {
-                                alert('게시글 삭제 중 오류가 발생했습니다.');
-                            }
-                        } else {
-                            alert('게시글 삭제 중 오류가 발생했습니다.');
-                        }
-                    }
-                };
-
-                const handleBackToList = () => {
-                    // 현재 보고 있는 팀의 게시판으로 돌아가기
-                    const currentTeam = team || post?.team;
-                    if (!currentTeam) {
-                        console.error('팀 정보가 없습니다.');
-                        navigate('/community');
-                        return;
-                    }
-                    navigate(`/community/post/${currentTeam}`);
-                };
 
                 postData.comments = processedComments;
             } else {
@@ -955,7 +900,7 @@ const PostDetail = () => {
                                             className={`${styles.menuItem} ${styles.activated}`}
                                             onClick={() => {
                                                 setShowPostMenu(false);
-                                                setDeleteTarget({ type: 'post', id: post.id });
+                                                setDeleteTarget({type: 'post', id: post.id});
                                                 setShowDeleteModal(true);
                                             }}
                                         >
@@ -969,7 +914,8 @@ const PostDetail = () => {
                 </div>
                 {post.image && (
                     <div className={styles.imageWrapper}>
-                        <img src={`${process.env.REACT_APP_PRESIGNED_URI}/${post.image}`} alt="게시글 이미지" className={styles.postImage}/>
+                        <img src={`${process.env.REACT_APP_PRESIGNED_URI}/${post.image}`} alt="게시글 이미지"
+                             className={styles.postImage}/>
                     </div>
                 )}
                 <p className={styles.body}>{post.content}</p>
@@ -1011,11 +957,13 @@ const PostDetail = () => {
                                                         setEditingCommentId(c.id);
                                                         setEditingContent(c.content);
                                                         setShowCommentMenu(null);
-                                                    }}>수정하기</div>
+                                                    }}>수정하기
+                                                    </div>
                                                     <div className={styles.menuItem} onClick={() => {
-                                                        setDeleteTarget({ type: 'comment', id: c.id });
+                                                        setDeleteTarget({type: 'comment', id: c.id});
                                                         setShowDeleteModal(true);
-                                                    }}>삭제하기</div>
+                                                    }}>삭제하기
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
@@ -1114,11 +1062,18 @@ const PostDetail = () => {
                                                         </button>
                                                         {showReplyMenu === `${c.id}_${r.id}` && (
                                                             <div className={styles.menuPopup}>
-                                                                <div className={styles.menuItem} onClick={() => handleEditReply(c.id, r.id, r.content)}>수정하기</div>
+                                                                <div className={styles.menuItem}
+                                                                     onClick={() => handleEditReply(c.id, r.id, r.content)}>수정하기
+                                                                </div>
                                                                 <div className={styles.menuItem} onClick={() => {
-                                                                    setDeleteTarget({ type: 'reply', id: r.id, parentId: c.id });
+                                                                    setDeleteTarget({
+                                                                        type: 'reply',
+                                                                        id: r.id,
+                                                                        parentId: c.id
+                                                                    });
                                                                     setShowDeleteModal(true);
-                                                                }}>삭제하기</div>
+                                                                }}>삭제하기
+                                                                </div>
                                                             </div>
                                                         )}
                                                     </div>
@@ -1203,7 +1158,7 @@ const PostDetail = () => {
                                     await handleDeleteReply(deleteTarget.parentId, deleteTarget.id);
                                 }
                                 setShowDeleteModal(false);
-                                setDeleteTarget({ type: null, id: null });
+                                setDeleteTarget({type: null, id: null});
                             }
                         },
                         {
