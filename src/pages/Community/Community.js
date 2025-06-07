@@ -310,7 +310,7 @@ const Community = () => {
                             title={post.title}
                             time={post.time}
                             author={post.author}
-                            image={post.image}
+                            image={post.image ? `${process.env.REACT_APP_PRESIGNED_URI}/${post.image}` : null}
                             onClick={() => handlePostClick(post.team, post.id || post.postId)}
                         />
                     ))

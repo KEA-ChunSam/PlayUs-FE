@@ -127,15 +127,36 @@ const NewPost = () => {
             hour12: false
         });
 
-        let imageData = image;
+        let uploadedImageUrl = null;
         if (imageFile) {
-            const reader = new FileReader();
-            imageData = await new Promise((resolve) => {
-                reader.onloadend = () => {
-                    resolve(reader.result);
-                };
-                reader.readAsDataURL(imageFile);
-            });
+            try {
+                const presignedResponse = await axios.post(
+                    `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/presigned-url`,
+                    {
+                        imageFileName: `community/${imageFile.name}`
+                    },
+                    {
+                        withCredentials: true,
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+                const presignedUrl = presignedResponse.data?.presignedUrl;
+                if (presignedUrl) {
+                    await axios.put(presignedUrl, imageFile, {
+                        headers: {
+                            'Content-Type': imageFile.type
+                        }
+                    });
+                    uploadedImageUrl = `community/${imageFile.name}`;
+                }
+            } catch (error) {
+                console.error('이미지 업로드 실패:', error);
+                alert('이미지 업로드 중 문제가 발생했습니다.');
+                setIsSubmitting(false);
+                return;
+            }
         }
 
         const newPost = {
@@ -146,7 +167,7 @@ const NewPost = () => {
             author,
             team,
             teamName,
-            image: imageData,
+            image: uploadedImageUrl || image,
             content,
             timestamp: Date.now(),
         };
@@ -167,7 +188,7 @@ const NewPost = () => {
                     postId: parseInt(postId),  // id 대신 postId 사용
                     title,
                     content,
-                    image: image || null,
+                    image: uploadedImageUrl || image || null,
                     date: new Date().toISOString(),  // twpDate 대신 date 사용
                     isSecret: false,
                     writerNickname: post.writerNickname,  // 원래 작성자 정보 유지
@@ -175,7 +196,7 @@ const NewPost = () => {
                 };
 
                 try {
-                    const response = await axios.patch(
+                    const response = await axios.put(
                         `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/${team}/${postId}`,
                         postData,
                         {
@@ -200,41 +221,10 @@ const NewPost = () => {
                 }
             } else {
                 // 새 게시글 작성 시 필요한 정보만 전송
-                let uploadedImageUrl = null;
-                if (imageFile) {
-                    try {
-                        const presignedResponse = await axios.post(
-                            `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/presigned-url`,
-                            {
-                                imageFileName: `community/${imageFile.name}`
-                            },
-                            {
-                                withCredentials: true,
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                }
-                            }
-                        );
-                        const presignedUrl = presignedResponse.data?.presignedUrl;
-                        if (presignedUrl) {
-                            await axios.put(presignedUrl, imageFile, {
-                                headers: {
-                                    'Content-Type': imageFile.type
-                                }
-                            });
-                            uploadedImageUrl = presignedUrl.split('?')[0];
-                        }
-                    } catch (error) {
-                        console.error('이미지 업로드 실패:', error);
-                        alert('이미지 업로드 중 문제가 발생했습니다.');
-                        setIsSubmitting(false);
-                        return;
-                    }
-                }
                 const postData = {
                     title,
                     content,
-                    image: uploadedImageUrl, // 이 시점에서 uploadedImageUrl은 presigned URL이 없는 경우 null이 아님
+                    image: uploadedImageUrl?.replace(`${process.env.REACT_APP_PRESIGNED_URI}/`, ''),
                     twpDate: new Date().toISOString().split('T')[0],  // yyyy-MM-dd 형식으로 변경
                     isSecret: false
                 };
@@ -306,7 +296,15 @@ const NewPost = () => {
             <form className={styles.form} onSubmit={handleSubmit}>
                 <label className={styles.imageUpload}>
                     {image ? (
-                        <img src={image} alt="preview" className={styles.preview}/>
+                        <img
+                          src={
+                            image.startsWith('blob:')
+                              ? image
+                              : `${process.env.REACT_APP_PRESIGNED_URI}/${image}`
+                          }
+                          alt="preview"
+                          className={styles.preview}
+                        />
                     ) : (
                         <span>사진/동영상</span>
                     )}
