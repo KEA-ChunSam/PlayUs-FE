@@ -167,7 +167,7 @@ const NewPost = () => {
             author,
             team,
             teamName,
-            image: image,
+            image: uploadedImageUrl || image,
             content,
             timestamp: Date.now(),
         };
