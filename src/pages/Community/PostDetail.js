@@ -53,10 +53,13 @@ const PostDetail = () => {
     const checkProfanity = async (text) => {
         try {
             // Extract access token from cookies
-            const token = document.cookie
-                .split('; ')
-                .find(cookie => cookie.startsWith('Access='))
-                ?.split('=')[1];
+            const getCookie = (name) => {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+                return null;
+            };
+            const token = getCookie('Access');
             const response = await axios.post(
                 `${process.env.REACT_APP_AI_API_BASE}/detect`,
                 {sentence: text},
