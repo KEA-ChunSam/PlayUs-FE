@@ -215,7 +215,7 @@ const PostDetail = () => {
 
   useEffect(() => {
     fetchPost();
-  }, [postId, team, isSubmitting]);
+  }, [postId, team]);
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
