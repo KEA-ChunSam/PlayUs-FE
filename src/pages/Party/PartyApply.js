@@ -16,7 +16,7 @@ export default function PartyApply() {
     const [showApplyModal, setShowApplyModal] = useState(false);
     const handleSubmit = async () => {
         try {
-            await axios.post(`http://localhost:8081/party/${partyId}/apply`, {
+            await axios.post(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}/apply`, {
                 requireMessage: message
             }, {
                 withCredentials: true
@@ -82,7 +82,7 @@ export default function PartyApply() {
                             onClick: () => {
                                 // 삭제 로직 실행
                                 setShowApplyModal(false);
-                                navigate('/party/matchid')
+                                navigate(`/party/matchid/${partyId}`);
                             }
                         }
                     ]}

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./SearchResultPage.module.css";
 import { useSearch } from "../../components/SearchContext";
 import PostListItem from "../../components/Post/PostListItem";
+import axios from "axios";
 
 const SearchResultPage = () => {
   const { keyword } = useSearch();
@@ -11,25 +12,39 @@ const SearchResultPage = () => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem('communityPosts')) || [];
-      setPosts(saved);
-    } catch (error) {
-      console.error('게시물 데이터 로드 중 오류 발생:', error);
+    // 검색 키워드(keyword)가 비어 있으면 빈 배열로 초기화
+    if (!keyword || keyword.trim() === "") {
       setPosts([]);
+      return;
     }
-  }, []);
 
-  const filtered = posts.filter(
-    (post) => post.title && post.title.toLowerCase().includes(safeKeyword)
-  );
+    const fetchSearchResults = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_LOCAL_BACKEND_SEARCH_URI}/search/posts`,
+          {
+            params: { query: keyword },
+            withCredentials: true,
+          }
+        );
+        // 백엔드 응답: { resultSize: number, searchResultList: [ { postId, writerName, title, thumbnailUrl, createdAt, teamTag }, ... ] }
+        const resultList = response.data.searchResultList || [];
+        setPosts(resultList);
+      } catch (err) {
+        console.error("검색 API 호출 중 오류:", err);
+        setPosts([]);
+      }
+    };
+
+    fetchSearchResults();
+  }, [keyword]);
 
   const handleBack = () => {
     navigate(-1);
   };
 
-  const handlePostClick = (postId) => {
-    navigate(`/community/post/${postId}`);
+  const handlePostClick = (team, postId) => {
+    navigate(`/community/post/${team}/${postId}`);
   };
 
   return (
@@ -45,20 +60,20 @@ const SearchResultPage = () => {
 
       {/* 검색 결과 요약 및 0건 안내 */}
       <div className={styles.summary}>
-        {filtered.length > 0
-          ? <>총 <strong>{filtered.length}</strong>건의 검색결과가 있습니다.</>
+        {posts.length > 0
+          ? <>총 <strong>{posts.length}</strong>건의 검색결과가 있습니다.</>
           : "검색 결과가 없습니다."}
       </div>
 
       <ul className={styles.list}>
-        {filtered.length > 0 && filtered.map((post) => (
+        {posts.length > 0 && posts.map((item) => (
           <PostListItem
-            key={post.id}
-            title={post.title}
-            time={post.time}
-            author={post.author}
-            image={post.image}
-            onClick={() => handlePostClick(post.id)}
+            key={item.postId}
+            title={item.title}
+            time={item.createdAt}
+            author={item.writerName}
+            image={item.thumbnailUrl}
+            onClick={() => handlePostClick(item.teamTag, item.postId)}
           />
         ))}
       </ul>

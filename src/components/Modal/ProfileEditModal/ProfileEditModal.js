@@ -9,6 +9,9 @@ const ProfileEditModal = ({ onClose, onSubmit, initialNickname }) => {
     const [isValid, setIsValid] = useState(true);
     const [profileImage, setProfileImage] = useState(`${process.env.PUBLIC_URL}/profile/user2.jpg`);
     const [objectUrl, setObjectUrl] = useState(null);
+    const [originalFile, setOriginalFile] = useState(null); // 원본 파일 객체 저장
+    const [uploadError, setUploadError] = useState(false); // 업로드 오류 상태
+    const [isImageChanged, setIsImageChanged] = useState(false); // 이미지 변경 여부 체크
 
     useEffect(() => {
         setNickname(initialNickname);
@@ -32,6 +35,8 @@ const ProfileEditModal = ({ onClose, onSubmit, initialNickname }) => {
             const imageUrl = URL.createObjectURL(file);
             setProfileImage(imageUrl);
             setObjectUrl(imageUrl);
+            setOriginalFile(file); // 원본 파일 저장
+            setIsImageChanged(true); // 이미지 변경 상태 업데이트
         }
     };
 
@@ -55,20 +60,99 @@ const ProfileEditModal = ({ onClose, onSubmit, initialNickname }) => {
     const handleSubmit = async () => {
         if (!isValid) return;
 
-        try {
-            const res = await axios.put(
-                `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/nickname`,
-                { nickname },
-                { withCredentials: true }
-            );
+        let thumbnailURL = null;
 
-            if (res.status === 200) {
-                onSubmit(nickname);
-                onClose();
+        // 이미지가 변경되었을 경우에만 이미지 업로드 수행
+        if (isImageChanged && profileImage && profileImage !== `${process.env.PUBLIC_URL}/profile/user2.jpg`) {
+            try {
+                // profileImage가 ObjectURL인 경우와 DataURL인 경우 모두 처리
+                let fileBlob;
+                if (profileImage.startsWith('blob:')) {
+                    // ObjectURL인 경우 원본 파일 사용
+                    fileBlob = originalFile;
+                } else {
+                    // DataURL인 경우 Blob으로 변환
+                    fileBlob = await fetch(profileImage).then(res => res.blob());
+                }
+
+                // 파일명 생성
+                let fileName;
+                if (originalFile && originalFile.name) {
+                    fileName = `profile/${originalFile.name}`;
+                } else {
+                    const uuid = crypto.randomUUID();
+                    fileName = `profile/${uuid}.png`;
+                }
+
+                // presigned URL 요청
+                const presignedRes = await axios.post(
+                    `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/presigned-url`,
+                    { imageFileName: fileName },
+                    { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
+                );
+
+                // S3에 이미지 업로드
+                await new Promise((resolve, reject) => {
+                    fetch(presignedRes.data.presignedUrl, {
+                        method: 'PUT',
+                        body: fileBlob,
+                        headers: {
+                            // 'Content-Type': 'image/png',
+                            // 다른 헤더 추가하지 마세요!
+                        },
+                    })
+                        .then(response => {
+                            if (!response.ok) throw new Error("이미지 업로드 실패");
+                            resolve();
+                        })
+                        .catch(reject);
+                });
+
+                thumbnailURL = `${process.env.REACT_APP_PRESIGNED_URI}/${fileName}`;
+            } catch (err) {
+                console.error("이미지 업로드 실패:", err);
+                setUploadError(true);
+                setValidationMessage('이미지 업로드에 실패했습니다.');
+                setIsValid(false);
+                return;
+            }
+        }
+
+        try {
+            // 닉네임만 변경하는 경우
+            if (!thumbnailURL) {
+                const res = await axios.put(
+                    `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/nickname`,
+                    { nickname },
+                    { withCredentials: true }
+                );
+
+                if (res.status === 200) {
+                    onSubmit(nickname);
+                    onClose();
+                }
+            }
+            // 이미지와 닉네임 모두 변경하는 경우
+            else {
+                const payload = {
+                    nickname,
+                    thumbnailURL
+                };
+
+                const res = await axios.put(
+                    `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile`,
+                    payload,
+                    { withCredentials: true }
+                );
+
+                if (res.status === 200) {
+                    onSubmit(nickname, thumbnailURL);
+                    onClose();
+                }
             }
         } catch (error) {
-            console.error("닉네임 수정 오류:", error);
-            setValidationMessage('닉네임 수정 중 오류가 발생했습니다.');
+            console.error("프로필 수정 오류:", error);
+            setValidationMessage('프로필 수정 중 오류가 발생했습니다.');
             setIsValid(false);
         }
     };
@@ -101,7 +185,6 @@ const ProfileEditModal = ({ onClose, onSubmit, initialNickname }) => {
                     <button className={styles.clear_button} onClick={() => setNickname('')}>×</button>
                 </div>
                 <div className={
-                    // validationMessage === '사용할 수 있는 닉네임입니다.'
                     isValid
                         ? styles.valid_message
                         : styles.error_message

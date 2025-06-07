@@ -114,13 +114,15 @@
 
 .journalSection {
   width: 100%;
+  height: 100%;
+
 }
 
 .journalHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin: 2rem 0;
 }
 
 .journalHeader h2 {
@@ -148,7 +150,7 @@
 .journalItem {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
+  margin: 1rem 0;
 }
 
 .entryImg {
@@ -163,12 +165,25 @@
   flex-grow: 1;
   font-size: 1rem;
   font-weight: 500;
+  margin-bottom: 5%;
 }
 
 .entryDate {
   font-size: 0.85rem;
   color: #666;
   margin-left: 1rem;
+}
+
+.noPostsMessage {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 2rem 1rem;
+  margin: 1rem 0;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px dashed #ddd;
+  list-style: none;
 }
 
 .accuracySection {
@@ -180,8 +195,8 @@
 .accuracySection h2 {
   font-size: 1.2rem;
   font-weight: bold;
-  border-bottom: #F2F2F2 1px solid;
-  margin-bottom: 0.5rem;
+  border-bottom: #F2F2F2 2px solid;
+  margin-bottom: 1.5rem;
 }
 
 .accuracyChartWrapper {
@@ -224,6 +239,19 @@
   gap: 0.5rem;
   font-size: 0.85rem;
   color: #333;
+}
+.reviewSummary p {
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-bottom: #F2F2F2 1px solid;
+  margin-bottom: 0.5rem;
+}
+
+.reviewTagContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .reviewTag {
