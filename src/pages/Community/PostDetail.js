@@ -291,6 +291,39 @@ useEffect(() => {
       return false; // authorId가 없거나 currentUser가 없는 경우
   };
 
+  // 새로운 댓글/답글을 로컬 상태에 추가하는 헬퍼 함수
+  const handleUpdateCommentsStateAfterAdd = (prevComments, replyTo, newComment) => {
+      console.log('handleUpdateCommentsStateAfterAdd called', { replyTo, newComment });
+
+      // 답글인 경우: 해당 부모 댓글의 replies 배열에 추가
+      if (replyTo !== null && replyTo !== undefined && replyTo !== '') {
+          const nextComments = prevComments.map(comment => {
+              // 백엔드가 답글의 commentGroupId에 부모 댓글의 ID를 담아준다고 가정
+              // 또는 부모 댓글 찾기 로직 사용 (여기서는 commentGroupId가 부모 ID라고 가정)
+              if (String(comment.id) === String(replyTo) || String(comment.id) === String(newComment.commentGroupId)) {
+                   // 해당 부모 댓글의 replies 배열에 새로 생성된 답글 추가
+                  const updatedReplies = [...(comment.replies || []), newComment];
+                  // 시간순으로 정렬 (선택 사항, 필요시 주석 해제)
+                  // updatedReplies.sort((a, b) => new Date(a.time) - new Date(b.time));
+                  console.log('handleAddComment - 답글 상태 업데이트 후 comments:', updatedReplies);
+                  return {
+                      ...comment,
+                      replies: updatedReplies,
+                  };
+              }
+              return comment;
+          });
+          return nextComments;
+
+      } else {
+          // 일반 댓글인 경우: 댓글 목록의 마지막에 추가
+           const nextComments = [...prevComments, newComment];
+           // 시간순으로 정렬 (선택 사항, 필요시 주석 해제)
+           // nextComments.sort((a, b) => new Date(a.time) - new Date(b.time));
+           console.log('handleAddComment - 댓글 상태 업데이트 후 comments:', nextComments);
+           return nextComments;
+      }
+  };
 
   // 댓글/답글 등록
   const handleAddComment = async (e) => {
@@ -359,88 +392,72 @@ useEffect(() => {
 
           const newCommentData = response.data;
 
-          let writerNickname = newCommentData.writerNickname || newCommentData.author;
-          let authorId = newCommentData.writerId || newCommentData.authorId;
-          let profileImg = newCommentData.profileImg || newCommentData.writerProfileImage;
+          // 작성자 정보 추출 및 처리 (백엔드 응답 데이터 사용)
+          // 현재 로그인한 사용자의 정보를 우선적으로 사용
+          let writerNickname = currentUser?.nickname || newCommentData.writerNickname || newCommentData.author; 
+          let authorId = currentUser?.id || newCommentData.userId; // 현재 로그인한 사용자의 ID를 우선
+          let profileImg = currentUser?.profileImageUrl || newCommentData.profileImg || newCommentData.writerProfileImage; 
+          let content = newCommentData.content; // 백엔드 응답에서 content 가져옴
+          let time = newCommentData.time; // 백엔드 응답에서 time 가져옴
 
+          // User#숫자 닉네임 처리 및 프로필 API 호출 (백엔드 응답에 정보가 없거나 추가 정보 로드용)
+          // 백엔드 응답에 충분한 정보가 있다면 이 부분은 거의 필요 없습니다.
           const match = writerNickname && String(writerNickname).match(/^User#(\d+)$/);
-          if (match) {
-              const idFromNickname = match[1];
-              authorId = authorId || idFromNickname;
-              if (authorId) {
-                  try {
-                      const userRes = await axios.get(
-                          `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile/${authorId}`,
-                          { withCredentials: true }
-                      );
-                      writerNickname = userRes.data.nickname;
-                      profileImg = userRes.data.profileImageUrl || profileImg;
-                  } catch (e) {
-                      console.error('프로필 API 실패:', e);
-                  }
-              }
-          }
+          if (match && !authorId) { // authorId가 백엔드 응답에 없었고 닉네임이 User#숫자 형태일 때만 시도
+             authorId = match[1];
+             if (authorId) { 
+                try {
+                    const userRes = await axios.get(
+                        `${process.env.REACT_APP_LOCAL_BACKEND_URI}/user/profile/${authorId}`, 
+                        { withCredentials: true }
+                    );
+                    writerNickname = userRes.data.nickname; 
+                    profileImg = userRes.data.profileImageUrl || profileImg;
 
-          const processedNewComment = {
-              ...newCommentData,
-              id: newCommentData.commentId,
-              commentGroupId: newCommentData.commentGroupId,
-              postId: newCommentData.postId,
-              content: newCommentData.content,
-              author: writerNickname,
-              authorId: authorId,
-              time: newCommentData.time,
-              profileImg: profileImg,
-              replies: newCommentData.reComments || []
-          };
+                } catch (e) {
+                    console.error('프로필 API 실패:', e);
+                }
+            }
+        }
+         // 백엔드 응답에 닉네임/이미지가 이미 있다면 위의 profile API 호출은 필요 없습니다.
+         // 백엔드 응답을 믿고 그 정보를 바로 사용하는 것이 가장 빠릅니다.
+         writerNickname = currentUser?.nickname || newCommentData.writerNickname || newCommentData.author || writerNickname; // 최종 닉네임 결정
+         profileImg = currentUser?.profileImageUrl || newCommentData.profileImg || newCommentData.writerProfileImage || profileImg; // 최종 프로필 이미지 결정
 
-          console.log('handleAddComment - 서버 응답 데이터 (newCommentData):', newCommentData);
-          console.log('handleAddComment - 프론트 상태 추가될 데이터 (processedNewComment):', processedNewComment);
 
-          // 상태 업데이트
-          if (replyTo) {
-              // 답글인 경우: 해당 부모 댓글의 replies 배열에 추가
-              setComments(prevComments => {
-                   const nextComments = prevComments.map(comment => {
-                       // 상태 업데이트 시에는 백엔드 응답의 commentGroupId를 사용하여 부모 댓글을 찾음
-                       // 백엔드가 답글의 commentGroupId에 부모 댓글의 ID를 담아준다고 가정
-                       if (String(comment.id) === String(newCommentData.commentGroupId)) {
-                            // 해당 부모 댓글의 replies 배열에 새로 생성된 답글 추가
-                           const updatedReplies = [...(comment.replies || []), processedNewComment];
-                           // 시간순으로 정렬 (선택 사항, 필요시 주석 해제)
-                           // updatedReplies.sort((a, b) => new Date(a.time) - new Date(b.time));
-                           return {
-                               ...comment,
-                               replies: updatedReplies,
-                           };
-                       }
-                       return comment;
-                   });
-                   console.log('handleAddComment - 답글 상태 업데이트 후 comments:', nextComments);
-                   return nextComments;
-              });
+        // 프론트 상태에 맞게 새로 생성된 댓글/답글 데이터 구조화
+        // 백엔드 응답 데이터의 필드들을 사용하여 객체를 만듭니다.
+        const processedNewComment = {
+            ...newCommentData, // 백엔드 응답의 모든 필드를 기본으로
+            id: newCommentData.commentId, // 고유 ID
+            commentGroupId: newCommentData.commentGroupId, // 그룹 ID
+            postId: newCommentData.postId || Number(postId), // 게시글 ID
+            content: content, // 최종 결정된 내용
+            author: writerNickname, // 최종 처리된 닉네임
+            authorId: authorId, // 최종 결정된 authorId
+            time: time, // 최종 결정된 시간
+            profileImg: profileImg, // 최종 처리된 프로필 이미지 URL
+            replies: newCommentData.reComments || [] // 답글 목록 (백엔드 응답 사용 또는 빈 배열)
+        };
 
-          } else {
-              // 일반 댓글인 경우: 댓글 목록의 마지막에 추가
-               setComments(prevComments => {
-                   const nextComments = [...prevComments, processedNewComment];
-                   console.log('handleAddComment - 댓글 상태 업데이트 후 comments:', nextComments);
-                   return nextComments;
-               });
-          }
+        // 상태 업데이트 로직을 헬퍼 함수로 분리
+        // fetchPost() 대신 로컬 상태를 직접 업데이트
+        setComments(prevComments => 
+            handleUpdateCommentsStateAfterAdd(prevComments, replyTo, processedNewComment)
+        );
 
-           // 입력 필드 초기화 및 replyTo 초기화
-           if (replyTo) {
-               setReplyInputValue({ ...replyInputValue, [String(replyTo)]: '' });
-               setReplyTo(null);
-           } else {
-               setComment("");
-           }
+         // 입력 필드 초기화 및 replyTo 초기화
+         if (replyTo) {
+             setReplyInputValue({ ...replyInputValue, [String(replyTo)]: '' });
+             setReplyTo(null);
+         } else {
+             setComment("");
+         }
 
-           // 댓글/답글 작성 성공 후 전체 데이터 다시 불러오기
-           await fetchPost();
+        // // 댓글/답글 작성 성공 후 전체 데이터 다시 불러오기 (이 부분을 제거)
+        // await fetchPost();
 
-      } catch (error) {
+    } catch (error) {
           console.error('댓글 작성 중 오류:', error);
           alert('댓글 작성 중 오류가 발생했습니다.');
       } finally {
