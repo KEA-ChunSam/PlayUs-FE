@@ -67,14 +67,14 @@ const SearchResultPage = () => {
 
       <ul className={styles.list}>
         {posts.length > 0 && posts.map((item) => (
-          <PostListItem
-            key={item.postId}
-            title={item.title}
-            time={item.createdAt}
-            author={item.writerName}
-            image={item.thumbnailUrl}
-            onClick={() => handlePostClick(item.teamTag, item.postId)}
-          />
+            <PostListItem
+                key={item.postId}
+                title={item.title}
+                createdAt={item.createdAt}
+                writerName={item.writerName}
+                thumbnailUrl={item.thumbnailUrl}
+                onClick={() => handlePostClick(item.teamTag, item.postId)}
+            />
         ))}
       </ul>
     </div>
