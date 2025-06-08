@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import NotificationModal from "../../Modal/NotificationModal/NotificationModal";
 import {useNavigate} from "react-router-dom";
@@ -13,6 +13,45 @@ const Header = () => {
     const [trendingList, setTrendingList] = useState([]);
     const [showDropdown, setShowDropdown] = useState(false);
     const blurTimeoutRef = useRef(null);
+
+    const [hasUnreadNotification, setHasUnreadNotification] = useState(false);
+    const eventSourceRef = useRef(null);
+
+    useEffect(() => {
+      const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
+      const sseUrl = `${baseUrl}/user/notifications/connect`;
+
+      const es = new EventSource(sseUrl, { withCredentials: true });
+      eventSourceRef.current = es;
+
+      es.onmessage = (e) => {
+        const text = e.data;
+        if (text.trim().startsWith("{")) {
+          try {
+            const notification = JSON.parse(text);
+            setHasUnreadNotification(true);
+          } catch (err) {
+            console.error("알림 파싱 오류:", err);
+          }
+        }
+      };
+
+      es.onerror = (err) => {
+        console.error("SSE 오류:", err);
+        if (es.readyState === EventSource.CLOSED) {
+          setTimeout(() => {
+            if (eventSourceRef.current === es) {
+              const newEs = new EventSource(sseUrl, { withCredentials: true });
+              eventSourceRef.current = newEs;
+            }
+          }, 5000);
+        }
+      };
+
+      return () => {
+        es.close();
+      };
+    }, []);
 
     // 입력창 포커스 시 인기 검색어 조회
     const handleInputFocus = async () => {
@@ -123,9 +162,12 @@ const Header = () => {
                 {/*        className={styles.noti_alert}*/}
                 {/*    />*/}
                 {/*</button>*/}
-                <button onClick={() => setShowModal(!showModal)}>
+                <button onClick={() => {
+                  setHasUnreadNotification(false);
+                  setShowModal(!showModal);
+                }}>
                     <img
-                        src={`${process.env.PUBLIC_URL}/Button/alert.png`}
+                        src={`${process.env.PUBLIC_URL}/Button/${hasUnreadNotification ? 'alert_activate.png' : 'alert.png'}`}
                         alt="알림"
                         className={styles.noti_alert}
                     />

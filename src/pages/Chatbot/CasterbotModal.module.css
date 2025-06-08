@@ -10,7 +10,7 @@
     background-color: white;
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    overflow: scroll;
+    overflow: hidden;
 }
 
 .header {
@@ -126,4 +126,11 @@
     border: none;
     font-size: 1.25rem;
     cursor: pointer;
+}
+.modalBodyScrollable {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-height: 70vh;
+    overflow-y: auto;
 }

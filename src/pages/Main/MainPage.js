@@ -45,20 +45,16 @@ export default function MainPage() {
             if (text.trim().startsWith("{")) {
                 try {
                     const notification = JSON.parse(text);
-                    console.log("새 알림 도착:", notification);
                     // TODO: 받은 알림을 상태나 Context에 저장하여 화면에 반영
                 } catch (err) {
                     console.error("JSON 파싱 중 오류:", err);
                 }
-            } else {
-                console.log("SSE 비-JSON 메시지:", text);
             }
         };
 
         es.onerror = (err) => {
             console.error("SSE 연결 오류:", err);
             if (es.readyState === EventSource.CLOSED) {
-                console.log("SSE 연결이 닫혔습니다. 5초 후 재연결 시도...");
                 setTimeout(() => {
                     if (eventSourceRef.current === es) {
                         const newEs = new EventSource(sseUrl, { withCredentials: true });

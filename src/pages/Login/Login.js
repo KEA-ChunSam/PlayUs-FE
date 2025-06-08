@@ -7,6 +7,7 @@ import Modal from "../../components/Modal/Modal";
 
 function Login() {
     const [showModal, setShowModal] = useState(false);
+    const [showMisMatchModal, setShowMisMatchModal] = useState(false);
     const [withdrawnNickname, setWithdrawnNickname] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
@@ -14,10 +15,16 @@ function Login() {
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const isWithdrawn = params.get('error') === 'withdrawn';
+        const isProviderMismatch = params.get('error') === 'provider_mismatch';
         const nickname = params.get('nickname');
+
         if (isWithdrawn && nickname) {
             setWithdrawnNickname(nickname);
             setShowModal(true);
+        }
+
+        if (isProviderMismatch) {
+            setShowMisMatchModal(true);
         }
     }, [location.search]);
 
@@ -50,7 +57,7 @@ function Login() {
                     <span>카카오로 시작하기</span>
                 </a>
 
-                <a 
+                <a
                     href={`${process.env.REACT_APP_LOCAL_BACKEND_URI}/oauth2/authorization/naver`}
                     className={`${styles.login_button} ${styles.naver_button}`}
                 >
@@ -69,6 +76,15 @@ function Login() {
                     buttons={[
                         { label: "취소", onClick: () => navigate("/") },
                         { label: "확인", onClick: () => setShowModal(false) }
+                    ]}
+                />
+            )}
+            {showMisMatchModal && (
+                <Modal
+                    title="로그인 계정 불일치"
+                    message={`로그인하신 계정이 플레이어스 계정과 일치하지 않습니다.\n다른 계정으로 로그인해주세요.`}
+                    buttons={[
+                        { label: "확인", onClick: () => setShowMisMatchModal(false) }
                     ]}
                 />
             )}

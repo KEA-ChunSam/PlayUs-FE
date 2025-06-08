@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import styles from './CasterbotModal.module.css';
 
@@ -9,22 +9,12 @@ const CasterbotModal = ({onClose}) => {
             content: '안녕하세요! 오늘은 KBO에 대해 무엇이 궁금하신가요?',
             // time: '11:30 AM',
             mine: false,
-        },
-        // {
-        //     sender: '',
-        //     content: '현재 타율 1위가 누군지 알려줘',
-        //     // time: '11:30 AM',
-        //     mine: true,
-        // },
-        // {
-        //     sender: '캐스터봇',
-        //     content: '2025시즌 타율 1위는 NC 다이노스의 손아섭 선수입니다.',
-        //     // time: '11:30 AM',
-        //     mine: false,
-        // }
+        }
     ]);
 
     const [chatInput, setChatInput] = useState('');
+
+    const messagesEndRef = useRef(null);
 
     const handleSendMessage = async () => {
         if (!chatInput.trim()) return;
@@ -34,6 +24,12 @@ const CasterbotModal = ({onClose}) => {
             content: userMessage,
             mine: true,
         }]);
+        // scroll after user message
+        setTimeout(() => {
+            if (messagesEndRef.current) {
+                messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 0);
         setChatInput('');
 
         try {
@@ -60,6 +56,12 @@ const CasterbotModal = ({onClose}) => {
                 content: answer,
                 mine: false,
             }]);
+            // scroll after bot response
+            setTimeout(() => {
+                if (messagesEndRef.current) {
+                    messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 0);
         } catch (error) {
             console.error('챗봇 응답 에러:', error);
             setMessages(prev => [...prev, {
@@ -67,6 +69,11 @@ const CasterbotModal = ({onClose}) => {
                 content: '죄송합니다. 응답 중 문제가 발생했습니다.',
                 mine: false,
             }]);
+            setTimeout(() => {
+                if (messagesEndRef.current) {
+                    messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 0);
         }
         return;
     };
@@ -78,6 +85,12 @@ const CasterbotModal = ({onClose}) => {
         }
     };
 
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [messages]);
+
     return (
         <div className={styles.modalOverlay}>
             <div className={styles.modalContainer}>
@@ -87,33 +100,36 @@ const CasterbotModal = ({onClose}) => {
                                                        className={styles.headerImg}/> 캐스터봇
                     </div>
                 </header>
-                <div className={styles.chatBody}>
-                    {messages.map((msg, i) => (
-                        <div key={i} className={msg.mine ? styles.myMessage : styles.botMessage}>
-                            {!msg.mine && (
-                                <div className={styles.avatarWrapper}>
-                                    <img src={`${process.env.PUBLIC_URL}/Button/casterbot.png`} alt="bot"
-                                         className={styles.avatar}/>
+                <div className={styles.modalBodyScrollable}>
+                    <div className={styles.chatBody}>
+                        {messages.map((msg, i) => (
+                            <div key={i} className={msg.mine ? styles.myMessage : styles.botMessage}>
+                                {!msg.mine && (
+                                    <div className={styles.avatarWrapper}>
+                                        <img src={`${process.env.PUBLIC_URL}/Button/casterbot.png`} alt="bot"
+                                             className={styles.avatar}/>
+                                    </div>
+                                )}
+                                <div className={styles.messageContent}>
+                                    {!msg.mine && <div className={styles.sender}>{msg.sender}</div>}
+                                    <div className={styles.messageBubble}>{msg.content}</div>
+                                    {/*<div className={styles.timestamp}>{msg.time}</div>*/}
                                 </div>
-                            )}
-                            <div className={styles.messageContent}>
-                                {!msg.mine && <div className={styles.sender}>{msg.sender}</div>}
-                                <div className={styles.messageBubble}>{msg.content}</div>
-                                {/*<div className={styles.timestamp}>{msg.time}</div>*/}
                             </div>
-                        </div>
-                    ))}
-                </div>
-                <div className={styles.inputArea}>
-                    {/*<button className={styles.plusBtn}>+</button>*/}
-                    <input
-                        className={styles.chatInput}
-                        placeholder="메세지를 입력하세요."
-                        value={chatInput}
-                        onChange={(e) => setChatInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                    />
-                    <button className={styles.sendBtn} onClick={handleSendMessage}>➤</button>
+                        ))}
+                        <div ref={messagesEndRef} />
+                    </div>
+                    <div className={styles.inputArea}>
+                        {/*<button className={styles.plusBtn}>+</button>*/}
+                        <input
+                            className={styles.chatInput}
+                            placeholder="메세지를 입력하세요."
+                            value={chatInput}
+                            onChange={(e) => setChatInput(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                        />
+                        <button className={styles.sendBtn} onClick={handleSendMessage}>➤</button>
+                    </div>
                 </div>
             </div>
         </div>
