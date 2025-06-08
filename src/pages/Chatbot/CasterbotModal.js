@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import styles from './CasterbotModal.module.css';
 
@@ -14,6 +14,8 @@ const CasterbotModal = ({onClose}) => {
 
     const [chatInput, setChatInput] = useState('');
 
+    const messagesEndRef = useRef(null);
+
     const handleSendMessage = async () => {
         if (!chatInput.trim()) return;
         const userMessage = chatInput.trim().slice(0, 500);
@@ -22,6 +24,12 @@ const CasterbotModal = ({onClose}) => {
             content: userMessage,
             mine: true,
         }]);
+        // scroll after user message
+        setTimeout(() => {
+            if (messagesEndRef.current) {
+                messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 0);
         setChatInput('');
 
         try {
@@ -48,6 +56,12 @@ const CasterbotModal = ({onClose}) => {
                 content: answer,
                 mine: false,
             }]);
+            // scroll after bot response
+            setTimeout(() => {
+                if (messagesEndRef.current) {
+                    messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 0);
         } catch (error) {
             console.error('챗봇 응답 에러:', error);
             setMessages(prev => [...prev, {
@@ -55,6 +69,11 @@ const CasterbotModal = ({onClose}) => {
                 content: '죄송합니다. 응답 중 문제가 발생했습니다.',
                 mine: false,
             }]);
+            setTimeout(() => {
+                if (messagesEndRef.current) {
+                    messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 0);
         }
         return;
     };
@@ -65,6 +84,12 @@ const CasterbotModal = ({onClose}) => {
             handleSendMessage();
         }
     };
+
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [messages]);
 
     return (
         <div className={styles.modalOverlay}>
@@ -92,6 +117,7 @@ const CasterbotModal = ({onClose}) => {
                                 </div>
                             </div>
                         ))}
+                        <div ref={messagesEndRef} />
                     </div>
                     <div className={styles.inputArea}>
                         {/*<button className={styles.plusBtn}>+</button>*/}
