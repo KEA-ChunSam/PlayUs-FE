@@ -1,4 +1,6 @@
 import React, {useEffect, useState} from 'react';
+import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 import {useLocation, useNavigate} from 'react-router-dom';
 import PostListItem from '../../components/Post/PostListItem';
 import styles from './Community.module.css';
@@ -55,6 +57,8 @@ const Community = () => {
     const [showCasterbot, setShowCasterbot] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [showPostMenu, setShowPostMenu] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const postsPerPage = 8;
 
     const getTeamInfo = (teamId) => {
         if (!teamId) return null;
@@ -281,7 +285,17 @@ const Community = () => {
         return <div className={styles.loading}>로딩 중...</div>;
     }
 
-    const filteredPosts = posts.filter(filterByTeam);
+    const sortedPosts = posts
+        .filter(filterByTeam)
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+    const currentPosts = sortedPosts.slice(indexOfFirstPost, indexOfLastPost);
+
+    const handlePageChange = (event, value) => {
+        setCurrentPage(value);
+    };
 
     return (
         <div className={styles.pageWrapper}>
@@ -301,21 +315,31 @@ const Community = () => {
             <ul className={styles.postList}>
                 {isLoading ? (
                     <li style={{textAlign: 'center', color: '#888', marginTop: '2rem'}}>로딩 중...</li>
-                ) : filteredPosts.length === 0 ? (
+                ) : sortedPosts.length === 0 ? (
                     <li style={{textAlign: 'center', color: '#888', marginTop: '2rem'}}>게시글이 없습니다.</li>
                 ) : (
-                    filteredPosts.map((post) => (
+                    currentPosts.map((post) => (
                         <PostListItem
                             key={post.id || post.postId}
                             title={post.title}
-                            time={post.time}
-                            author={post.author}
+                            date={post.date}
+                            writerNickname={post.writerNickname}
                             image={post.image ? `${process.env.REACT_APP_PRESIGNED_URI}/${post.image}` : null}
                             onClick={() => handlePostClick(post.team, post.id || post.postId)}
                         />
                     ))
                 )}
             </ul>
+            <div className={styles.paginationWrapper}>
+                <Stack spacing={2}>
+                    <Pagination
+                        count={Math.ceil(sortedPosts.length / postsPerPage)}
+                        page={currentPage}
+                        onChange={handlePageChange}
+                        color="primary"
+                    />
+                </Stack>
+            </div>
             {showModal && (
                 <div
                     className={styles.modalOverlay}

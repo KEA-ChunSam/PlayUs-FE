@@ -3,6 +3,7 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useSearchParams, useParams} from 'react-router-dom';
 import Pagination from '@mui/material/Pagination';
+import Stack from '@mui/material/Stack';
 import styles from './DiaryList.module.css';
 import TabNav from "../../components/TabNav/TabNav";
 import CasterbotModal from "../Chatbot/CasterbotModal";
@@ -126,30 +127,14 @@ const DiaryList = () => {
                     ))}
                 </div>
                 <div className={styles.paginationWrapper}>
-                    <Pagination
-                        count={totalPages}
-                        page={page}
-                        onChange={handlePageChange}
-                        variant="outlined"
-                        shape="rounded"
-                        sx={{
-                            '& .MuiPaginationItem-root': {
-                                color: '#784af4',
-                                border: '1px solid #784af4',
-                                cursor: 'pointer',
-                            },
-                            '& .Mui-selected': {
-                                backgroundColor: '#784af4',
-                                color: '#fff',
-                                borderColor: '#784af4',
-                            },
-                            '& .MuiPaginationItem-ellipsis': {
-                                border: 'none',
-                                color: '#784af4',
-                                backgroundColor: 'transparent',
-                            },
-                        }}
-                    />
+                    <Stack spacing={2}>
+                        <Pagination
+                            count={totalPages}
+                            page={page}
+                            onChange={handlePageChange}
+                            color="primary"
+                        />
+                    </Stack>
                 </div>
             </div>
             <CasterbotButton onClick={() => setShowCasterbot(true)}/>
