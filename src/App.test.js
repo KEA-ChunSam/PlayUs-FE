@@ -3,7 +3,6 @@ import { render, screen } from '@testing-library/react';
 import AppRouter from './routes/AppRouter';
 import React from 'react';
 import { HashRouter } from 'react-router-dom';
-import * as test from "node:test";
 
 describe('AppRouter', () => {
   test('스플래시 페이지가 기본 경로(/)에서 렌더링됩니다', () => {
