@@ -303,7 +303,7 @@ const Profile = () => {
                                     <div className={styles.email}>{profile.email}</div>
                                 ) : (
                                     <div className={styles.email}>
-                                        가입일: {profile.joined}
+                                        가입일: 2025년 5월 26일
                                     </div>
                                 )}
                                 {isMine && (
