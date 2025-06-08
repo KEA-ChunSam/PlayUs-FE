@@ -9,7 +9,7 @@ describe('AppRouter', () => {
   test('스플래시 페이지가 기본 경로(/)에서 렌더링됩니다', () => {
     render(
         <HashRouter>
-          <AppRouter />Add commentMore actions
+          <AppRouter />
         </HashRouter>
     );
     // Splash 페이지의 로고 이미지가 있는지 확인
