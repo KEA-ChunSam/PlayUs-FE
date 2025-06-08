@@ -245,6 +245,18 @@ const Profile = () => {
     }
     const [showCasterbot, setShowCasterbot] = useState(false);
 
+    const handlePostClick = async (writerId, postId) => {
+        try {
+            const res = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/writer/${writerId}/${postId}`, {
+                withCredentials: true,
+            });
+            const teamTag = res.data.tag;
+            navigate(`/community/post/${teamTag}/${postId}`);
+        } catch (error) {
+            console.error('게시글 정보를 불러오지 못했습니다:', error);
+        }
+    };
+
     return (
         <>
             <div className={styles.container}>
@@ -291,7 +303,7 @@ const Profile = () => {
                                     <div className={styles.email}>{profile.email}</div>
                                 ) : (
                                     <div className={styles.email}>
-                                        게시글 {profile.diaryCount}회 작성 · {profile.joined} 가입
+                                        가입일: {profile.joined}
                                     </div>
                                 )}
                                 {isMine && (
@@ -414,7 +426,11 @@ const Profile = () => {
                                             .sort((a, b) => new Date(b.date) - new Date(a.date))
                                             .slice(0, 3)
                                             .map((entry, idx) => (
-                                                <li key={idx} className={styles.journalItem}>
+                                                <li
+                                                    key={idx}
+                                                    className={styles.journalItem}
+                                                    onClick={() => handlePostClick(userId, entry.postId)}
+                                                >
                                                     {entry?.image && (
                                                         <img src={entry.image} alt="entry" className={styles.entryImg}/>
                                                     )}
