@@ -112,7 +112,10 @@ export default function MainPage() {
                     withCredentials: true,
                 });
 
-                const posts = res.data;
+                const posts = res.data.map(post => ({
+                    ...post,
+                    teamTag: teamInfo.teamId,  // teamTag 수동 주입
+                }));
                 const sorted = posts.sort((a, b) => b.view - a.view);
                 setPopularPosts(sorted.slice(0, 1)); // top 1
             } catch (err) {
