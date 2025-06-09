@@ -308,8 +308,8 @@ useEffect(() => {
                             <img
                                 src={
                                     post.image
-                                        ? `${post.image}`
-                                        : `${process.env.PUBLIC_URL}/Logo/defaultpost.png`
+                                        ? `${process.env.REACT_APP_PRESIGNED_URI}/${post.image}`
+                                        : `${process.env.PUBLIC_URL}/default-thumbnail.png` // 대체 이미지 또는 생략
                                 }
                                 alt="게시글 썸네일"
                                 className={styles.playerImg}
