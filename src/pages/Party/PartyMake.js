@@ -42,6 +42,8 @@ const PartyMake = () => {
 
     const imageFileRef = useRef();
 
+    const [previewUrls, setPreviewUrls] = useState([]);
+
     useEffect(() => {
         if (receivedMatchId) {
             // matchId 전달 확인
@@ -66,6 +68,29 @@ const PartyMake = () => {
             });
         }
     }, [isEditMode, location.state]);
+
+    useEffect(() => {
+        // 정리: 이전 blob URL revoke
+        previewUrls.forEach(url => {
+            if (url.startsWith('blob:')) {
+                URL.revokeObjectURL(url);
+            }
+        });
+
+        const newUrls = partyForm.thumbnailImageNameList.map(file => {
+            return file instanceof File ? URL.createObjectURL(file) : file;
+        });
+
+        setPreviewUrls(newUrls);
+
+        return () => {
+            newUrls.forEach(url => {
+                if (url.startsWith('blob:')) {
+                    URL.revokeObjectURL(url);
+                }
+            });
+        };
+    }, [partyForm.thumbnailImageNameList]);
 
     const handleImageUpload = async () => {
         // This function is no longer used for immediate upload
@@ -211,7 +236,12 @@ const PartyMake = () => {
                     form={partyForm}
                     setForm={setPartyForm}
                     onSubmit={handleSubmit}
-                />
+                    previewUrls={previewUrls}
+                >
+                    {previewUrls.map((url, idx) => (
+                        <img key={idx} src={url} alt={`썸네일-${idx}`} />
+                    ))}
+                </PartyFormStep2>
             )}
             {detectModalVisible && (
                 <Modal

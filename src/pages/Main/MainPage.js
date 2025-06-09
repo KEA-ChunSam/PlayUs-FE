@@ -280,18 +280,19 @@ useEffect(() => {
                         <div
                             key={i}
                             className={styles.partyCard}
-                            onClick={() => navigate(`/community/post/${post.teamTag}/${post.postId}`)}
+                            onClick={() => {
+                                console.log("🔥 게시글 이동:", post.teamTag, post.postId);
+                                navigate(`/community/post/${post.teamTag}/${post.postId}`);
+                            }}
                             style={{ cursor: "pointer" }}
                         >
-                            <img
-                                src={
-                                    post.image
-                                        ? `${process.env.REACT_APP_PRESIGNED_URI}/${post.image}`
-                                        : `${process.env.PUBLIC_URL}/default-thumbnail.png` // 대체 이미지 또는 생략
-                                }
-                                alt="게시글 썸네일"
-                                className={styles.playerImg}
-                            />
+                            {post.image && (
+                                <img
+                                    src={`${process.env.REACT_APP_PRESIGNED_URI}/${post.image}`}
+                                    alt="게시글 썸네일"
+                                    className={styles.playerImg}
+                                />
+                            )}
                             <div className={styles.partyContent}>
                                 <div className={styles.partyTitle}>{post.title}</div>
                                 <div className={styles.partyMeta}>

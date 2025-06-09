@@ -422,13 +422,16 @@ const Party = () => {
                                                 </div>
                                                 <div className={styles.partyStatus}>
                                                     <div className={styles.avatars}>
-                                                        {party.userThumbnailUrls?.map((url, i) => (
+                                                        {party.userThumbnailUrls?.slice().reverse().map((url, i) => (
                                                             <img
                                                                 key={i}
-                                                                src={url
-                                                                    ? `${process.env.REACT_APP_PRESIGNED_URI}/${url}`
-                                                                    : `${process.env.PUBLIC_URL}/Logo/profile.png`}
+                                                                src={
+                                                                    url && !url.startsWith("blob:")
+                                                                        ? `${process.env.REACT_APP_PRESIGNED_URI.replace(/\/$/, '')}/${url}`
+                                                                        : `${process.env.PUBLIC_URL}/Logo/profile.png`
+                                                                }
                                                                 alt="프로필"
+                                                                className={styles.userAvatar}
                                                             />
                                                         ))}
                                                     </div>
@@ -613,7 +616,7 @@ const Party = () => {
                                         </div>
                                         <div className={styles.partyStatus}>
                                             <div className={styles.avatars}>
-                                                {myApprovalPartyDetail.userThumbnailUrls?.map((url, i) => (
+                                                {myApprovalPartyDetail.userThumbnailUrls?.slice().reverse().map((url, i) => (
                                                     <img
                                                         key={i}
                                                         src={url

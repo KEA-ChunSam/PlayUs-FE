@@ -104,7 +104,7 @@ const PartyDetail = () => {
         <>
             <div className={styles.wrapper}>
                 <div className={styles.content}>
-                    <TabNav tabs={tabLabels} onTabChange={setActiveTab} onBack={() => navigate(-1)}/>
+                    <TabNav tabs={tabLabels} onTabChange={setActiveTab} onBack={() => navigate('/schedule')}/>
                     {party && (
                         <div className={styles.partyCard}>
                             {user?.id === party.writerId && (

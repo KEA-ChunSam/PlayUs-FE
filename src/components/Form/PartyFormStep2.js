@@ -85,7 +85,11 @@ const PartyFormStep2 = ({form, setForm, onSubmit}) => {
                     {form.thumbnailImageNameList && form.thumbnailImageNameList.length > 0 && form.thumbnailImageNameList.map((url, index) => (
                         <div key={index} className={styles.thumbnailWrapper}>
                             <img
-                                src={typeof url === 'string' ? url : URL.createObjectURL(url)}
+                                src={
+                                    typeof url === 'string'
+                                        ? (url.startsWith('http') ? url : `${process.env.REACT_APP_PRESIGNED_URI}/${url}`)
+                                        : URL.createObjectURL(url)
+                                }
                                 alt={`썸네일 미리보기 ${index + 1}`}
                                 className={styles.thumbnailPreview}
                             />
