@@ -7,6 +7,8 @@ import CasterbotModal from "../Chatbot/CasterbotModal";
 import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import axios from 'axios';
 import {kbo_teams, teamMap} from "../../utils/teamInfoMap";
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 
 
 
@@ -32,6 +34,8 @@ const NewDiary = () => {
     const [imageFile, setImageFile] = useState(null);
     const [objectUrl, setObjectUrl] = useState(null);
     const [showCasterbot, setShowCasterbot] = useState(false);
+    const [twpDate, setTwpDate] = useState(location.state?.twpDate || '');
+    const [showCalendar, setShowCalendar] = useState(false);
 
     const [showModal, setShowModal] = useState(false);
     const [modalTitle, setModalTitle] = useState('');
@@ -96,7 +100,7 @@ const NewDiary = () => {
             title,
             content,
             image: imageFileName,
-            twpDate: isEditing ? location.state?.twpDate : new Date().toISOString().split('T')[0],
+            twpDate,
             isSecret: true
         };
 
@@ -164,6 +168,31 @@ const NewDiary = () => {
                                 <option key={i} value={t}>{t}</option>
                             ))}
                         </select>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                        <label>직관 날짜</label>
+                        <input
+                            type="text"
+                            value={twpDate}
+                            readOnly
+                            className={styles.input}
+                            placeholder="날짜를 선택해주세요"
+                            onClick={() => setShowCalendar(true)}
+                            required
+                        />
+                        {showCalendar && (
+                          <div className={styles.calendarWrapper}>
+                            <Calendar
+                              onChange={(date) => {
+                                const formatted = new Date(date.getTime() + 9 * 60 * 60 * 1000).toISOString().split('T')[0];
+                                setTwpDate(formatted);
+                                setShowCalendar(false);
+                              }}
+                              value={twpDate ? new Date(twpDate) : new Date()}
+                            />
+                          </div>
+                        )}
                     </div>
 
                     <div className={styles.formGroup}>

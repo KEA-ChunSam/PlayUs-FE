@@ -51,7 +51,8 @@ const DiaryList = () => {
                     return {
                         id: entry.postId,
                         title: entry.title,
-                        date: entry.twpDate || entry.date,
+                        date: (entry.createdAt || entry.twpDate || entry.date)?.replace(/-/g, '.'),
+                        createdAt: entry.createdAt,
                         image: entry.thumbnail ? `${process.env.REACT_APP_PRESIGNED_URI}/${entry.thumbnail}` : null,
                         // image: `${process.env.PUBLIC_URL}/exImage.png` || null, // 임시 이미지
                         team: teamData?.name || '',
@@ -59,7 +60,7 @@ const DiaryList = () => {
                         content: '',
                     };
                 });
-                data.sort((a, b) => new Date(b.date) - new Date(a.date));
+                data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).reverse();
                 setDiaries(data);
                 setTotalPages(Math.ceil(data.length / 8));
 
@@ -122,7 +123,7 @@ const DiaryList = () => {
                                     <span className={styles.entryTitle}>{entry.title}</span>
                                     {entry.teamLogo && <img src={entry.teamLogo} alt="logo" className={styles.teamLogo}/>}
                                 </div>
-                                <span className={styles.entryDate}>{entry.date}</span>
+                                <span className={styles.entryDate}>직관일: {entry.date}</span>
                             </div>
                         </div>
                     ))}

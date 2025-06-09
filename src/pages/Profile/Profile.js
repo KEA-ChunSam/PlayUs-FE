@@ -69,14 +69,32 @@ const Profile = () => {
                         id: entry.postId,
                         title: entry.title,
                         date: entry.date,
+                        createdAt: entry.createdAt, // Add this line
                         image: entry.thumbnail || null,
                         team: teamData?.name || '',
                         teamLogo: teamData?.logo || `${process.env.PUBLIC_URL}/exImage.png`,
                     };
                 });
-                // Sort diaries by most recent date first
-                const sortedData = data.sort((a, b) => new Date(b.date) - new Date(a.date));
-                setRecentDiaries(sortedData);
+                // Sort diaries: first by twpDate (date) descending, then by createdAt ascending
+                const sortedData = data.sort((a, b) => {
+                    const dateA = new Date(a.date);
+                    const dateB = new Date(b.date);
+                    if (dateA.getTime() !== dateB.getTime()) {
+                        return dateB - dateA; // twpDate descending
+                    }
+                    return new Date(a.createdAt) - new Date(b.createdAt); // createdAt ascending
+                });
+                // Filter to top 2 unique date entries
+                const recentTwoDates = [];
+                const filteredDiaries = [];
+                for (const diary of sortedData) {
+                    if (!recentTwoDates.includes(diary.date)) {
+                        recentTwoDates.push(diary.date);
+                        filteredDiaries.push(diary);
+                    }
+                    if (recentTwoDates.length === 2) break;
+                }
+                setRecentDiaries(filteredDiaries);
 
                 // calendarLogs logic
                 const calendarMap = {};
@@ -98,14 +116,25 @@ const Profile = () => {
                     }
 
                     const key = new Date(formattedDate).toLocaleDateString('sv-SE');
-                    if (entry.teamLogo) {
+                    if (
+                        !calendarMap[key] ||
+                        new Date(entry.createdAt) < new Date(calendarMap[key].createdAt)
+                    ) {
                         const logoMatch = entry.teamLogo.match(/emblem_(.*?)\.png$/);
                         if (logoMatch) {
-                            calendarMap[key] = `emblem_${logoMatch[1]}.png`;
+                            calendarMap[key] = {
+                                logo: `emblem_${logoMatch[1]}.png`,
+                                createdAt: entry.createdAt
+                            };
                         }
                     }
                 });
-                setCalendarLogs(calendarMap);
+                // Simplify calendarMap to only logo
+                const simplifiedCalendarMap = {};
+                Object.keys(calendarMap).forEach(key => {
+                    simplifiedCalendarMap[key] = calendarMap[key].logo;
+                });
+                setCalendarLogs(simplifiedCalendarMap);
             } catch (error) {
                 // 최근 직관일지 불러오기 실패
             }
@@ -121,16 +150,20 @@ const Profile = () => {
             const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
             try {
                 // Always fetch the logged-in user's profile to get their ID
-                const loggedInRes = await axios.get(`${baseUrl}/user/profile`, {withCredentials: true});
+                const loggedInRes = await axios.get(`${baseUrl}/user/profile`, {withCredentials: true}); // 배포용
+                // const loggedInRes = await axios.get(`${baseUrl}/user/user/profile`, {withCredentials: true}); // 로컬 개발용
+
                 const loggedInData = loggedInRes.data;
                 setLoggedInUserId(loggedInData.id);
 
                 // Now fetch the target profile (could be mine or another user's)
                 let targetProfileUrl;
                 if (!userId) {
-                    targetProfileUrl = `${baseUrl}/user/profile`;
+                    targetProfileUrl = `${baseUrl}/user/profile`; // 배포용
+                    // targetProfileUrl = `${baseUrl}/user/user/profile`; // 로컬 개발용
                 } else {
-                    targetProfileUrl = `${baseUrl}/user/profile/${userId}`;
+                    targetProfileUrl = `${baseUrl}/user/profile/${userId}`; // 배포용
+                    // targetProfileUrl = `${baseUrl}/user/user/profile/${userId}`; // 로컬 개발용
                 }
                 const res = await axios.get(targetProfileUrl, {withCredentials: true});
                 const data = res.data;
