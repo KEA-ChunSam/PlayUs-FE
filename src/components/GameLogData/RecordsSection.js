@@ -11,7 +11,7 @@ function RecordsSection({homeBatters, awayBatters}) {
     return (
         <div className={styles.contents}>
             <RecordsAccordion
-                title="타격 기록(한화)"
+                title="타격 기록(롯데)"
                 isOpen={showHanwhaHit}
                 toggleOpen={() => setShowHanwhaHit(v => !v)}
             >
@@ -83,7 +83,7 @@ function RecordsSection({homeBatters, awayBatters}) {
                 </table>
             </RecordsAccordion>
             <RecordsAccordion
-                title="투수 기록(한화)"
+                title="투수 기록(롯데)"
                 isOpen={showHanhwaPitch}
                 toggleOpen={() => setShowHanhwaPitch(v => !v)}
             >
@@ -102,8 +102,8 @@ function RecordsSection({homeBatters, awayBatters}) {
                     </thead>
                     <tbody>
                     <tr>
-                        <td>류현진</td>
-                        <td>6.0</td>
+                        <td>박세웅</td>
+                        <td>9.0</td>
                         <td>5</td>
                         <td>2</td>
                         <td>2</td>
@@ -134,8 +134,8 @@ function RecordsSection({homeBatters, awayBatters}) {
                     </thead>
                     <tbody>
                     <tr>
-                        <td>쿠에바스</td>
-                        <td>5.0</td>
+                        <td>오원석</td>
+                        <td>8.0</td>
                         <td>7</td>
                         <td>4</td>
                         <td>4</td>
