@@ -59,3 +59,12 @@ export const kbo_teams = [
     '한화 이글스', '기아 타이거즈', '두산 베어스', 'LG 트윈스', '롯데 자이언츠',
     '삼성 라이온즈', 'SSG 랜더스', 'NC 다이노스', '키움 히어로즈', 'KT 위즈'
 ];
+
+export const getCommunityTeamTagById = (id) => {
+    const team = teamInfoMapCommunity.find(t => t.id === id);
+    return team ? team.teamId : null;
+};
+
+export const getCommunityTeamInfoById = (id) => {
+    return teamInfoMapCommunity.find(t => t.id === id) || null;
+};

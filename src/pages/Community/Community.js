@@ -10,6 +10,8 @@ import axios from 'axios';
 import {teamInfoMapCommunity} from '../../utils/teamInfoMap';
 // import Modal from '../../components/Modal/Modal';
 
+import { useAuth } from '../../utils/AuthContext';
+
 const initialPosts = [
     {
         id: 1,
@@ -60,34 +62,40 @@ const Community = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const postsPerPage = 8;
 
+    const { user } = useAuth();
+
     const getTeamInfo = (teamId) => {
         if (!teamId) return null;
-        const normalize = v => (v || '').replace(/_/g, '').toUpperCase();
-        return teamInfoMapCommunity.find(t => normalize(t.teamId) === normalize(teamId));
+        return teamInfoMapCommunity.find(team => team.teamId === teamId);
     };
 
     const teamInfo = getTeamInfo(selectedTeam);
 
     useEffect(() => {
         const fetchFavoriteTeam = async () => {
-            // 초기 로딩이 아닌 경우 실행하지 않음
-            if (!isInitialLoad) return;
+            // 초기 로딩이 아닌 경우 또는 user?.id가 없는 경우 실행하지 않음
+            console.log("🔍 초기 로딩 여부:", isInitialLoad);
+            console.log("🧑 사용자 ID:", user?.id);
+            if (!isInitialLoad || !user?.id) return;
 
             try {
                 const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
 
                 const res = await axios.get(`${baseUrl}/user/profile`, {withCredentials: true});
+                console.log("✅ 사용자 프로필 응답:", res.data);
 
                 const favorites = Array.isArray(res.data.favoriteTeams) ? res.data.favoriteTeams : [];
 
-                const sorted = [...favorites].sort((a, b) => a.displayOrder - b.displayOrder);
-                if (sorted.length === 0) {
+                if (favorites.length === 0) {
                     throw new Error('선호팀이 없습니다.');
                 }
-                const firstTeamId = sorted[0].teamId;
+                const firstTeamId = favorites.find(team => team.displayOrder === 1)?.teamId;
+                console.log("🏷️ 첫 번째 선호 팀 ID:", firstTeamId);
 
                 // teamInfoMapCommunity에서 해당 ID의 팀 정보 찾기
-                const teamInfo = teamInfoMapCommunity.find(team => team.id === firstTeamId);
+                // team.id와 firstTeamId를 모두 정수로 변환하여 비교
+                const teamInfo = teamInfoMapCommunity.find(team => parseInt(team.id) === parseInt(firstTeamId));
+                console.log("📌 매핑된 팀 정보:", teamInfo);
 
                 if (teamInfo) {
                     // URL에 팀 정보가 없는 경우에만 선호팀으로 설정
@@ -96,30 +104,28 @@ const Community = () => {
                         navigate(`/community/post/${teamInfo.teamId}`);
                     }
                 } else {
-                    // URL에 팀 정보가 없는 경우에만 기본 팀으로 설정
-                    if (!location.pathname.includes('/post/')) {
-                        const defaultTeam = 'KIA_TIGERS';
-                        setSelectedTeam(defaultTeam);
-                        navigate(`/community/post/${defaultTeam}`);
-                    }
+                    console.warn('teamInfoMapCommunity에서 선호팀 매핑 실패:', firstTeamId);
                 }
             } catch (error) {
-                console.error('선호팀 가져오기 실패:', error);
+                console.error("❌ 선호팀 매핑 또는 설정 실패:", error);
                 // URL에 팀 정보가 없는 경우에만 기본 팀으로 설정
                 if (!location.pathname.includes('/post/')) {
-                    const defaultTeam = 'KIA_TIGERS';
-                    setSelectedTeam(defaultTeam);
-                    navigate(`/community/post/${defaultTeam}`);
+                    const fallbackTeamId = user?.favoriteTeams
+                        ?.find(t => t.displayOrder === 1)?.teamId;
+                    setSelectedTeam(fallbackTeamId);
+                    navigate(`/community/post/${fallbackTeamId}`);
                 }
             } finally {
                 setIsInitialLoad(false);
+                console.log("🚩 초기 로딩 완료 처리");
             }
         };
         fetchFavoriteTeam();
-    }, [navigate, isInitialLoad, location.pathname]);
+    }, [navigate, isInitialLoad, location.pathname, user?.id]);
 
     // URL에서 팀 정보 가져오기
     useEffect(() => {
+        if (isInitialLoad) return;  // prevent early overwrite
         const pathParts = location.pathname.split('/');
         const teamIndex = pathParts.indexOf('post') + 1;
         if (teamIndex > 0 && teamIndex < pathParts.length) {
@@ -128,7 +134,7 @@ const Community = () => {
                 setSelectedTeam(teamFromUrl);
             }
         }
-    }, [location.pathname, selectedTeam]);
+    }, [location.pathname, selectedTeam, isInitialLoad]);
 
     useEffect(() => {
         if (!selectedTeam) return;

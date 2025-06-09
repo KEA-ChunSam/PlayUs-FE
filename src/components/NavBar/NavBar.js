@@ -17,8 +17,10 @@ const NavBar = () => {
 
     const handleCommunityClick = (e) => {
         e.preventDefault();
-        const preferredTeam = user?.preferredTeam;
-        const team = preferredTeam || 'KIA_TIGERS';
+        // Extract top favorite team based on displayOrder
+        const topFavoriteTeam = user?.favoriteTeams?.sort((a, b) => a.displayOrder - b.displayOrder)?.[0]?.teamId;
+        const matchedTeam = teamInfoMapCommunity.find(t => t.id === topFavoriteTeam);
+        const team = matchedTeam?.teamId || 'KIA_TIGERS';
         navigate(`/community/post/${team}`);
         setActiveNav(2);
     };

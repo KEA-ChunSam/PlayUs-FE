@@ -11,7 +11,10 @@
 
 .react-calendar__tile--active:enabled:hover,
 .react-calendar__tile--active:enabled:focus {
-  background: #e6e6e6 !important;
+  background: unset !important;
+  color: inherit !important;
+  cursor: default !important;
+  box-shadow: none !important;
 }
 
 .react-calendar {
@@ -34,4 +37,11 @@
 
 .react-calendar__viewContainer {
   min-height: 310px;
+}
+
+.react-calendar__tile:hover {
+  background: none !important;
+  color: inherit !important;
+  /*cursor: default !important;*/
+  box-shadow: none !important;
 }
