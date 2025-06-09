@@ -1,7 +1,7 @@
 // DiaryList.js
 // 직관일지 목록 페이지
 import React, {useEffect, useState} from 'react';
-import {useNavigate, useSearchParams, useParams} from 'react-router-dom';
+import {useNavigate, useSearchParams} from 'react-router-dom';
 import Pagination from '@mui/material/Pagination';
 import Stack from '@mui/material/Stack';
 import styles from './DiaryList.module.css';
@@ -11,6 +11,7 @@ import CasterbotButton from "../../components/CasterbotButton/CasterbotButton";
 import axios from 'axios';
 import {teamInfoMapCommunity} from "../../utils/teamInfoMap";
 import Modal from "../../components/Modal/Modal";
+import { useAuth } from '../../utils/AuthContext';
 
 
 const DiaryList = () => {
@@ -26,8 +27,8 @@ const DiaryList = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
-
-    const { id: userId } = useParams();
+    const { user } = useAuth();
+    const userId = user?.id;
 
     useEffect(() => {
         const fetchMyDiaries = async () => {
