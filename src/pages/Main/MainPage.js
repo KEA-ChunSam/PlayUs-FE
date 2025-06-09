@@ -126,35 +126,66 @@ export default function MainPage() {
     }, [selectedFavorites, activeTeamIndex]);
 
 useEffect(() => {
-    if (loginUserId) {
-        const fetchMyActiveParties = async () => {
-            try {
-                const twpBase = process.env.REACT_APP_LOCAL_BACKEND_TWP_URI;
-                const res = await axios.get(`${twpBase}/party/applied-parties`, {
-                    withCredentials: true,
+    // matchId가 1152인 경우, 해당 matchId에서 로그인 사용자가 작성한 직관팟을 따로 가져오도록 함
+    const fetchMyCreatedPartyForMatch1152 = async () => {
+        if (!loginUserId) return;
+        try {
+            const twpBase = process.env.REACT_APP_LOCAL_BACKEND_TWP_URI;
+            const res = await axios.get(`${twpBase}/party`, {
+                withCredentials: true,
+                params: { matchId: 1152 }
+            });
+            const parties = res.data;
+            const myParty = parties.find(p => p.writerId === loginUserId);
+            if (myParty) {
+                const detailRes = await axios.get(`${twpBase}/party/${myParty.partyId}`, {
+                    withCredentials: true
+                });
+                setMyApprovalPartyDetail(detailRes.data);
+                return true;
+            }
+        } catch (err) {
+            console.error("matchId 1152에서 작성자 직관팟 조회 실패:", err);
+        }
+        return false;
+    };
+
+    const fetchMyActiveParties = async () => {
+        try {
+            const twpBase = process.env.REACT_APP_LOCAL_BACKEND_TWP_URI;
+            const res = await axios.get(`${twpBase}/party/applied-parties`, {
+                withCredentials: true,
+            });
+
+            const activeParties = res.data.filter(
+                p => !p.isEnded &&
+                    (p.writerId === loginUserId ||
+                     p.partyJoinRequestStatus === '채팅방 입장!' ||
+                     p.partyJoinRequestStatus === '승인')
+            );
+
+            if (activeParties.length > 0) {
+                const partyId = activeParties[0].partyId;
+                const detailRes = await axios.get(`${twpBase}/party/${partyId}`, {
+                    withCredentials: true
                 });
 
-                const activeParties = res.data.filter(
-                    p => !p.isEnded &&
-                        (p.writerId === loginUserId || p.partyJoinRequestStatus === '채팅방 입장!')
-                );
-
-                if (activeParties.length > 0) {
-                    const partyId = activeParties[0].partyId;
-                    const detailRes = await axios.get(`${twpBase}/party/${partyId}`, {
-                        withCredentials: true
-                    });
-
-                    setMyApprovalPartyDetail(detailRes.data);
-                } else {
-                    setMyApprovalPartyDetail(null);
-                }
-            } catch (err) {
-                console.error("내 직관팟 정보 조회 실패:", err);
+                setMyApprovalPartyDetail(detailRes.data);
+            } else {
+                setMyApprovalPartyDetail(null);
             }
-        };
+        } catch (err) {
+            console.error("내 직관팟 정보 조회 실패:", err);
+        }
+    };
 
-        fetchMyActiveParties();
+    if (loginUserId) {
+        // matchId 1152 우선 조회, 없으면 기존 로직
+        fetchMyCreatedPartyForMatch1152().then(found => {
+            if (!found) {
+                fetchMyActiveParties();
+            }
+        });
     }
 }, [loginUserId]);
 
@@ -309,7 +340,14 @@ useEffect(() => {
             {myApprovalPartyDetail && (
                 <div
                     className={styles.partyCard}
-                    onClick={() => onEnterChat(myApprovalPartyDetail.partyId)}
+                    onClick={() => {
+                        const chatRoomId = myApprovalPartyDetail.chatRoomId;
+                        if (chatRoomId) {
+                            navigate(`/chat/party/${chatRoomId}`);
+                        } else {
+                            alert("채팅방 정보를 불러올 수 없습니다.");
+                        }
+                    }}
                     style={{ cursor: "pointer" }}
                 >
                     <img

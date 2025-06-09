@@ -22,6 +22,7 @@ const Chatting = () => {
     const [users, setUsers] = useState([]);
     const [roomMaster, setRoomMaster] = useState(null);
     const [myNickname, setMyNickname] = useState('');
+    const [participantMap, setParticipantMap] = useState({});
 
     // const fetchParticipants = async () => {
     //     try {
@@ -210,6 +211,32 @@ const Chatting = () => {
         fetchMyInfo();
     }, [myUserId]);
 
+    useEffect(() => {
+        const fetchParticipants = async () => {
+            if (!partyId) return;
+            try {
+                const res = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}/participants`, {
+                    withCredentials: true
+                });
+
+                const map = {};
+                res.data.forEach(user => {
+                    map[user.userId] = {
+                        nickname: user.nickname,
+                        avatar: user.profileImageUrl
+                            ? `${process.env.REACT_APP_PRESIGNED_URI}/${user.profileImageUrl}`
+                            : `${process.env.PUBLIC_URL}/Logo/default.png`
+                    };
+                });
+                setParticipantMap(map);
+            } catch (err) {
+                console.error('참가자 정보 가져오기 실패:', err);
+            }
+        };
+
+        fetchParticipants();
+    }, [partyId]);
+
     // Infinite query for chat messages (refactored)
     const {
         data,
@@ -337,7 +364,7 @@ const Chatting = () => {
                     >
                         ←
                     </button>
-                    <div className={styles.chatTitle}>3/22(토) 한화 vs KT 개막전 직관🦁💙</div>
+                    <div className={styles.chatTitle}>{location.state?.partyTitle || '채팅방'}</div>
                     <button className={styles.menuBtn} onClick={toggleSidebar}>☰</button>
                 </header>
 
@@ -355,11 +382,17 @@ const Chatting = () => {
                                 key={idx}
                                 className={isMine ? styles.messageRowReverse : styles.messageRow}
                             >
-                                {!isMine &&
-                                    <img src={`${process.env.PUBLIC_URL}/Logo/profile.png`} className={styles.avatar}
-                                         alt="user"/>}
+                                {!isMine && (
+                                    <img
+                                        src={participantMap[msg.senderId]?.avatar || `${process.env.PUBLIC_URL}/Logo/default.png`}
+                                        className={styles.avatar}
+                                        alt={participantMap[msg.senderId]?.nickname || msg.senderName || 'user'}
+                                    />
+                                )}
                                 <div>
-                                    {!isMine && <div className={styles.sender}>{msg.senderName}</div>}
+                                    {!isMine && <div className={styles.sender}>
+                                        {participantMap[msg.senderId]?.nickname || msg.senderName || '알 수 없음'}
+                                    </div>}
                                     <div
                                         className={isMine ? styles.messageBubbleMine : styles.messageBubble}>
                                         {typeof msg.message === 'string' ? msg.message : ''}
