@@ -83,12 +83,13 @@ const ProfileEditModal = ({ onClose, onSubmit, initialNickname, initialProfileIm
 
                 // 파일명 생성
                 let fileName;
-                if (originalFile && originalFile.name) {
-                    fileName = `profile/${originalFile.name}`;
-                } else {
-                    const uuid = crypto.randomUUID();
-                    fileName = `profile/${uuid}.png`;
-                }
+                // if (originalFile && originalFile.name) {
+                //     fileName = `profile/${originalFile.name}`;
+                // } else {
+                //     const uuid = crypto.randomUUID();
+                //     fileName = `profile/${uuid}.png`;
+                // }
+                fileName = `profile/${originalFile.name}`;
 
                 // presigned URL 요청
                 const presignedRes = await axios.post(
