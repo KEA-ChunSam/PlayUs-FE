@@ -146,7 +146,7 @@ const NewPost = () => {
                 if (presignedUrl) {
                     await axios.put(presignedUrl, imageFile, {
                         headers: {
-                            'Content-Type': imageFile.type
+                            // 'Content-Type': imageFile.type
                         }
                     });
                     uploadedImageUrl = `community/${imageFile.name}`;
