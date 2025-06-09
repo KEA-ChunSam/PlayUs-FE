@@ -90,7 +90,6 @@ export default function PartyApply() {
                     //     navigate('/party/matchid');
                     // }}
                     buttons={[
-                        { label: '취소', onClick: () => setShowApplyModal(false) },
                         {
                             label: '확인',
                             onClick: () => {

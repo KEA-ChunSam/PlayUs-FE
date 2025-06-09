@@ -89,7 +89,7 @@ const PartyDetail = () => {
 
             } else {
 
-                navigate(`/party/request/${partyId}`);
+                navigate(`/party/applyParty/${partyId}`);
             }
         } catch (error) {
             if (error.response?.data?.message === "직관팟 성별에 맞지 않습니다!") {

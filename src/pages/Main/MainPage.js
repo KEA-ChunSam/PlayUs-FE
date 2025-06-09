@@ -388,24 +388,24 @@ useEffect(() => {
                             <span>· {myApprovalPartyDetail.matchDate}</span>
                         </div>
 
-                        <div className={styles.partyStatus}>
-                            <div className={styles.avatars}>
-                                {myApprovalPartyDetail.userThumbnailUrls?.slice(0, 1).map((url, i) => (
-                                    <img
-                                        key={i}
-                                        src={
-                                            url
-                                                ? `${process.env.REACT_APP_PRESIGNED_URI}/${url}`
-                                                : `${process.env.PUBLIC_URL}/Logo/profile.png`
-                                        }
-                                        alt="프로필"
-                                    />
-                                ))}
+                            <div className={styles.partyStatus}>
+                                <div className={styles.avatars}>
+                                    {myApprovalPartyDetail.userThumbnailUrls?.map((url, i) => (
+                                        <img
+                                            key={i}
+                                            src={
+                                                url
+                                                    ? `${process.env.REACT_APP_PRESIGNED_URI}/${url}`
+                                                    : `${process.env.PUBLIC_URL}/Logo/profile.png`
+                                            }
+                                            alt="프로필"
+                                        />
+                                    ))}
+                                </div>
+                                <div className={styles.slot}>
+                                    {myApprovalPartyDetail.currentParticipantsCount}/{myApprovalPartyDetail.maximumParticipantsCount}
+                                </div>
                             </div>
-                            <div className={styles.slot}>
-                                {myApprovalPartyDetail.currentParticipantsCount}/{myApprovalPartyDetail.maximumParticipantsCount}
-                            </div>
-                        </div>
                     </div>
                 </div>
             )}

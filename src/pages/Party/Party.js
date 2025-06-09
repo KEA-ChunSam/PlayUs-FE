@@ -205,7 +205,31 @@ const Party = () => {
             axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/applied-parties`, {
                 withCredentials: true
             })
-                .then(res => setMyApplications(res.data))
+                .then(async res => {
+                    setMyApplications(res.data);
+                    // Fetch partyThumbnailUrls for each party in parallel
+                    const fetchThumbnailsForMyApplications = async (applications) => {
+                        const updated = await Promise.all(applications.map(async (party) => {
+                            try {
+                                const detailRes = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${party.partyId}`, {
+                                    withCredentials: true
+                                });
+                                return {
+                                    ...party,
+                                    writerThumbnailUrl: detailRes.data.partyThumbnailUrls?.[0] || null
+                                };
+                            } catch (err) {
+                                console.error("파티 썸네일 조회 실패:", err);
+                                return {
+                                    ...party,
+                                    writerThumbnailUrl: null
+                                };
+                            }
+                        }));
+                        setMyApplications(updated);
+                    };
+                    fetchThumbnailsForMyApplications(res.data);
+                })
                 .catch(err => console.error("내 신청 직관팟 불러오기 실패:", err));
         }
 
@@ -564,7 +588,11 @@ const Party = () => {
                                                 </div>
                                             </div>
                                             <img
-                                                src={party.writerThumbnailUrl || `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`}
+                                                src={
+                                                    party.writerThumbnailUrl
+                                                        ? `${process.env.REACT_APP_PRESIGNED_URI}/${party.writerThumbnailUrl}`
+                                                        : `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`
+                                                }
                                                 alt="썸네일"
                                                 className={styles.thumbnailImg}
                                             />
@@ -826,7 +854,11 @@ const Party = () => {
                                             applicantUserId: selectedApplicantUserId,
                                             isApproved: true
                                         },
-                                        {withCredentials: true}
+                                        {
+                                            withCredentials: true, headers: {
+                                                'Content-Type': 'application/json',
+                                            },
+                                        }
                                     );
                                     setShowApproveModal(false);
                                     setSelectedApplicantUserId(null);
