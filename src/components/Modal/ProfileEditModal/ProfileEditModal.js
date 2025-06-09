@@ -26,18 +26,19 @@ const ProfileEditModal = ({ onClose, onSubmit, initialNickname, initialProfileIm
         };
     }, [objectUrl]);
 
-    const handleImageChange = (e) => {
+    const handleImageChange = async (e) => {
         const file = e.target.files[0];
-        if (file) {
-            if (objectUrl) {
-                URL.revokeObjectURL(objectUrl);
-            }
-            const imageUrl = URL.createObjectURL(file);
-            setProfileImage(imageUrl);
-            setObjectUrl(imageUrl);
-            setOriginalFile(file); // 원본 파일 저장
-            setIsImageChanged(true); // 이미지 변경 상태 업데이트
-        }
+        if (!file) return;
+
+        // 이미지 리사이징 수행
+        const resizedBlob = await resizeImage(file, 300, 300); // 300x300으로 리사이징
+
+        // ObjectURL로 표시
+        const objectUrl = URL.createObjectURL(resizedBlob);
+        setProfileImage(objectUrl);
+        setObjectUrl(objectUrl);
+        setOriginalFile(new File([resizedBlob], file.name, { type: file.type }));
+        setIsImageChanged(true);
     };
 
     const handleNicknameChange = (e) => {
@@ -203,6 +204,46 @@ const ProfileEditModal = ({ onClose, onSubmit, initialNickname, initialProfileIm
             </div>
         </div>
     );
+};
+
+const resizeImage = (file, maxWidth, maxHeight) => {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            img.src = e.target.result;
+        };
+
+        img.onload = () => {
+            const canvas = document.createElement("canvas");
+            let width = img.width;
+            let height = img.height;
+
+            // 비율 유지하며 리사이즈
+            if (width > maxWidth || height > maxHeight) {
+                if (width > height) {
+                    height *= maxWidth / width;
+                    width = maxWidth;
+                } else {
+                    width *= maxHeight / height;
+                    height = maxHeight;
+                }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob((blob) => {
+                resolve(blob);
+            }, file.type || "image/jpeg", 0.8); // 품질 80%
+        };
+
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 };
 
 export default ProfileEditModal;
