@@ -490,7 +490,7 @@ const Profile = () => {
                                 onClick: async () => {
                                     const baseUrl = process.env.REACT_APP_LOCAL_BACKEND_URI;
                                     try {
-                                        await axios.post(`${baseUrl}/auth/logout`, {}, {withCredentials: true});
+                                        await axios.post(`${baseUrl}/user/auth/logout`, {}, {withCredentials: true});
                                         navigate('/login');
                                     } catch (err) {
                                         navigate('/login');

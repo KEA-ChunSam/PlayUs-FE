@@ -272,11 +272,16 @@
     display: flex;
     /*gap: -6px;*/
     margin-right: 0.5rem;
-    width: 1.7rem;
+    /*width: 1.7rem;*/
 }
 
 .avatars img {
-    margin-left: -6px; /* 첫 번째 이미지 외에 오버랩 적용 */
+    width: 32px;             /* 원하는 크기 (정사각형) */
+    height: 32px;
+    object-fit: cover;       /* 이미지가 비율에 맞게 꽉 차도록 */
+    border-radius: 50%;      /* 완전한 원 모양 */
+    /*margin-left: -6px;       !* 오버랩 마진 *!*/
+    border: 2px solid white;
 }
 
 .avatars img:first-child {

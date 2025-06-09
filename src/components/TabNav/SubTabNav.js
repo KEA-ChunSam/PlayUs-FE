@@ -1,23 +1,18 @@
 // 디자인 통일을 위한 TabNav. 시뮬레이션 부분에서 사용
-import React, {useState} from "react";
-// import {useNavigate} from "react-router-dom";
+import React from "react";
 import styles from "./SubTabNav.module.css";
 
-const SubTabNav = ({tabs = [], onTabChange}) => {
-    const [activeIndex, setActiveIndex] = useState(0);
-    // const navigate = useNavigate();
-
-    const handleTabClick = (index) => {
-        setActiveIndex(index);
-        if (onTabChange) {
-            onTabChange(index);
-        }
-    };
-
+const SubTabNav = ({ tabs = [], onTabChange, activeIndex = 0 }) => {
     const tabCount = tabs.length;
     const indicatorStyle = {
         width: `${100 / tabCount}%`,
         left: `${(100 / tabCount) * activeIndex}%`,
+    };
+
+    const handleTabClick = (index) => {
+        if (onTabChange) {
+            onTabChange(index);
+        }
     };
 
     return (

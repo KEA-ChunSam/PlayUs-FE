@@ -4,7 +4,6 @@ import styles from './MatchInfo.module.css';
 import React, {useEffect, useState} from "react";
 import {useLocation, useParams} from 'react-router-dom';
 import {teamInfoMapBig} from "../../utils/teamInfoMap";
-// import {useNavigate} from "react-router-dom";ㄱ
 import SubTabNav from "../../components/TabNav/SubTabNav";
 import LineupDraggableList from '../../components/DragNDrop/LineupDraggableList';
 import RecordsSection from "../../components/GameLogData/RecordsSection";
@@ -414,7 +413,11 @@ function MatchInfo() {
                     )}
                     <button className={styles.simStart} onClick={startSimulate}>시뮬레이션 시작!</button>
 
-                    <SubTabNav tabs={subTabLabels} onTabChange={setActiveSubTab}/>
+                    <SubTabNav
+                        tabs={subTabLabels}
+                        onTabChange={setActiveSubTab}
+                        activeIndex={activeSubTab}
+                    />
                     {/* AI 시뮬레이션 라인업 설정 서브메뉴*/}
                     {activeSubTab === 0 && (
                         <div className={styles.simLineups}>
@@ -445,38 +448,44 @@ function MatchInfo() {
                                 </div>
                             ) : (
                                 <table className={styles.gamelogbox}>
-                                    <thead className={styles.gamelogHeader}>
+                                  <thead className={styles.gamelogHeader}>
                                     <tr>
-                                        <th>이닝</th>
-                                        <th>투수</th>
-                                        <th>타자</th>
-                                        <th>P</th>
-                                        <th>결과</th>
+                                      <th>이닝</th>
+                                      <th>투수</th>
+                                      <th>타자</th>
+                                      <th>결과</th>
+                                      <th>점수</th>
                                     </tr>
-                                    </thead>
-                                    <tbody className={styles.gamelog}>
-                                    {simulationResult.flatMap((inningData, i) =>
-                                        inningData.plays.map((play, j) => {
-                                            const [batter, result] = play.split(":").map(s => s.trim());
-                                            return {
-                                                id: `${i}-${j}`,
-                                                isFirstInInning: j === 0,
-                                                inning: inningData.title,
-                                                pitcher: '-', // 투수 정보 없음
-                                                batter,
-                                                result
-                                            };
-                                        })
-                                    ).map((log) => (
-                                        <tr key={log.id}>
-                                            <td>{log.isFirstInInning ? <strong>{log.inning}</strong> : ""}</td>
-                                            <td>{log.pitcher}</td>
-                                            <td>{log.batter}</td>
-                                            <td>-</td>
-                                            <td>{log.result}</td>
-                                        </tr>
-                                    ))}
-                                    </tbody>
+                                  </thead>
+                                  <tbody className={styles.gamelog}>
+                                    {simulationResult.map((inning, index) => {
+                                      const plays = inning.plays;
+                                      const score = inning.score;
+                                      const isTop = inning.title.includes("초");
+                                      const pitcher = isTop ? "문동주" : "소형준";
+
+                                      return plays.map((play, playIndex) => {
+                                        const [batter, resultRaw] = play.split(":");
+                                        const result = resultRaw?.trim();
+
+                                        return (
+                                          <tr key={`${inning.title}-${playIndex}`}>
+                                            {playIndex === 0 && (
+                                              <td rowSpan={plays.length}>{inning.title}</td>
+                                            )}
+                                            <td>{pitcher}</td>
+                                            <td>{batter}</td>
+                                            <td>{result}</td>
+                                            {playIndex === plays.length - 1 ? (
+                                              <td rowSpan={1}>{score}</td>
+                                            ) : (
+                                              <td></td>
+                                            )}
+                                          </tr>
+                                        );
+                                      });
+                                    })}
+                                  </tbody>
                                 </table>
                             )}
                         </div>
