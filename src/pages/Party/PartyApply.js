@@ -1,5 +1,5 @@
 // 직관팟 신청 페이지
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import TabNav from '../../components/TabNav/TabNav';
 import styles from './PartyApply.module.css';
 import {useNavigate, useParams} from "react-router-dom";
@@ -11,9 +11,23 @@ export default function PartyApply() {
     const [agreed, setAgreed] = useState(false);
     const navigate = useNavigate();
     const { partyId } = useParams();
+    const [partyTitle, setPartyTitle] = useState('');
     const [activeTab, setActiveTab] = useState(0);
     const tabLabels = ["직관팟 구하기", "내 신청 현황", "승인 요청"];
     const [showApplyModal, setShowApplyModal] = useState(false);
+
+    useEffect(() => {
+        const fetchPartyDetail = async () => {
+            try {
+                const res = await axios.get(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}`);
+                setPartyTitle(res.data.title);
+            } catch (err) {
+                console.error('직관팟 정보 불러오기 실패:', err);
+            }
+        };
+        fetchPartyDetail();
+    }, [partyId]);
+
     const handleSubmit = async () => {
         try {
             await axios.post(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}/apply`, {
@@ -32,7 +46,7 @@ export default function PartyApply() {
         <div className={styles.wrapper}>
             <div className={styles.container}>
                 <TabNav tabs={tabLabels} onTabChange={setActiveTab} onBack={() => navigate(-1)}/>
-                <h2 className={styles.title}>직관팟 참여 신청하기</h2>
+                <h2 className={styles.title}>{partyTitle ? `${partyTitle} 참여 신청하기` : '직관팟 참여 신청하기'}</h2>
                 <p className={styles.subtitle}>
                     3/22(토) 한화 vs KT 개막전 직관🦁💙
                 </p>

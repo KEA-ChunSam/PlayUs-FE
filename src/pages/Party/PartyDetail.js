@@ -21,6 +21,7 @@ const PartyDetail = () => {
     const [showApplyModal, setShowApplyModal] = useState(false);
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showGenderErrorModal, setShowGenderErrorModal] = useState(false);
     const [user, setUser] = useState(null);
 
 
@@ -68,10 +69,10 @@ const PartyDetail = () => {
     }, [party?.writerId]);
 
     async function applyParty() {
-        
+
 
         try {
-            
+
             if (party?.partyJoinMethod === "선착순") {
                 const res = await axios.post(`${process.env.REACT_APP_LOCAL_BACKEND_TWP_URI}/party/${partyId}/apply/fcfs`, {
                     partyId: partyId
@@ -79,20 +80,23 @@ const PartyDetail = () => {
                     withCredentials: true
                 });
 
-                
+
                 if (res.data && typeof res.data.partyJoinRequestStatus !== "undefined") {
                     // Status check is handled without explicit action here.
                 }
 
                 setShowApplyModal(true);
-                
+
             } else {
-                
+
                 navigate(`/party/request/${partyId}`);
             }
         } catch (error) {
-            // 신청 실패
-            setShowErrorModal(true);
+            if (error.response?.data?.message === "직관팟 성별에 맞지 않습니다!") {
+                setShowGenderErrorModal(true);
+            } else {
+                setShowErrorModal(true);
+            }
         }
     }
 
@@ -141,10 +145,10 @@ const PartyDetail = () => {
                                   : `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`
                               }
                               alt="party thumbnail"
-                              onError={(e) => {
-                                e.target.onerror = null;
-                                e.target.src = `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`;
-                              }}
+                              // onError={(e) => {
+                              //   e.target.onerror = null;
+                              //   e.target.src = `${process.env.PUBLIC_URL}/Logo/jikgwanprofile.png`;
+                              // }}
                               className={styles.partyImage}
                             />
                             <div className={styles.partySummary}>
@@ -183,10 +187,10 @@ const PartyDetail = () => {
                                                         : `${process.env.PUBLIC_URL}/Logo/default-profile.png`
                                                 }
                                                 alt="profile"
-                                                onError={(e) => {
-                                                    e.target.onerror = null;
-                                                    e.target.src = `${process.env.PUBLIC_URL}/Logo/default-profile.png`;
-                                                }}
+                                                // onError={(e) => {
+                                                //     e.target.onerror = null;
+                                                //     e.target.src = `${process.env.PUBLIC_URL}/Logo/default-profile.png`;
+                                                // }}
                                             />
                                         ))}
                                     </div>
@@ -202,7 +206,7 @@ const PartyDetail = () => {
                     {user?.id === party?.writerId ? (
                         <button
                             className={styles.applyButton}
-                            onClick={() => navigate("/party/matchid", {state: {tabIndex: 2}})}
+                            onClick={() => navigate(`/party/${partyId}`, {state: {tabIndex: 2}})}
                         >
                             신청자 관리
                         </button>
@@ -277,6 +281,20 @@ const PartyDetail = () => {
                             label: '확인',
                             onClick: () => {
                                 setShowErrorModal(false);
+                            }
+                        }
+                    ]}
+                />
+            )}
+            {showGenderErrorModal && (
+                <Modal
+                    title="신청 에러"
+                    message="직관팟 성별에 맞지 않습니다!"
+                    buttons={[
+                        {
+                            label: '확인',
+                            onClick: () => {
+                                setShowGenderErrorModal(false);
                             }
                         }
                     ]}

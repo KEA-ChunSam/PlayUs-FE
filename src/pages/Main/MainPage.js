@@ -127,56 +127,34 @@ export default function MainPage() {
 
 useEffect(() => {
     if (loginUserId) {
-        const fetchMyApprovalPartyDetail = async () => {
+        const fetchMyActiveParties = async () => {
             try {
                 const twpBase = process.env.REACT_APP_LOCAL_BACKEND_TWP_URI;
+                const res = await axios.get(`${twpBase}/party/applied-parties`, {
+                    withCredentials: true,
+                });
 
-                const token = document.cookie
-                    .split("; ")
-                    .find((row) => row.startsWith("Access="))
-                    ?.split("=")[1];
-                const today = new Date().toISOString().split("T")[0];
-
-                const matchRes = await axios.get(
-                    `${process.env.REACT_APP_AI_API_BASE}/matches`,
-                    {
-                        headers: { Authorization: `Bearer ${token}` },
-                        withCredentials: true,
-                        params: { date: today }
-                    }
+                const activeParties = res.data.filter(
+                    p => !p.isEnded &&
+                        (p.writerId === loginUserId || p.partyJoinRequestStatus === '채팅방 입장!')
                 );
 
-                const matchIds = matchRes.data.map(match => match.match_id);
-
-                for (const matchId of matchIds) {
-                    const partyListRes = await axios.get(`${twpBase}/party`, {
-                        params: { matchId, deletedAt: null },
+                if (activeParties.length > 0) {
+                    const partyId = activeParties[0].partyId;
+                    const detailRes = await axios.get(`${twpBase}/party/${partyId}`, {
                         withCredentials: true
                     });
 
-                    const myParties = partyListRes.data.filter(
-                        (p) => p.writerId === loginUserId
-                    );
-
-                    if (myParties.length > 0) {
-                        const partyId = myParties[0].partyId;
-                        const detailRes = await axios.get(`${twpBase}/party/${partyId}`, {
-                            withCredentials: true
-                        });
-
-                        setMyApprovalPartyDetail(detailRes.data);
-                        // If you want to fetch applicants/approvalList, add logic here as needed
-                        return;
-                    }
+                    setMyApprovalPartyDetail(detailRes.data);
+                } else {
+                    setMyApprovalPartyDetail(null);
                 }
-
-                setMyApprovalPartyDetail(null);
             } catch (err) {
-                console.error("내가 승인한 직관팟 정보 조회 실패:", err);
+                console.error("내 직관팟 정보 조회 실패:", err);
             }
         };
 
-        fetchMyApprovalPartyDetail();
+        fetchMyActiveParties();
     }
 }, [loginUserId]);
 
