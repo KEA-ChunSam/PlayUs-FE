@@ -1,5 +1,16 @@
-# PlayUs-FE
-## Github Pages 접근 시 유의사항
-### 1. 05/07 기준 Kakao Login은 PlayUs-user-service repository를 local 환경에서 실행되므로, 먼저 Springboot Server와 docker 환경에서의 redis 세팅이 선행되어야 합니다.
-### 2. .env파일의 경우 Team Google Drive를 사용합니다.
-### 3. 05/21 기준 카카오 및 네이버 로그인 가능합니다.
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/1a5faef5-1c55-4f2b-8042-569816ae731f" width="80" alt="PlayUs Logo"/>
+  <h1>PlayUs Frontend</h1>
+  <p><em>PlayUs 웹 서비스를 위한 React 기반 프론트엔드 리포지토리입니다</em></p>
+
+  <p>
+    <!-- Frontend Stack -->
+    <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React"/>
+    <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript"/>
+    <img src="https://img.shields.io/badge/CSS%20Modules-264DE4?style=for-the-badge&logo=css3&logoColor=white" alt="CSS Modules"/>
+  </p>
+
+  <p>
+    <img src="https://img.shields.io/badge/개발기간-2025.04~06-7B42BC?style=for-the-badge&logoColor=black" alt="개발기간"/>
+  </p>
+</div>
