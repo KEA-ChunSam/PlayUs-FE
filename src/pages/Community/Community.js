@@ -1,6 +1,4 @@
-import React, {useEffect, useState} from 'react';
-import Pagination from '@mui/material/Pagination';
-import Stack from '@mui/material/Stack';
+import React, {useEffect, useState, useRef} from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
 import PostListItem from '../../components/Post/PostListItem';
 import styles from './Community.module.css';
@@ -9,8 +7,7 @@ import CasterbotModal from "../Chatbot/CasterbotModal";
 import axios from 'axios';
 import {teamInfoMapCommunity} from '../../utils/teamInfoMap';
 // import Modal from '../../components/Modal/Modal';
-
-import { useAuth } from '../../utils/AuthContext';
+import {useAuth} from '../../utils/AuthContext';
 
 const initialPosts = [
     {
@@ -59,10 +56,10 @@ const Community = () => {
     const [showCasterbot, setShowCasterbot] = useState(false);
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [showPostMenu, setShowPostMenu] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
-    const postsPerPage = 8;
+    const [visibleCount, setVisibleCount] = useState(8);
+    const bottomRef = useRef(null);
 
-    const { user } = useAuth();
+    const {user} = useAuth();
 
     const getTeamInfo = (teamId) => {
         if (!teamId) return null;
@@ -136,48 +133,49 @@ const Community = () => {
         }
     }, [location.pathname, selectedTeam, isInitialLoad]);
 
+    // 페이지네이션 상태 추가
+    const [page, setPage] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
+
+    // 팀 변경 시 posts, page, hasMore 초기화
     useEffect(() => {
         if (!selectedTeam) return;
-        // 게시글 목록 fetch
+        setPosts([]); // 팀이 변경되면 게시글 초기화
+        setPage(0);
+        setHasMore(true);
+    }, [selectedTeam]);
+
+    // 페이지가 바뀔 때마다 게시글 로드
+    useEffect(() => {
+        if (!selectedTeam || !hasMore) return;
+
         const fetchPosts = async () => {
             setIsLoading(true);
             try {
-                const url = `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/${selectedTeam}`;
-
+                const url = `${process.env.REACT_APP_LOCAL_BACKEND_COMMUNITY_URI}/post/${selectedTeam}?page=${page}&size=8`;
                 const response = await axios.get(url, {
                     withCredentials: true,
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                    headers: { 'Content-Type': 'application/json' }
                 });
 
-
-                if (!response.data) {
-                    throw new Error('서버 응답이 없습니다.');
-                }
-
-                // team 필드가 없으면 selectedTeam으로 채워줌
-                const postsWithTeam = (response.data || []).map(post => ({
+                const newPosts = (response.data || []).map(post => ({
                     ...post,
                     team: post.team || selectedTeam,
-                    id: post.postId || post.id // postId를 id로 통일
+                    id: post.postId || post.id
                 }));
 
-                setPosts(postsWithTeam);
+                setPosts(prev => [...prev, ...newPosts]);
+                if (newPosts.length < 8) setHasMore(false);
             } catch (error) {
                 console.error('게시글 목록 조회 실패:', error);
-                if (error.response) {
-                    console.error('에러 응답:', error.response.data);
-                    console.error('에러 상태:', error.response.status);
-                }
-                alert('게시글을 불러오는 중 오류가 발생했습니다.');
-                setPosts([]); // 에러 시 빈 배열로 설정
+                setHasMore(false);
             } finally {
                 setIsLoading(false);
             }
         };
+
         fetchPosts();
-    }, [selectedTeam]);
+    }, [page, selectedTeam]);
 
     useEffect(() => {
         const handleEscape = (e) => {
@@ -287,6 +285,21 @@ const Community = () => {
         return normalizedPostTeam === normalizedSelectedTeam;
     };
 
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && !isLoading) {
+                    loadMorePosts();
+                }
+            },
+            { threshold: 1.0 }
+        );
+        if (bottomRef.current) observer.observe(bottomRef.current);
+        return () => {
+            if (bottomRef.current) observer.unobserve(bottomRef.current);
+        };
+    }, [isLoading, hasMore]);
+
     if (!selectedTeam || !teamInfoMapCommunity.find(team => team.teamId === selectedTeam)?.name) {
         return <div className={styles.loading}>로딩 중...</div>;
     }
@@ -295,13 +308,12 @@ const Community = () => {
         .filter(filterByTeam)
         .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    const indexOfLastPost = currentPage * postsPerPage;
-    const indexOfFirstPost = indexOfLastPost - postsPerPage;
-    const currentPosts = sortedPosts.slice(indexOfFirstPost, indexOfLastPost);
-
-    const handlePageChange = (event, value) => {
-        setCurrentPage(value);
+    const loadMorePosts = () => {
+        if (!isLoading && hasMore) {
+            setPage(prev => prev + 1);
+        }
     };
+
 
     return (
         <div className={styles.pageWrapper}>
@@ -319,33 +331,39 @@ const Community = () => {
                 </button>
             </div>
             <ul className={styles.postList}>
-                {isLoading ? (
-                    <li style={{textAlign: 'center', color: '#888', marginTop: '2rem'}}>로딩 중...</li>
-                ) : sortedPosts.length === 0 ? (
-                    <li style={{textAlign: 'center', color: '#888', marginTop: '2rem'}}>게시글이 없습니다.</li>
+                {sortedPosts.length === 0 && !isLoading ? (
+                    <li className={styles.listIsLoading}>게시글이 없습니다.</li>
                 ) : (
-                    currentPosts.map((post) => (
-                        <PostListItem
+                    sortedPosts.map((post) => (
+                        <div
                             key={post.id || post.postId}
-                            title={post.title}
-                            date={post.date}
-                            writerNickname={post.writerNickname}
-                            image={post.image ? `${process.env.REACT_APP_PRESIGNED_URI}/${post.image}` : null}
-                            onClick={() => handlePostClick(post.team, post.id || post.postId)}
-                        />
+                            className={styles.autoScrollWrapper}
+                        >
+                            <PostListItem
+                                title={post.title}
+                                date={post.date}
+                                writerNickname={post.writerNickname}
+                                image={post.image ? `${process.env.REACT_APP_PRESIGNED_URI}/${post.image}` : null}
+                                onClick={() => handlePostClick(post.team, post.id || post.postId)}
+                            />
+                        </div>
                     ))
                 )}
+                {isLoading && (
+                    <>
+                        {Array.from({ length: 1 }).map((_, index) => (
+                            <li key={`skeleton-${index}`} className={styles.skeletonItem}>
+                                <div className={styles.skeletonThumbnail}></div>
+                                <div className={styles.skeletonContent}>
+                                    <div className={`${styles.skeletonLine} ${styles.long}`}></div>
+                                    <div className={`${styles.skeletonLine} ${styles.short}`}></div>
+                                </div>
+                            </li>
+                        ))}
+                    </>
+                )}
+                <div ref={bottomRef} style={{ height: '1px' }} />
             </ul>
-            <div className={styles.paginationWrapper}>
-                <Stack spacing={2}>
-                    <Pagination
-                        count={Math.ceil(sortedPosts.length / postsPerPage)}
-                        page={currentPage}
-                        onChange={handlePageChange}
-                        color="primary"
-                    />
-                </Stack>
-            </div>
             {showModal && (
                 <div
                     className={styles.modalOverlay}
